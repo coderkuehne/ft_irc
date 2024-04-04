@@ -1,7 +1,7 @@
 SRCS		=	main.cpp
 
 CC_FLAGS		+= -std=c++98 -Wall -Wextra -Werror -g\
-					-I./includes \
+					-I./include/ \
 
 CC				= c++
 OBJS_F			= build/
@@ -9,7 +9,7 @@ OBJS_F			= build/
 
 OBJS		=	$(SRCS:.cpp=.o)
 OBJS_P		=	$(addprefix $(OBJS_F), $(SRCS:.cpp=.o))
-NAME		= 	ircServer
+NAME		= 	ircServ
 
 all:$(NAME)
 
