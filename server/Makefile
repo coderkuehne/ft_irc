@@ -1,33 +1,35 @@
-SRCS		=	main.cpp
+CC = c++
 
-CC_FLAGS		+= -std=c++98 -Wall -Wextra -Werror -g\
-					-I./include/ \
+CFLAGS = -Wall -Wextra -Werror -std=c++98 -g
 
-CC				= c++
-OBJS_F			= build/
+SRC_DIR = src
 
+OBJ_DIR = build
 
-OBJS		=	$(SRCS:.cpp=.o)
-OBJS_P		=	$(addprefix $(OBJS_F), $(SRCS:.cpp=.o))
-NAME		= 	ircServ
+SRC =	main.cpp \
+		IrcServer.cpp \
 
-all:$(NAME)
+OBJ =	$(addprefix $(OBJ_DIR)/, $(SRC:.cpp=.o))
 
-$(OBJS_F)%.o: %.cpp
-	@mkdir -p $(OBJS_F)
-	@echo "Working on: $<"
-	@$(CC) $(CC_FLAGS) -O3 -c $< -o $@
+CFLAGS +=	-I./lib \
+			-I./include/*.hpp\
 
-$(NAME): $(OBJS_P)
-	@$(CC) $(CC_FLAGS) -O3 -o $(NAME) $(OBJS_P)
-	@echo "OK"
+NAME = ircServ
+
+all: $(NAME)
+
+$(NAME): $(OBJ)
+	@$(CC) $(CFLAGS) $(OBJ) -o $(NAME)
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+	@$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	@rm -rf $(OBJS_F)
+	@rm $(OBJ)
 
-fclean:	clean
-	@rm -rf $(NAME)
+fclean: clean
+	@rm -f $(NAME)
 
-re:		fclean all
+re: fclean all
 
-.PHONY:	all clean fclean re
+.PHONY: all clean fclean re bonus

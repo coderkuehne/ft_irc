@@ -6,7 +6,7 @@
 /*   By: kekuhne <kekuhne@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 13:28:32 by kekuhne           #+#    #+#             */
-/*   Updated: 2024/04/04 13:57:21 by kekuhne          ###   ########.fr       */
+/*   Updated: 2024/04/04 17:48:40 by kekuhne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 Server::Server()
 {
 	//std::cout << "Default Server Consturctor called" << std::endl;
-	_port = 6667;
+	_port = 6969;
 	_ip = "127.0.0.1";
 	_password = "Red Flag";
 };
@@ -66,6 +66,7 @@ void Server::listenSocket()
 
 void Server::acceptSocket(std::string password)
 {
+	std::cout << "Waiting for connection..." << std::endl;
 	if (password != _password)
 	{
 		std::cerr << "Error password does not match" << std::endl;
@@ -85,9 +86,10 @@ void Server::sendSocket(std::string message)
 	send(_socket, message.c_str(), message.length(), 0);
 };
 
-void Server::receiveSocket()
+int Server::receiveSocket(char *buffer, int BUFFER_SIZE)
 {
-	read(_socket, _buffer, 1024);
+	int bytes_received = recv(_socket, buffer, BUFFER_SIZE, 0);
+	return (bytes_received);
 };
 
 void Server::closeSocket()

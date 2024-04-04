@@ -6,16 +6,20 @@
 /*   By: kekuhne <kekuhne@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 12:48:26 by kekuhne           #+#    #+#             */
-/*   Updated: 2024/04/04 13:57:07 by kekuhne          ###   ########.fr       */
+/*   Updated: 2024/04/04 18:28:37 by kekuhne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "./include/IrcServer.hpp"
+#include "../include/IrcServer.hpp"
 #define PORT 6969
+#define BUFFER_SIZE 1024
 #define IP "127.0.0.1"
 
 int main (int argc, char **argv)
 {
+	char buffer[1024];
+
+	buffer[0] = '\0';
 	if (argc != 3)
 	{
 		std::cerr << "Usage: ./ircServ <port> <password>" << std::endl;
@@ -31,6 +35,9 @@ int main (int argc, char **argv)
 	ircServ.acceptSocket(argv[2]);
 	std::cout << "Socket accepted" << std::endl;
 	//how do get the Client socket? me no gusta
-	
+		ircServ.receiveSocket(buffer, BUFFER_SIZE);
+		std::cout << "Received: " << static_cast<const char*>(buffer) << std::endl;
+		ircServ.sendSocket("Message received");
+	ircServ.closeSocket();
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: kekuhne <kekuhne@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 13:13:15 by kekuhne           #+#    #+#             */
-/*   Updated: 2024/04/04 13:55:57 by kekuhne          ###   ########.fr       */
+/*   Updated: 2024/04/04 17:46:28 by kekuhne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 # include <iostream>
 # include <string>
 # include <cstring>
+# include <unistd.h>
 # include <sys/socket.h>
 # include <arpa/inet.h>
 # include <exception>
@@ -28,9 +29,9 @@
 			std::string _ip;
 			int _socket;
 			struct sockaddr_in _addr;
-			char _buffer[1024];
+			/* char _buffer[1024]; */
 			std::string _password;
-			std::map<int, Client> _clients;
+			/* std::map<int, Client> _clients; */
 		public:
 			Server();
 			Server(int port, std::string ip, std::string password);
@@ -40,7 +41,7 @@
 			void listenSocket();
 			void acceptSocket(std::string password);
 			void sendSocket(std::string message);
-			void receiveSocket();
+			int receiveSocket(char *buffer, int BUFFER_SIZE);
 			void closeSocket();
 	};
 #endif
