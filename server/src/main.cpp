@@ -15,6 +15,8 @@
 #define BUFFER_SIZE 1024
 #define IP "127.0.0.1"
 
+#include <cstdlib>
+
 int main (int argc, char **argv)
 {
 	char buffer[1024];
@@ -23,7 +25,7 @@ int main (int argc, char **argv)
 	if (argc != 3)
 	{
 		std::cerr << "Usage: ./ircServ <port> <password>" << std::endl;
-		exit (1);
+		return (1);
 	}
 	Server ircServ(atoi(argv[1]), IP, argv[2]);
 	ircServ.createSocket();

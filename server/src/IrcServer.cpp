@@ -39,7 +39,6 @@ void Server::createSocket()
 		if (_socket == -1)
 		{
 			std::cerr << "Error creating socket" << std::endl;
-			exit(1);
 		}
 };
 
@@ -51,7 +50,6 @@ void Server::bindSocket()
 	if (bind(_socket, (struct sockaddr *)&_addr, sizeof(_addr)) < 0)
 	{
 		std::cerr << "Error binding socket" << std::endl;
-		exit(1);
 	}
 };
 
@@ -60,7 +58,6 @@ void Server::listenSocket()
 	if (listen(_socket, 3) < 0)
 	{
 		std::cerr << "Error listening socket" << std::endl;
-		exit(1);
 	}
 };
 
@@ -70,14 +67,12 @@ void Server::acceptSocket(std::string password)
 	if (password != _password)
 	{
 		std::cerr << "Error password does not match" << std::endl;
-		exit(1);
 	}
 	int addrlen = sizeof(_addr);
 	_socket = accept(_socket, (struct sockaddr *)&_addr, (socklen_t*)&addrlen);
 	if (_socket < 0)
 	{
 		std::cerr << "Error accepting socket" << std::endl;
-		exit(1);
 	}
 };
 

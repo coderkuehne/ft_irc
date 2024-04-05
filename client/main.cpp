@@ -18,7 +18,7 @@
 #include <netdb.h>
 
 
-const int PORT = 6969;
+const int PORT = 6789;
 const int BUFFER_SIZE = 1024;
 
 int main() {
@@ -35,7 +35,7 @@ int main() {
 
     // Resolve server hostname
     struct hostent *server = gethostbyname("localhost");
-    if (server == nullptr) {
+    if (server == NULL) {
         std::cerr << "Error resolving hostname\n";
         return 1;
     }
