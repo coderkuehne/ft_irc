@@ -6,7 +6,7 @@
 /*   By: kekuhne <kekuhne@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 12:48:26 by kekuhne           #+#    #+#             */
-/*   Updated: 2024/04/04 14:33:54 by kekuhne          ###   ########.fr       */
+/*   Updated: 2024/04/06 15:20:57 by kekuhne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 #include <netdb.h>
 
 
-const int PORT = 6789;
+const int PORT = 6969;
 const int BUFFER_SIZE = 1024;
 
 int main() {
@@ -55,8 +55,32 @@ int main() {
     std::cout << "Connected to server\n";
 
     // Send data to server
-    const char* message = "Hello, server!";
-    send(clientSocket, message, strlen(message), 0);
+   	char *msg;
+	size_t msg_len;
+	ssize_t bytes_sent;
+    while (1) {
+        printf("Enter message: ");
+        if (fgets(buffer, BUFFER_SIZE, stdin) == NULL) {
+            // Error or EOF occurred
+            break;
+        }
+        // Remove newline character from input
+        buffer[strcspn(buffer, "\n")] = '\0';
+		if (strcmp(buffer, "exit") == 0)
+			exit(0);
+        // Send message to server
+        msg = buffer;
+        msg_len = strlen(msg);
+        bytes_sent = send(clientSocket, msg, msg_len, 0);
+        if (bytes_sent == -1) {
+            fprintf(stderr, "send error: %s\n", strerror(errno));
+            break;
+        } else if ((size_t)bytes_sent == msg_len) {
+            printf("Sent full message: \"%s\"\n", msg);
+        } else {
+            printf("Sent partial message: %zd bytes sent.\n", bytes_sent);
+        }
+    }
 
     // Receive data from server
     memset(buffer, 0, BUFFER_SIZE);
