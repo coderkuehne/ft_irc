@@ -6,7 +6,7 @@
 /*   By: kekuhne <kekuhne@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 13:13:15 by kekuhne           #+#    #+#             */
-/*   Updated: 2024/04/07 12:44:22 by kekuhne          ###   ########.fr       */
+/*   Updated: 2024/04/07 18:09:46 by kekuhne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,10 +56,11 @@ class Client;
 			~Server();
 			void start();
 			int createSocket();
-			int acceptSocket(std::string password);
+			int acceptSocket();
 			int sendSocket(std::string message, int client_socket);
 			int receiveSocket(int client_socket);
 			void closeSocket();
+			int verifyPassword(int client_socket, std::string password);
 			static void signalHandler(int signum);
 	};
 #endif

@@ -6,7 +6,7 @@
 /*   By: kekuhne <kekuhne@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 13:28:32 by kekuhne           #+#    #+#             */
-/*   Updated: 2024/04/07 15:25:47 by kekuhne          ###   ########.fr       */
+/*   Updated: 2024/04/07 19:33:20 by kekuhne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,14 @@ Server::~Server()
 	//std::cout << "Server Destructor called" << std::endl;
 };
 
+int Server::verifyPassword(int client_socket, std::string password)
+{
+	//send password request to client
+	(void)client_socket;
+	(void)password;
+	return (0);
+};
+
 void Server::start()
 {
 	createSocket();
@@ -47,7 +55,12 @@ void Server::start()
 		else
 		{
 			if (_fds[0].revents & POLLIN)
-				acceptSocket(_password);
+			{
+				acceptSocket();
+				/* while (!verifyPassword(_clients[_clients.size() - 1].getSocket(), _password))
+					std::cerr << RED << "Incorrect password" << WHI << std::endl; */
+				//suitable place to get initial data from client
+			}
 			for (size_t i = 1; i < _fds.size(); i++)
 			{
 				if (_fds[i].revents & POLLIN)
@@ -62,7 +75,7 @@ void Server::start()
 //SOCK_STREAM = TCP
 //0 = Protocol is choosen by the system (since i set SOCK_STREAM this is kind of redundant, no clue why it's there :D)
 // setsockopt is used to set the socket options, in this case we set the socket to reuse the address
-//fcntl is used to set the socket to non-blocking, calls like recv() will suspend the program until data is received, non-blocking will return immediately
+//fcntl is used to set the socket to non-blocking, calls like recv() will suspend the program until data is received, non-blocking will return immediately if no data is available
 //binds the socket to the address and port
 //listens to the socket
 //SOMAXCONN = maximum number of connections(128)
@@ -97,14 +110,8 @@ int Server::createSocket()
 	return (1);
 };
 
-//accepts the socket and stores the client fd in _clientFd vector
-//password is not used yet, will be used for password protected server later(maybe)
-//_socket = server socket we created in createSocket
-// _addr = pointer to sockaddr_in struct that will store the client address
-// addrlen = size of the sockaddr_in struct
-int Server::acceptSocket(std::string password)
+int Server::acceptSocket()
 {
-	(void)password;
 	Client client;
 	struct sockaddr_in addr;
 	struct pollfd fds;
@@ -129,15 +136,43 @@ int Server::acceptSocket(std::string password)
 //sends a message to the client
 int Server::sendSocket(std::string message, int client_socket)
 {
-	(void)message;
-	(void)client_socket;
+	if (send(client_socket, message.c_str(), message.length(), 0) < 0)
+	{
+		std::cerr << RED << "Error sending message" << WHI << std::endl;
+		return (-1);
+	}
+	else
+		if (DEBUG)
+			std::cout << GRE << "Sent: " << message << WHI << std::endl;
 	return (0);
 };
 
 int Server::receiveSocket(int client_socket)
 {
-	(void)client_socket;
-	return (0);
+	char buffer[1024];
+	int bytes;
+
+	if ((bytes = recv(client_socket, buffer, BUFFER_SIZE, 0)) <= 0)
+	{
+		std::cout << RED << "Client disconnected" << WHI << std::endl;
+		for (size_t i = 0; i < _clients.size(); i++)
+		{
+			if (_clients[i].getSocket() == client_socket)
+			{
+				_clients.erase(_clients.begin() + i);
+				_fds.erase(_fds.begin() + i + 1);
+			}
+		}
+		close(client_socket);
+		return (0);
+	}
+	else
+	{
+		buffer[bytes] = '\0';
+		if (DEBUG)
+			std::cout << GRE << "Received: " << buffer << WHI << std::endl;
+	}
+	return (bytes);
 };
 
 void Server::closeSocket()
