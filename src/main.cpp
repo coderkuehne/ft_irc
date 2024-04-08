@@ -12,38 +12,16 @@
 
 #include "Server.hpp"
 
-/* 
-int main (int argc, char **argv)
-{
-	(void)argc;
-	(void)argv;
-	if (argc != 3)
-	{
-		std::cerr << "Usage: ./ircServ <port> <password>" << std::endl;
-		return (1);
-	}
-	Server ircServ(atoi(argv[1]), IP, argv[2]);
-	Server ircServ(PORT, IP, "RED FLAG");
-	ircServ.createSocket();
-	ircServ.bindSocket();
-	ircServ.listenSocket();
-	while (true)
-	{
-		int client_socket = ircServ.acceptSocket(argv[2]);
-	}
-	ircServ.receiveSocket(client_socket);
-	
-	ircServ.sendSocket("Message received", client_socket);
-	ircServ.closeSocket(client_socket);
-	return (0);
-}
- */
+bool	isValidPort(const std::string&);
 
 int main (int ac, char** av)
 {
 	if (ac != 3) {
-		std::cerr << "Usage: ./ircserv [port] [password]" << std::endl;
+		std::cerr << RED << "Usage: ./ircserv [port] [password]" << RESET << std::endl;
 		return 1;
+	}
+	if (!isValidPort(av[1])) {
+		std::cerr << RED << "Error: invalid port" << RESET << std::endl;
 	}
 
 	Server	server(av[1], av[2]);
@@ -62,4 +40,14 @@ int main (int ac, char** av)
 	}
 	std::cout << "Server shutdown" << std::endl;
 	return (0);
+}
+
+bool	isValidPort(const std::string& port) {
+	if (port.length() > 5)
+		return false;
+	for (std::string::const_iterator it = port.begin(); it != port.end(); ++it) {
+		if (!isdigit(*it))
+			return false;
+	}
+	return true;
 }
