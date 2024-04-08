@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   IrcServer.hpp                                      :+:      :+:    :+:   */
+/*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: kekuhne <kekuhne@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef IRC_SERVER_HPP
-# define IRC_SERVER_HPP
+#ifndef SERVER_HPP
+# define SERVER_HPP
 
 # include <iostream>
 # include <string>
@@ -28,39 +28,37 @@
 # include <cstdlib>
 
 //-------------------------------------------------------//
-#define RED "\e[1;31m" //-> for red color
-#define WHI "\e[0;37m" //-> for white color
-#define GRE "\e[1;32m" //-> for green color
-#define YEL "\e[1;33m" //-> for yellow color
+#define RED "\033[31m"
+#define GREEN "\033[32m"
+#define YELLOW "\033[33m"
+#define RESET "\033[0m"
 //-------------------------------------------------------//
 
 # define BUFFER_SIZE 1024
 # define PORT 6969
-# define IP "127.0.0.1"
 
 class Client;
 
-	class Server
-	{
-		private:
-			int _port;
-			std::string _ip;
-			int _socket;
-			std::string _password;
-			std::vector<Client> _clients;
-			std::vector<struct pollfd> _fds;
-			static bool _signal;
-		public:
-			Server();
-			Server(int port, std::string ip, std::string password);
-			~Server();
-			void start();
-			int createSocket();
-			int acceptSocket();
-			int sendSocket(std::string message, int client_socket);
-			int receiveSocket(int client_socket);
-			void closeSocket();
-			int verifyPassword(int client_socket, std::string password);
-			static void signalHandler(int signum);
-	};
+class Server
+{
+	private:
+		const std::string&	_port;
+		int _socket;
+		std::string _password;
+		std::vector<Client> _clients;
+		std::vector<struct pollfd> _fds;
+		static bool _signal;
+	public:
+		Server(const std::string& = "6789", const std::string& password = "123");
+		~Server();
+		void start();
+		int createSocket();
+		int acceptSocket();
+		int sendSocket(std::string message, int client_socket);
+		int receiveSocket(int client_socket);
+		void closeSocket();
+		int verifyPassword(int client_socket, std::string password);
+		static void signalHandler(int signum);
+};
+
 #endif

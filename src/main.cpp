@@ -10,8 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/IrcServer.hpp"
-
+#include "Server.hpp"
 
 /* 
 int main (int argc, char **argv)
@@ -40,21 +39,26 @@ int main (int argc, char **argv)
 }
  */
 
-int main ()
+int main (int ac, char** av)
 {
-	Server ircServ(PORT, IP, "RED FLAG");
+	if (ac != 3) {
+		std::cerr << "Usage: ./ircserv [port] [password]" << std::endl;
+		return 1;
+	}
+
+	Server	server(av[1], av[2]);
 
 	std::cout << "\t****Server****" << std::endl;
 	try
 	{
 		signal(SIGINT, Server::signalHandler);
 		signal(SIGQUIT, Server::signalHandler);
-		ircServ.start();
+		server.start();
 	}
 	catch(const std::exception& e)
 	{
 		std::cerr << e.what() << '\n';
-		ircServ.closeSocket();
+		server.closeSocket();
 	}
 	std::cout << "Server shutdown" << std::endl;
 	return (0);
