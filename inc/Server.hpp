@@ -49,7 +49,7 @@ class Server
 
 		std::vector<Client>			_clients;
 		std::vector<struct pollfd>	_fds;
-		static bool _signal;
+		static bool					_running;
 
 	public:
 		Server(const std::string& = "6789", const std::string& password = "123");

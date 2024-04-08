@@ -15,7 +15,9 @@
 #define DEBUG 1
 
 Server::Server(const std::string& port, const std::string& password): _port(port), _password(password)
-{}
+{
+	_running = false;
+}
 
 Server::~Server()
 {}
@@ -33,9 +35,10 @@ void Server::start()
 	createSocket();
 	std::cout << GREEN << "Server started, on socket " << _socket << RESET << std::endl;
 	std::cout <<  GREEN "\tListening on port " << _port << RESET <<  std::endl;
-	while (!_signal)
+	_running = true;
+	while (_running)
 	{
-		if (poll(&_fds[0], _fds.size(), -1) == -1 && !_signal)
+		if (poll(&_fds[0], _fds.size(), -1) == -1 && _running)
 			std::cerr << RED << "Error polling" << RESET << std::endl;
 		else
 		{
@@ -71,9 +74,9 @@ void Server::start()
 //_fd.push_back(fds) = adds the fds struct to the vector
 int Server::createSocket()
 {
-	int i = 1;
-	struct pollfd fds;
-	struct sockaddr_in addr;
+	int					i = 1;
+	struct pollfd		fds;
+	struct sockaddr_in	addr;
 
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = INADDR_ANY;
@@ -176,9 +179,9 @@ void Server::closeSocket()
 	}
 }
 
-bool Server::_signal = false;
+bool Server::_running = false;
 void Server::signalHandler(int signum)
 {
 	std::cout << YELLOW <<"Signal received" << signum << RESET << std::endl;
-	_signal = true;
+	_running = false;
 }
