@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kekuhne <kekuhne@student.42.fr>            +#+  +:+       +#+        */
+/*   By: kkwasny <kkwasny@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 13:28:32 by kekuhne           #+#    #+#             */
-/*   Updated: 2024/04/07 19:33:20 by kekuhne          ###   ########.fr       */
+/*   Updated: 2024/04/08 20:49:05 by kkwasny          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,23 @@ int Server::verifyPassword(int client_socket, std::string password)
 	return (0);
 }
 
+int Server::checkPassword()
+{
+	//getPassword
+	char buffer[1024] = {0};
+    int valread = read(_clients[_clients.size() - 1].getSocket(), buffer, sizeof(buffer));
+    if (valread < 0)
+		std::cerr << RED << "Unable to read from socket" << RESET << std::endl;
+
+    std::string receivedPassword(buffer);
+
+    // Check if the received password is correct
+    if (receivedPassword == _password)
+		std::cerr << GREEN << "Password is correct. Access granted" << RESET << std::endl;
+    else
+        std::cerr << RED << "Incorrect password" << RESET << std::endl;
+}
+
 void Server::start()
 {
 	createSocket();
@@ -48,6 +65,8 @@ void Server::start()
 				/* while (!verifyPassword(_clients[_clients.size() - 1].getSocket(), _password))
 					std::cerr << RED << "Incorrect password" << RESET << std::endl; */
 				//suitable place to get initial data from client
+				checkPassword();
+				
 			}
 			for (size_t i = 1; i < _fds.size(); i++)
 			{

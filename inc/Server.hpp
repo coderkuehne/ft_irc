@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: kekuhne <kekuhne@student.42.fr>            +#+  +:+       +#+        */
+/*   By: kkwasny <kkwasny@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 13:13:15 by kekuhne           #+#    #+#             */
-/*   Updated: 2024/04/07 18:09:46 by kekuhne          ###   ########.fr       */
+/*   Updated: 2024/04/08 20:26:36 by kkwasny          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,12 +52,13 @@ class Server
 		static bool					_running;
 
 	public:
-		Server(const std::string& = "6789", const std::string& password = "123");
+		Server(const std::string& = "7789", const std::string& password = "123");
 		~Server();
 
 		void	start();
 		int		createSocket();
 		int		acceptSocket();
+		int		checkPassword();
 		int		sendSocket(std::string message, int client_socket);
 		int		receiveSocket(int client_socket);
 		void	closeSocket();
