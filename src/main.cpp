@@ -22,6 +22,7 @@ int main (int ac, char** av)
 	}
 	if (!isValidPort(av[1])) {
 		std::cerr << RED << "Error: invalid port" << RESET << std::endl;
+		return 1;
 	}
 
 	Server	server(av[1], av[2]);
@@ -49,5 +50,7 @@ bool	isValidPort(const std::string& port) {
 		if (!isdigit(*it))
 			return false;
 	}
+	if (std::atoi(port.c_str()) > 65535)
+		return false;
 	return true;
 }
