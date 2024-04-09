@@ -172,6 +172,14 @@ int Server::receiveSocket(int clientSocket)
 	return (0);
 }
 
+Client*	Server::getClient(const std::string& nick) {
+	for (clientIt it = _clients.begin(); it != _clients.end(); ++it) {
+		if (nick == it->getNickname())
+			return &(*it);
+	}
+	return NULL;
+}
+
 void Server::closeSocket()
 {
 	for (size_t i = 0; i < _clients.size(); i++)

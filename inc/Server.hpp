@@ -7,6 +7,7 @@ class Client;
 
 class Server
 {
+	typedef std::vector<Client>::iterator	clientIt;
 	private:
 		const std::string&	_port;
 		const std::string	_password;
@@ -31,6 +32,8 @@ class Server
 		int		receiveSocket(int clientSocket);
 		void	closeSocket(void);
 		int		verifyPassword(int clientSocket, std::string password);
+
+		Client*	getClient(const std::string&);
 
 		static void	signalHandler(int signum);
 };
