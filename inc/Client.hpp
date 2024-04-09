@@ -4,13 +4,15 @@
 
 class Client {
 	private:
+		bool		_authenticated;
+		bool		_registered;
 		int			_socket;
 //		std::string	_ip;
 		std::string	_nick;
 		std::string	_username;
 
 	public:
-		Client(int socket): _socket(socket), _nick(""), _username("")  {};
+		Client(int socket): _socket(socket), _nick(""), _username("") { _authenticated = false; _registered = false; };
 //		Client(int socket, struct sockaddr_in addr) { _socket = socket; _ip = inet_ntoa(addr.sin_addr); };
 		~Client() {};
 
