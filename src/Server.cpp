@@ -5,25 +5,35 @@
 Server::Server(const std::string& port, const std::string& password): _port(port), _password(password)
 {
 	_running = false;
+	memset(&_hints, 0, sizeof(_hints));
 }
 
 Server::~Server()
-{}
+{
+	closeSocket();
+	std::cout << "Shutting down" << std::endl;
+}
 
-int Server::verifyPassword(int client_socket, std::string password)
+int Server::verifyPassword(int clientSocket, std::string password)
 {
 	//send password request to client
-	(void)client_socket;
+	(void)clientSocket;
 	(void)password;
 	return (0);
 }
 
 void Server::start()
 {
+	std::cout << GREEN << "Server starting" << RESET << std::endl;
 	createSocket();
-	std::cout << GREEN << "Server started, on socket " << _socket << RESET << std::endl;
-	std::cout <<  GREEN "\tListening on port " << _port << RESET <<  std::endl;
 	_running = true;
+	signal(SIGINT, signalHandler);
+	signal(SIGQUIT, signalHandler);
+
+//	std::cout << GREEN << "Server started, on socket " << _socket << RESET << std::endl;
+//	std::cout <<  GREEN "\tListening on port " << _port << RESET <<  std::endl;
+
+	std::cout << GREEN << "Listening..." << RESET << std::endl;
 	while (_running)
 	{
 		if (poll(&_fds[0], _fds.size(), -1) == -1 && _running)
@@ -47,9 +57,6 @@ void Server::start()
 }
 
 //creates a socket
-//AF_INET = IPv4
-//SOCK_STREAM = TCP
-//0 = Protocol is choosen by the system (since i set SOCK_STREAM this is kind of redundant, no clue why it's there :D)
 // setsockopt is used to set the socket options, in this case we set the socket to reuse the address
 //fcntl is used to set the socket to non-blocking, calls like recv() will suspend the program until data is received, non-blocking will return immediately if no data is available
 //binds the socket to the address and port
@@ -64,55 +71,69 @@ int Server::createSocket()
 {
 	int					i = 1;
 	struct pollfd		fds;
-	struct sockaddr_in	addr;
+//	struct sockaddr_in	addr;
 
-	addr.sin_family = AF_INET;
-	addr.sin_addr.s_addr = INADDR_ANY;
-	addr.sin_port = htons(static_cast<uint16_t>(std::atoi(_port.c_str())));
-	if ((_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+//	addr.sin_family = AF_INET;
+//	addr.sin_addr.s_addr = INADDR_ANY;
+//	addr.sin_port = htons(static_cast<uint16_t>(std::atoi(_port.c_str())));
+	setHints();
+	_socket = socket(_serverInfo->ai_family, _serverInfo->ai_socktype, _serverInfo->ai_protocol);
+//	if ((_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+	if (_socket < 0)
 		throw std::runtime_error("Error creating socket");
 	if (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(int)) < 0)
 		throw std::runtime_error("Error setting socket options");
 	if (fcntl(_socket, F_SETFL, O_NONBLOCK) < 0)
 		throw std::runtime_error("Error setting socket to non-blocking");
-	if (bind(_socket, (struct sockaddr *)&addr, sizeof(addr)) < 0)
+	if (bind(_socket, _serverInfo->ai_addr, _serverInfo->ai_addrlen) < 0)
 		throw std::runtime_error("Error binding socket");
 	if (listen(_socket, SOMAXCONN) < 0)
 		throw std::runtime_error("Error listening socket");
+
 	fds.fd = _socket;
 	fds.events = POLLIN;
 	fds.revents = 0;
 	_fds.push_back(fds);
-	return (1);
+	return (0);
+}
+
+void	Server::setHints(void) {
+	_hints.ai_family = AF_INET;                       // Ipv4
+	_hints.ai_socktype = SOCK_STREAM;                 // Use TCP stream sockets
+	_hints.ai_flags = AI_PASSIVE | AI_ADDRCONFIG;     // Bind to any suitable address
+	if (getaddrinfo(NULL, _port.c_str(), &_hints, &_serverInfo) < 0) {
+		throw std::runtime_error("Error retrieving address information");
+	}
 }
 
 int Server::acceptSocket()
 {
-	Client client;
 	struct sockaddr_in addr;
-	struct pollfd fds;
-
-	int client_socket;
-	if ((client_socket = accept(_socket, (struct sockaddr *)&addr, (socklen_t *)&addr)) < 0)
+	int clientSocket = accept(_socket, (struct sockaddr *)&addr, (socklen_t *)&addr);
+	if (clientSocket < 0)
 		std::cerr << RED <<  "Error accepting client" << RESET << std::endl;
-	if (fcntl(client_socket, F_SETFL, O_NONBLOCK) < 0)
+	if (fcntl(clientSocket, F_SETFL, O_NONBLOCK) < 0)
 		std::cerr << RED << "Error setting client socket to non-blocking" << RESET << std::endl;
-	fds.fd = client_socket;
-	fds.events = POLLIN;
-	fds.revents = 0;
-	client.setSocket(client_socket);
-	client.setIp(inet_ntoa(addr.sin_addr));
-	_clients.push_back(client);
-	_fds.push_back(fds);
-	if (DEBUG)
-		std::cout << GREEN << "Client connected from " << client.getIp() << RESET << std::endl;
+
+	struct pollfd	newClientFD;
+	newClientFD.fd = clientSocket;
+	newClientFD.events = POLLIN;
+	newClientFD.revents = 0;
+
+	Client	newClient(clientSocket);
+//	client.setSocket(clientSocket);
+//	client.setIp(inet_ntoa(addr.sin_addr));
+	_clients.push_back(newClient);
+	_fds.push_back(newClientFD);
+//	if (DEBUG)
+//		std::cout << GREEN << "Client connected from " << client.getIp() << RESET << std::endl;
 	return (0);
 }
 
 //sends a message to the client
-int Server::sendSocket(std::string message, int client_socket)
+int Server::sendSocket(std::string message, int clientSocket)
 {
-	if (send(client_socket, message.c_str(), message.length(), 0) < 0)
+	if (send(clientSocket, message.c_str(), message.length(), 0) < 0)
 	{
 		std::cerr << RED << "Error sending message" << RESET << std::endl;
 		return (-1);
@@ -123,32 +144,32 @@ int Server::sendSocket(std::string message, int client_socket)
 	return (0);
 }
 
-int Server::receiveSocket(int client_socket)
+int Server::receiveSocket(int clientSocket)
 {
-	char buffer[1024];
-	int bytes;
+	char	buffer[BUFFER_SIZE];
+	bzero(buffer, BUFFER_SIZE);
 
-	if ((bytes = recv(client_socket, buffer, BUFFER_SIZE, 0)) <= 0)
-	{
-		std::cout << RED << "Client disconnected" << RESET << std::endl;
-		for (size_t i = 0; i < _clients.size(); i++)
-		{
-			if (_clients[i].getSocket() == client_socket)
-			{
-				_clients.erase(_clients.begin() + i);
-				_fds.erase(_fds.begin() + i + 1);
-			}
-		}
-		close(client_socket);
-		return (0);
-	}
-	else
-	{
+	int		bytes = recv(clientSocket, buffer, BUFFER_SIZE, 0);
+	if (bytes > 0) {
 		buffer[bytes] = '\0';
 		if (DEBUG)
 			std::cout << GREEN << "Received: " << buffer << RESET << std::endl;
+//		sendSocket(":server!server@server.com PRIVMSG 42bober :Hey, what's up?", clientSocket);
+//		handleClientRequest();
+		return (bytes);
 	}
-	return (bytes);
+
+	std::cout << RED << "Client disconnected" << RESET << std::endl;
+	for (size_t i = 0; i < _clients.size(); i++)
+	{
+		if (_clients[i].getSocket() == clientSocket)
+		{
+			_clients.erase(_clients.begin() + i);
+			_fds.erase(_fds.begin() + i + 1);
+		}
+	}
+	close(clientSocket);
+	return (0);
 }
 
 void Server::closeSocket()
