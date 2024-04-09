@@ -110,10 +110,14 @@ int Server::acceptSocket()
 {
 	struct sockaddr_in addr;
 	int clientSocket = accept(_socket, (struct sockaddr *)&addr, (socklen_t *)&addr);
-	if (clientSocket < 0)
-		std::cerr << RED <<  "Error accepting client" << RESET << std::endl;
-	if (fcntl(clientSocket, F_SETFL, O_NONBLOCK) < 0)
+	if (clientSocket < 0) {
+		std::cerr << RED << "Error accepting client" << RESET << std::endl;
+		return 1;
+	}
+	if (fcntl(clientSocket, F_SETFL, O_NONBLOCK) < 0) {
 		std::cerr << RED << "Error setting client socket to non-blocking" << RESET << std::endl;
+		return 1;
+	}
 
 	struct pollfd	newClientFD;
 	newClientFD.fd = clientSocket;
@@ -127,7 +131,7 @@ int Server::acceptSocket()
 	_fds.push_back(newClientFD);
 //	if (DEBUG)
 //		std::cout << GREEN << "Client connected from " << client.getIp() << RESET << std::endl;
-	return (0);
+	return 0;
 }
 
 //sends a message to the client
