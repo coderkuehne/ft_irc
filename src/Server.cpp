@@ -6,7 +6,7 @@
 /*   By: kkwasny <kkwasny@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 13:28:32 by kekuhne           #+#    #+#             */
-/*   Updated: 2024/04/09 16:16:48 by kkwasny          ###   ########.fr       */
+/*   Updated: 2024/04/09 20:29:30 by kkwasny          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,27 +22,20 @@ Server::Server(const std::string& port, const std::string& password): _port(port
 Server::~Server()
 {}
 
-int Server::verifyPassword(int client_socket, std::string password)
+void Server::checkPassword(std::string client_data)
 {
-	//send password request to client
-	(void)client_socket;
-	(void)password;
-	return (0);
-}
+	size_t passPos = client_data.find("PASS ");
+	size_t nickPos = client_data.find("\nNICK");
 
-void Server::checkPassword(Client client)
-{
-	//getPassword
-	char buffer[1024];
-	std::cout << "what is this shit? : " << client.getSocket() << std::endl;
-    int valread = recv(client.getSocket(), buffer, sizeof(buffer), 0);
-    if (valread <= 0)
-		std::cerr << RED << "Unable to read from socket :(" << RESET << std::endl;
-
-    std::string receivedPassword;
-	receivedPassword += std::string(buffer, valread);
-	std::cout << "recived pass is: " << receivedPassword << std::endl;
-    // Check if the received password is correct
+	std::string receivedPassword;
+	
+	if (passPos != std::string::npos && nickPos != std::string::npos)
+	{
+		receivedPassword = client_data.substr(passPos + 5, nickPos - passPos -5);
+	}
+	else
+	    std::cerr << RED << "No password" << RESET << std::endl;
+	std::cout << receivedPassword << std::endl;
     if (receivedPassword == _password)
 		std::cout << GREEN << "Password is correct. Access granted" << RESET << std::endl;
     else
@@ -119,25 +112,31 @@ int Server::createSocket()
 
 int Server::acceptSocket()
 {
-	Client client;
+//	Client client;
 	struct sockaddr_in addr;
+	socklen_t	addrLength = sizeof(addr);
 	struct pollfd fds;
 
 	int client_socket;
-	if ((client_socket = accept(_socket, (struct sockaddr *)&addr, (socklen_t *)&addr)) < 0)
+	
+	if ((client_socket = accept(_socket, (struct sockaddr *)&addr, &addrLength)) < 0)
 		std::cerr << RED <<  "Error accepting client" << RESET << std::endl;
 	if (fcntl(client_socket, F_SETFL, O_NONBLOCK) < 0)
 		std::cerr << RED << "Error setting client socket to non-blocking" << RESET << std::endl;
 	fds.fd = client_socket;
 	fds.events = POLLIN;
 	fds.revents = 0;
-	client.setSocket(client_socket);
+
+	Client client(client_socket);
+
+
+	//checkPassword(client);
+//	client.setSocket(client_socket);
 	client.setIp(inet_ntoa(addr.sin_addr));
 	_clients.push_back(client);
 	_fds.push_back(fds);
-	checkPassword(client);
-	if (DEBUG)
-		std::cout << GREEN << "Client connected from " << client.getIp() << RESET << std::endl;
+//	if (DEBUG)
+//		std::cout << GREEN << "Client connected from " << client.getIp() << RESET << std::endl;
 	return (0);
 }
 
@@ -180,6 +179,9 @@ int Server::receiveSocket(int client_socket)
 		if (DEBUG)
 			std::cout << GREEN << "Received: " << buffer << RESET << std::endl;
 	}
+	std::string receivedData(buffer);
+	checkPassword(receivedData);
+	//std::cout << "pass?" << receivedData << std::endl;
 	return (bytes);
 }
 
