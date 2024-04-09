@@ -6,7 +6,7 @@
 /*   By: kekuhne <kekuhne@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 13:28:32 by kekuhne           #+#    #+#             */
-/*   Updated: 2024/04/07 19:33:20 by kekuhne          ###   ########.fr       */
+/*   Updated: 2024/04/09 13:13:55 by kekuhne          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,7 @@ void Server::start()
 //fds = pollfd struct that will store the socket and events
 //fds.fd = socket
 //fds.events = POLLIN = data can be read
-//fds.revents = 0 = no r resent events
+//fds.revents = 0 = no resent events
 //_fd.push_back(fds) = adds the fds struct to the vector
 int Server::createSocket()
 {
@@ -110,6 +110,11 @@ int Server::createSocket()
 	return (1);
 };
 
+// accepts a client socket
+// addr = struct that will store the client address
+// accept(). _socket = server socket, addr = client address, (socklen_t *)&addr = size of the address. returns -1 if error
+// fcntl = set the client socket to non-blocking
+// of course we add the client socket to the vector of clients and to the pollfd vector
 int Server::acceptSocket()
 {
 	Client client;
