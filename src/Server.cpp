@@ -50,7 +50,7 @@ void Server::start()
 			for (size_t i = 1; i < _fds.size(); i++)
 			{
 				if (_fds[i].revents & POLLIN)
-					receiveSocket(_clients[i - 1].getSocket());
+					receiveFromClient(_clients[i - 1]);
 			}
 		}
 	}
@@ -136,7 +136,7 @@ int Server::acceptSocket()
 }
 
 //sends a message to the client
-int Server::sendSocket(std::string message, Client client)
+int Server::sendToClient(std::string message, Client client)
 {
 	if (send(client.getSocket(), message.c_str(), message.length(), 0) < 0)
 	{
@@ -149,7 +149,7 @@ int Server::sendSocket(std::string message, Client client)
 	return (0);
 }
 
-int Server::receiveSocket(Client client)
+int Server::receiveFromClient(Client client)
 {
 	char	buffer[BUFFER_SIZE];
 	bzero(buffer, BUFFER_SIZE);

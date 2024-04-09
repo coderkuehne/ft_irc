@@ -28,8 +28,8 @@ class Server
 		void	setHints(void);
 		int		createSocket(void);
 		int		acceptSocket(void);
-		int		sendSocket(std::string, Client);
-		int		receiveSocket(Client);
+		int		sendToClient(std::string, Client);
+		int		receiveFromClient(Client);
 		void	closeSocket(void);
 		int		verifyPassword(int clientSocket, std::string password);
 
