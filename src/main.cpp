@@ -15,19 +15,12 @@ int main (int ac, char** av)
 
 	Server	server(av[1], av[2]);
 
-	std::cout << "\t****Server****" << std::endl;
-	try
-	{
-		signal(SIGINT, Server::signalHandler);
-		signal(SIGQUIT, Server::signalHandler);
+	try {
 		server.start();
 	}
-	catch(const std::exception& e)
-	{
-		std::cerr << e.what() << '\n';
-		server.closeSocket();
+	catch(const std::exception& e) {
+		std::cerr << e.what() << std::endl;
 	}
-	std::cout << "Server shutdown" << std::endl;
 	return (0);
 }
 
