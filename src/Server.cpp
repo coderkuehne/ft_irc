@@ -108,8 +108,9 @@ void	Server::setHints(void) {
 
 int Server::acceptSocket()
 {
-	struct sockaddr_in addr;
-	int clientSocket = accept(_socket, (struct sockaddr *)&addr, (socklen_t *)&addr);
+	struct sockaddr_in	addr;
+	socklen_t			addrLength = sizeof(addr);
+	int clientSocket = accept(_socket, (struct sockaddr *)&addr, &addrLength);
 	if (clientSocket < 0) {
 		std::cerr << RED << "Error accepting client" << RESET << std::endl;
 		return 1;
