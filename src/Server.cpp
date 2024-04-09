@@ -131,9 +131,9 @@ int Server::acceptSocket()
 }
 
 //sends a message to the client
-int Server::sendSocket(std::string message, int clientSocket)
+int Server::sendSocket(std::string message, Client client)
 {
-	if (send(clientSocket, message.c_str(), message.length(), 0) < 0)
+	if (send(client.getSocket(), message.c_str(), message.length(), 0) < 0)
 	{
 		std::cerr << RED << "Error sending message" << RESET << std::endl;
 		return (-1);
@@ -144,17 +144,17 @@ int Server::sendSocket(std::string message, int clientSocket)
 	return (0);
 }
 
-int Server::receiveSocket(int clientSocket)
+int Server::receiveSocket(Client client)
 {
 	char	buffer[BUFFER_SIZE];
 	bzero(buffer, BUFFER_SIZE);
 
-	int		bytes = recv(clientSocket, buffer, BUFFER_SIZE, 0);
+	int		bytes = recv(client.getSocket(), buffer, BUFFER_SIZE, 0);
 	if (bytes > 0) {
 		buffer[bytes] = '\0';
 		if (DEBUG)
 			std::cout << GREEN << "Received: " << buffer << RESET << std::endl;
-//		sendSocket(":server!server@server.com PRIVMSG 42bober :Hey, what's up?", clientSocket);
+//		sendSocket(":server!server@server.com PRIVMSG 42bober :Hey, what's up?", client.getSocket());
 //		handleClientRequest();
 		return (bytes);
 	}
@@ -162,13 +162,13 @@ int Server::receiveSocket(int clientSocket)
 	std::cout << RED << "Client disconnected" << RESET << std::endl;
 	for (size_t i = 0; i < _clients.size(); i++)
 	{
-		if (_clients[i].getSocket() == clientSocket)
+		if (_clients[i].getSocket() == client.getSocket())
 		{
 			_clients.erase(_clients.begin() + i);
 			_fds.erase(_fds.begin() + i + 1);
 		}
 	}
-	close(clientSocket);
+	close(client.getSocket());
 	return (0);
 }
 
