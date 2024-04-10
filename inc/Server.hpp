@@ -33,6 +33,9 @@ class Server
 		void	closeSocket(void);
 		int		verifyPassword(int clientSocket, std::string password);
 
+		Client*	checkClientRegistered(const std::string&);
+		void	registerClient(Client&, std::string&);
+
 		Client*	getClient(const std::string&);
 
 		static void	signalHandler(int signum);

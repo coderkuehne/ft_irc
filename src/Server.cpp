@@ -149,37 +149,108 @@ int Server::sendToClient(std::string message, Client client)
 	return (0);
 }
 
-int Server::receiveFromClient(Client client)
+int Server::receiveFromClient(Client sender)
 {
 	char	buffer[BUFFER_SIZE];
 	bzero(buffer, BUFFER_SIZE);
 
-	int		bytes = recv(client.getSocket(), buffer, BUFFER_SIZE, 0);
+	int		bytes = recv(sender.getSocket(), buffer, BUFFER_SIZE, 0);
 	if (bytes > 0) {
 		buffer[bytes] = '\0';
 		if (DEBUG)
 			std::cout << GREEN << "Received: " << buffer << RESET << std::endl;
-//		sendSocket(":server!server@server.com PRIVMSG 42bober :Hey, what's up?", client.getSocket());
-//		handleClientRequest();
-		return (bytes);
+
+		std::string	bufferStr(buffer);
+		if (!sender.isRegistered()) {
+			registerClient(sender, bufferStr);
+			return bytes;
+		}
+//		sendToClient(":server PRIVMSG 42bober :Pssst this is a message\r\n", sender);
+		//		handleClientRequest();
+		return bytes;
 	}
 
 	std::cout << RED << "Client disconnected" << RESET << std::endl;
 	for (size_t i = 0; i < _clients.size(); i++)
 	{
-		if (_clients[i].getSocket() == client.getSocket())
+		if (_clients[i].getSocket() == sender.getSocket())
 		{
 			_clients.erase(_clients.begin() + i);
 			_fds.erase(_fds.begin() + i + 1);
 		}
 	}
-	close(client.getSocket());
+	close(sender.getSocket());
 	return (0);
+}
+
+void	Server::registerClient(Client& client, std::string& buffer)
+{
+	std::string	nick;
+	std::string	username;
+	size_t		delimiter;
+//	std::string	password;
+	std::string::size_type	pos;
+
+	std::cout << "Buffer: " << buffer << std::endl;
+	if ((pos = buffer.find("NICK")) != std::string::npos)
+	{
+		delimiter = buffer.find("\r\n");
+		if (delimiter == std::string::npos)
+			return;
+		nick = buffer.substr(pos + 5, buffer.find(" "));
+		if (nick.empty()) {
+			sendToClient(":server 431 * :No nickname given\r\n", client);
+			return;
+		}
+		if (getClient(nick) != NULL) {
+			sendToClient(":server 433 * " + nick + " :Nickname is already in use\r\n", client);
+			return;
+		}
+		client.setNickname(nick);
+	}
+	if ((pos = buffer.find("USER")) != std::string::npos)
+	{
+		if (!client.getUsername().empty()) {
+			sendToClient(":server 462 * :You may not re-register\r\n", client);
+			return;
+		}
+		delimiter = buffer.find(" ", pos + 5);
+		if (delimiter == std::string::npos)
+			return;
+		username = buffer.substr(pos + 5, buffer.find(" ") - pos - 5);
+		if (username.empty()) {
+			sendToClient(":server 461 * USER :Not enough parameters\r\n", client);
+			return;
+		}
+		if (checkClientRegistered(username) != NULL) {
+			sendToClient(":server 462 * :Username in use\r\n", client);
+			return;
+		}
+		client.setUsername(username);
+	}
+	client.beRegistered();
+	std::cerr << "Nickname: " << client.getNickname() << std::endl;
+	std::cerr << "Username: " << client.getUsername() << std::endl;
+	sendToClient(":server 001 " + client.getNickname() + " :Welcome to the server, " + client.getNickname() + "\r\n", client);
+//	if ((pos = buffer.find("PASS")) != std::string::npos)
+//	{
+//		password = buffer.substr(pos + 5, buffer.find("\r\n") - pos - 5);
+//		if (password == _password)
+//			client.register();
+//	}
 }
 
 Client*	Server::getClient(const std::string& nick) {
 	for (clientIt it = _clients.begin(); it != _clients.end(); ++it) {
 		if (nick == it->getNickname())
+			return &(*it);
+	}
+	return NULL;
+}
+
+Client*	Server::checkClientRegistered(const std::string& username) {
+	for (clientIt it = _clients.begin(); it != _clients.end(); ++it) {
+		if (username == it->getUsername())
 			return &(*it);
 	}
 	return NULL;

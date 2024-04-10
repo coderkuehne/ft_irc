@@ -16,9 +16,14 @@ class Client {
 //		Client(int socket, struct sockaddr_in addr) { _socket = socket; _ip = inet_ntoa(addr.sin_addr); };
 		~Client() {};
 
-		int getSocket() { return _socket; };
+		int			getSocket() { return _socket; };
 		std::string	getNickname() { return _nick; };
-//		void setIp(std::string ip) { _ip = ip; };
+		void		setNickname(const std::string& nick) { _nick = nick; };
+		std::string	getUsername() { return _username; };
+		void		setUsername(const std::string& username) { _username = username; };
+		bool		isRegistered() { return _registered; };
+		void		beRegistered(void) { _registered = true; };
+		//		void setIp(std::string ip) { _ip = ip; };
 //		std::string getIp() { return _ip; };
 
 };
