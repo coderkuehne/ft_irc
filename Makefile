@@ -17,6 +17,7 @@ $(NAME): $(OBJ)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@echo "Working on: $<"
+	@mkdir -p $(OBJ_DIR)
 	@$(CXX) $(CXX_FLAGS) -c $< -o $@
 
 clean:
