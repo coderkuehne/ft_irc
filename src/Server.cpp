@@ -242,8 +242,8 @@ int Server::cmd_nick(std::string nick, Client &client)
 	return (1);
 }
 
-int Server::cmd_msg(std::vector<std::string> args, Client &client)
-{
+// int Server::cmd_msg(std::vector<std::string> args, Client &client)
+// {
 	// Server *server = &client->getServer();
 	// if (args.size() < i + 1)
 	// {
@@ -261,25 +261,25 @@ int Server::cmd_msg(std::vector<std::string> args, Client &client)
 	// 	message += args[i] + " ";
 	// server->sendToClient(client->getNickname() + " : " + message + "\n", *receiver);
 	// return (args.size() - i);
-}
+// }
 
-int Server::cmd_join(std::vector<std::string> args)
-{
+// int Server::cmd_join(std::vector<std::string> args)
+// {
 	
-	return (0);
-}
+// 	return (0);
+// }
 
-int Server::cmd_leave(std::vector<std::string> args)
-{
-	(void)client;
-	if (args.size() < i + 1)
-	{
-		std::cerr << RED << "Invalid command" << RESET << std::endl;
-		return (0);
-	}
-	//client->leaveChannel(args[i + 1]);
-	return (1);
-}
+// int Server::cmd_leave(std::vector<std::string> args)
+// {
+// 	(void)client;
+// 	if (args.size() < i + 1)
+// 	{
+// 		std::cerr << RED << "Invalid command" << RESET << std::endl;
+// 		return (0);
+// 	}
+// 	//client->leaveChannel(args[i + 1]);
+// 	return (1);
+// }
 
 
 //parses the command from the client
@@ -299,14 +299,14 @@ void Server::parseCommand(std::string command, Client &client)
 		return;
 	while (i < args.size())
 	{
-		if (args[i++] == "/nick" && cmd_nick(args[i], Client &client))
+		if (args[i++] == "/nick" && cmd_nick(args[i], client))
 			i++;
-		if (args[i] == "/msg")
-			i += cmd_msg(args);
-		if (args[i] == "/join")
-			i += Cmd_join(args);
-		if (args[i] == "/leave")
-			i += Cmd_join(args);
+		// if (args[i] == "/msg")
+		// 	i += cmd_msg(args, client);
+		// if (args[i] == "/join")
+		// 	i += Cmd_join(args);
+		// if (args[i] == "/leave") /quit
+		// 	i += Cmd_join(args);
 		else
 			i++;
 	}

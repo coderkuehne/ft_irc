@@ -16,6 +16,7 @@
 # include <netinet/in.h>
 # include <csignal>
 # include <poll.h>
+# include <sstream>
 # include <cstdlib>
 
 # define RED "\033[31m"

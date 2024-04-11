@@ -1,3 +1,6 @@
+#ifndef CHANNEL_HPP
+# define CHANNEL_HPP
+
 # include "Client.hpp"
 
 class Channel
@@ -14,5 +17,7 @@ class Channel
         std::string	getName() { return _name; };
         std::vector<Client>	getClients() { return _clients; };
         void	addClient(Client client) { _clients.push_back(client); };
-        void	removeClient(Client client) { _clients.erase(std::find(_clients.begin(), _clients.end(), client));};
+        void	removeClient(Client client) { (void)client; return ; };
 };
+
+#endif

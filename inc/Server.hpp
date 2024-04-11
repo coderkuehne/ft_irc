@@ -2,9 +2,8 @@
 # define SERVER_HPP
 
 # include "IRC.hpp"
-
-class Client;
-class Channel;
+# include "Channel.hpp"
+# include "Client.hpp"
 
 class Server
 {
@@ -35,6 +34,7 @@ class Server
 		int		receiveFromClient(Client);
 		void	closeSocket(void);
 		int		verifyPassword(int clientSocket, std::string password);
+		void    parseCommand(std::string command, Client &client);
 
 		Client*		getClient(const std::string&);
 		Channel*	getChannel(const std::string&);
