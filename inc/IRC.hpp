@@ -24,4 +24,6 @@
 
 # define BUFFER_SIZE 1024
 
+const std::string	END = "\r\n";
+
 #endif
