@@ -31,7 +31,9 @@ class Server
 		int		sendToClient(std::string, Client);
 		int		receiveFromClient(Client);
 		void	closeSocket(void);
-		int		verifyPassword(int clientSocket, std::string password);
+
+		void	checkPassword(std::string data);
+		void	parseOther(std::string dtat);
 
 		Client*	checkClientRegistered(const std::string&);
 		void	registerClient(Client&, std::string&);

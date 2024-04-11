@@ -14,12 +14,47 @@ Server::~Server()
 	std::cout << "Shutting down" << std::endl;
 }
 
-int Server::verifyPassword(int clientSocket, std::string password)
+void Server::checkPassword(std::string client_data)
 {
-	//send password request to client
-	(void)clientSocket;
-	(void)password;
-	return (0);
+	size_t passPos = client_data.find("PASS ");
+	size_t nickPos = client_data.find("\r\nNICK");
+
+	std::string receivedPassword;
+	
+	if (passPos != std::string::npos && nickPos != std::string::npos)
+	{
+		receivedPassword = client_data.substr(passPos + 5, nickPos - passPos - 5);
+	}
+	else
+	    std::cerr << RED << "No password" << RESET << std::endl;
+	std::cout << receivedPassword << std::endl;
+    if (receivedPassword == _password)
+		std::cout << GREEN << "Password is correct. Access granted" << RESET << std::endl;
+    else
+        std::cerr << RED << "Incorrect password" << RESET << std::endl;
+}
+
+void Server::parseOther(std::string client_data)
+{
+	size_t nickPos = client_data.find("\r\nNICK ");
+	size_t userPos = client_data.find("\r\nUSER ");
+	size_t afterUserPos = client_data.find("0 *");
+	
+	std::string receivedNick;
+	
+	if (nickPos != std::string::npos && userPos != std::string::npos)
+	{
+		receivedNick = client_data.substr(nickPos + 7, userPos - nickPos - 6);
+	}
+	std::cout << receivedNick << std::endl;
+
+	std::string receivedUser;
+	
+	if (userPos != std::string::npos && afterUserPos != std::string::npos)
+	{
+		receivedUser = client_data.substr(userPos + 7, afterUserPos - userPos - 7);
+	}
+	std::cout << receivedUser << std::endl;
 }
 
 void Server::start()
@@ -45,7 +80,7 @@ void Server::start()
 				acceptSocket();
 				/* while (!verifyPassword(_clients[_clients.size() - 1].getSocket(), _password))
 					std::cerr << RED << "Incorrect password" << RESET << std::endl; */
-				//suitable place to get initial data from client
+				//suitable place to get initial data from client				
 			}
 			for (size_t i = 1; i < _fds.size(); i++)
 			{
