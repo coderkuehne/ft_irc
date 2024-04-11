@@ -26,12 +26,12 @@ void Server::checkPassword(std::string client_data)
 		receivedPassword = client_data.substr(passPos + 5, nickPos - passPos - 5);
 	}
 	else
-	    std::cerr << RED << "No password" << RESET << std::endl;
+		std::cerr << RED << "No password" << RESET << std::endl;
 	std::cout << receivedPassword << std::endl;
-    if (receivedPassword == _password)
+	if (receivedPassword == _password)
 		std::cout << GREEN << "Password is correct. Access granted" << RESET << std::endl;
-    else
-        std::cerr << RED << "Incorrect password" << RESET << std::endl;
+	else
+		std::cerr << RED << "Incorrect password" << RESET << std::endl;
 }
 
 void Server::parseOther(std::string client_data)
