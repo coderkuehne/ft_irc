@@ -23,6 +23,8 @@ class Client {
 		void		setUsername(const std::string& username) { _username = username; };
 		bool		isRegistered() { return _registered; };
 		void		beRegistered(void) { _registered = true; };
+		bool		isAuthenticated() { return _authenticated; };
+		void		beAuthenticated() { _authenticated = true; };
 		//		void setIp(std::string ip) { _ip = ip; };
 //		std::string getIp() { return _ip; };
 
