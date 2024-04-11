@@ -2,7 +2,7 @@ CXX = c++
 CXX_FLAGS = -Wall -Wextra -Werror -std=c++98 -pedantic -g -I./inc \
 
 SRC_DIR = src
-SRC =		main.cpp Server.cpp
+SRC =		main.cpp Server.cpp Parser.cpp Commands.cpp
 
 OBJ_DIR = obj
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.cpp=.o))
@@ -17,6 +17,7 @@ $(NAME): $(OBJ)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@echo "Working on: $<"
+	@mkdir -p $(OBJ_DIR)
 	@$(CXX) $(CXX_FLAGS) -c $< -o $@
 
 clean:

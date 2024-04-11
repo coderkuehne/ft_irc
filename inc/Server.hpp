@@ -33,8 +33,14 @@ class Server
 		int		sendToChannel(std::string);
 		int		receiveFromClient(Client);
 		void	closeSocket(void);
-		int		verifyPassword(int clientSocket, std::string password);
-		void    parseCommand(std::string command, Client &client);
+
+		void	parseCommand(std::string command, Client &client);
+
+		Client*	checkClientRegistered(const std::string&);
+
+		bool	authenticatePassword(Client&, std::string&);
+		bool	registerClientNames(Client&, std::string&);
+		void	authenticateClient(Client&, std::string&);
 
 		Client*		getClient(const std::string&);
 		Channel*	getChannel(const std::string&);

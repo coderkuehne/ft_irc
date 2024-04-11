@@ -14,14 +14,6 @@ Server::~Server()
 	std::cout << "Shutting down" << std::endl;
 }
 
-int Server::verifyPassword(int clientSocket, std::string password)
-{
-	//send password request to client
-	(void)clientSocket;
-	(void)password;
-	return (0);
-}
-
 void Server::start()
 {
 	std::cout << GREEN << "Server starting" << RESET << std::endl;
@@ -45,7 +37,7 @@ void Server::start()
 				acceptSocket();
 				/* while (!verifyPassword(_clients[_clients.size() - 1].getSocket(), _password))
 					std::cerr << RED << "Incorrect password" << RESET << std::endl; */
-				//suitable place to get initial data from client
+				//suitable place to get initial data from client				
 			}
 			for (size_t i = 1; i < _fds.size(); i++)
 			{
@@ -145,44 +137,79 @@ int Server::sendToClient(std::string message, Client client)
 	}
 	else
 		if (DEBUG)
-			std::cout << GREEN << "Sent: " << message << RESET << std::endl;
+			std::cout << GREEN << "Sent: " << message << " to socket " << client.getSocket() << RESET << std::endl;
 	return (0);
 }
 
-int Server::receiveFromClient(Client client)
+int Server::receiveFromClient(Client sender)
 {
 	char	buffer[BUFFER_SIZE];
 	bzero(buffer, BUFFER_SIZE);
 
-	int		bytes = recv(client.getSocket(), buffer, BUFFER_SIZE, 0);
+	int		bytes = recv(sender.getSocket(), buffer, BUFFER_SIZE, 0);
 	if (bytes > 0)
 	{
 		buffer[bytes] = '\0';
+		std::string	bufferStr(buffer);
 		if (DEBUG)
-			std::cout << GREEN << "Received: " << buffer << RESET << std::endl;
-//		sendSocket(":server!server@server.com PRIVMSG 42bober :Hey, what's up?", client.getSocket());
-//		handleClientRequest();
-		return (bytes);
+			std::cout << GREEN << "Received: " << bufferStr << RESET << std::endl;
+
+		if (!sender.isAuthenticated()) {
+			authenticateClient(sender, bufferStr);
+			return bytes;
+		}
+		return bytes;
 	}
 
 	std::cout << RED << "Client disconnected" << RESET << std::endl;
 	for (size_t i = 0; i < _clients.size(); i++)
 	{
-		if (_clients[i].getSocket() == client.getSocket())
+		if (_clients[i].getSocket() == sender.getSocket())
 		{
 			_clients.erase(_clients.begin() + i);
 			_fds.erase(_fds.begin() + i + 1);
 		}
 	}
-	close(client.getSocket());
+	close(sender.getSocket());
 	return (0);
 }
 
-Client*	Server::getClient(const std::string& nick)
-{
-	for (clientIt it = _clients.begin(); it != _clients.end(); ++it)
-	{
+void	Server::authenticateClient(Client& client, std::string& buffer) {
+	std::cout << YELLOW << "Attempting to authenticate user" << RESET << std::endl;
+	if (authenticatePassword(client, buffer)) {
+		client.beAuthenticated();
+		std::cout << GREEN << "Client successfully authenticated" << RESET << std::endl;
+	}
+	else {
+		std::cerr << RED << "Could not authenticate client" << RESET << std::endl;
+		return;
+	}
+	if (registerClientNames(client, buffer)) {
+		client.beRegistered();
+		std::cout << GREEN << "Client successfully registered" << RESET << std::endl;
+	}
+	else {
+		std::cerr << RED << "Could not register client" << RESET << std::endl;
+		return;
+	}
+	sendToClient( ":ft_irc 001 " + client.getNickname() + " :Welcome to the 42 Network, " + client.getNickname() + END, client);
+	sendToClient( ":ft_irc 002 " + client.getNickname() + " :Your host is ft_irc, running version 1.0" + END, client);
+	sendToClient( ":ft_irc 003 " + client.getNickname() + " :This server was created today, probably" + END, client);
+	sendToClient( ":ft_irc 004 " + client.getNickname() + " :ft_irc 1.0" + END, client);
+
+}
+
+Client*	Server::getClient(const std::string& nick) {
+	for (clientIt it = _clients.begin(); it != _clients.end(); ++it) {
 		if (nick == it->getNickname())
+			return &(*it);
+	}
+	return NULL;
+}
+
+Client*	Server::checkClientRegistered(const std::string& username) {
+	for (clientIt it = _clients.begin(); it != _clients.end(); ++it) {
+		if (username == it->getUsername())
 			return &(*it);
 	}
 	return NULL;

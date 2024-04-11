@@ -32,4 +32,5 @@
 # define ERR_NEEDMOREPARAMS 461
 
 const std::string    END = "\r\n";
+
 #endif
