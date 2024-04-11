@@ -4,6 +4,7 @@
 # include "IRC.hpp"
 
 class Client;
+class Channel;
 
 class Server
 {
@@ -17,6 +18,7 @@ class Server
 		struct addrinfo*	_serverInfo;
 
 		std::vector<Client>			_clients;
+		std::vector<Channel>		_channels;
 		std::vector<struct pollfd>	_fds;
 		static bool					_running;
 
@@ -29,13 +31,21 @@ class Server
 		int		createSocket(void);
 		int		acceptSocket(void);
 		int		sendToClient(std::string, Client);
+		int		sendToChannel(std::string);
 		int		receiveFromClient(Client);
 		void	closeSocket(void);
 		int		verifyPassword(int clientSocket, std::string password);
 
-		Client*	getClient(const std::string&);
+		Client*		getClient(const std::string&);
+		Channel*	getChannel(const std::string&);
 
 		static void	signalHandler(int signum);
+
+		int cmd_nick(std::string nick, Client &client);
+		int cmd_msg(std::vector<std::string> args, Client &client);
+		int cmd_join(std::vector<std::string> args);
+		int cmd_leave(std::vector<std::string> args);
+		
 };
 
 #endif

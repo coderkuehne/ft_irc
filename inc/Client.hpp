@@ -18,6 +18,7 @@ class Client {
 
 		int getSocket() { return _socket; };
 		std::string	getNickname() { return _nick; };
+		void setNickname(std::string nick) { _nick = nick; };
 //		void setIp(std::string ip) { _ip = ip; };
 //		std::string getIp() { return _ip; };
 

@@ -8,6 +8,7 @@
 # include <sys/socket.h>
 # include <arpa/inet.h>
 # include <netdb.h>
+# include <algorithm>
 # include <exception>
 # include <fcntl.h>
 # include <vector>
@@ -24,4 +25,10 @@
 
 # define BUFFER_SIZE 1024
 
+# define ERR_NONICKNAMEGIVEN 431
+# define ERR_ERRONEUSNICKNAME 432
+# define ERR_NICKNAMEINUSE 433
+# define ERR_NEEDMOREPARAMS 461
+
+const std::string    END = "\r\n";
 #endif

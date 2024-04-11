@@ -155,7 +155,8 @@ int Server::receiveFromClient(Client client)
 	bzero(buffer, BUFFER_SIZE);
 
 	int		bytes = recv(client.getSocket(), buffer, BUFFER_SIZE, 0);
-	if (bytes > 0) {
+	if (bytes > 0)
+	{
 		buffer[bytes] = '\0';
 		if (DEBUG)
 			std::cout << GREEN << "Received: " << buffer << RESET << std::endl;
@@ -177,8 +178,10 @@ int Server::receiveFromClient(Client client)
 	return (0);
 }
 
-Client*	Server::getClient(const std::string& nick) {
-	for (clientIt it = _clients.begin(); it != _clients.end(); ++it) {
+Client*	Server::getClient(const std::string& nick)
+{
+	for (clientIt it = _clients.begin(); it != _clients.end(); ++it)
+	{
 		if (nick == it->getNickname())
 			return &(*it);
 	}
@@ -206,4 +209,105 @@ void Server::signalHandler(int signum)
 {
 	std::cout << YELLOW <<"Signal received" << signum << RESET << std::endl;
 	_running = false;
+}
+
+int Server::cmd_nick(std::string nick, Client &client)
+{
+	//if no nickname is given
+	if (nick.empty())
+	{
+		std::cerr << RED << "No nickname given" << RESET << std::endl;
+		sendToClient(":ft_irc 431 :No nickname given" + END, client);
+		return (0);
+	}
+	//if nickname is invalid (starts with #, :, or space)
+	if (nick[0] == '#' || nick[0] == ':' || nick[0] == ' ')
+	{
+		std::cerr << RED << "Invalid nickname" << RESET << std::endl;
+		sendToClient(":ft_irc 432 :Erroneous nickname" + END, client);
+		return (0);
+	
+	}
+	//if nickname is invalid
+	for (size_t i = 0; i < _clients.size(); i++)
+	{
+		if (nick == _clients[i].getNickname())
+		{
+			std::cerr << RED << "Nickname already in use" << RESET << std::endl;
+			sendToClient(":ft_irc 433 :Nickname is already in use" + END, client);
+			return (0);
+		}
+	}
+	client.setNickname(nick);
+	return (1);
+}
+
+int Server::cmd_msg(std::vector<std::string> args, Client &client)
+{
+	// Server *server = &client->getServer();
+	// if (args.size() < i + 1)
+	// {
+	// 	std::cerr << RED << "Invalid command" << RESET << std::endl;
+	// 	return (0);
+	// }
+	// Client *receiver = server->getClient(args[i + 1]);
+	// if (receiver == NULL)
+	// {
+	// 	std::cerr << RED << "Client not found" << RESET << std::endl;
+	// 	return (0);
+	// }
+	// std::string message;
+	// while ( ++i < args.size())
+	// 	message += args[i] + " ";
+	// server->sendToClient(client->getNickname() + " : " + message + "\n", *receiver);
+	// return (args.size() - i);
+}
+
+int Server::cmd_join(std::vector<std::string> args)
+{
+	
+	return (0);
+}
+
+int Server::cmd_leave(std::vector<std::string> args)
+{
+	(void)client;
+	if (args.size() < i + 1)
+	{
+		std::cerr << RED << "Invalid command" << RESET << std::endl;
+		return (0);
+	}
+	//client->leaveChannel(args[i + 1]);
+	return (1);
+}
+
+
+//parses the command from the client
+//the command is in the format "COMMAND ARG1 ARG2 ARG3"
+//You must be able to authenticate, set a nickname, a username, join a channel,
+//send and receive private messages using your reference client.
+void Server::parseCommand(std::string command, Client &client)
+{
+	size_t i = 0;
+	std::vector<std::string>	args;
+	std::string					arg;
+	std::stringstream			ss(command);
+
+	while (ss >> arg)
+		args.push_back(arg);
+	if (args.size() == 0)
+		return;
+	while (i < args.size())
+	{
+		if (args[i++] == "/nick" && cmd_nick(args[i], Client &client))
+			i++;
+		if (args[i] == "/msg")
+			i += cmd_msg(args);
+		if (args[i] == "/join")
+			i += Cmd_join(args);
+		if (args[i] == "/leave")
+			i += Cmd_join(args);
+		else
+			i++;
+	}
 }
