@@ -6,7 +6,7 @@
 /*   By: kkwasny <kkwasny@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 13:28:32 by kekuhne           #+#    #+#             */
-/*   Updated: 2024/04/09 20:29:30 by kkwasny          ###   ########.fr       */
+/*   Updated: 2024/04/11 13:47:39 by kkwasny          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,13 +25,13 @@ Server::~Server()
 void Server::checkPassword(std::string client_data)
 {
 	size_t passPos = client_data.find("PASS ");
-	size_t nickPos = client_data.find("\nNICK");
+	size_t nickPos = client_data.find("\r\nNICK");
 
 	std::string receivedPassword;
 	
 	if (passPos != std::string::npos && nickPos != std::string::npos)
 	{
-		receivedPassword = client_data.substr(passPos + 5, nickPos - passPos -5);
+		receivedPassword = client_data.substr(passPos + 5, nickPos - passPos - 5);
 	}
 	else
 	    std::cerr << RED << "No password" << RESET << std::endl;
@@ -40,6 +40,29 @@ void Server::checkPassword(std::string client_data)
 		std::cout << GREEN << "Password is correct. Access granted" << RESET << std::endl;
     else
         std::cerr << RED << "Incorrect password" << RESET << std::endl;
+}
+
+void Server::parseOther(std::string client_data)
+{
+	size_t nickPos = client_data.find("\r\nNICK ");
+	size_t userPos = client_data.find("\r\nUSER ");
+	size_t afterUserPos = client_data.find("0 *");
+	
+	std::string receivedNick;
+	
+	if (nickPos != std::string::npos && userPos != std::string::npos)
+	{
+		receivedNick = client_data.substr(nickPos + 7, userPos - nickPos - 6);
+	}
+	std::cout << receivedNick << std::endl;
+
+	std::string receivedUser;
+	
+	if (userPos != std::string::npos && afterUserPos != std::string::npos)
+	{
+		receivedUser = client_data.substr(userPos + 7, afterUserPos - userPos - 7);
+	}
+	std::cout << receivedUser << std::endl;
 }
 
 void Server::start()
@@ -181,6 +204,7 @@ int Server::receiveSocket(int client_socket)
 	}
 	std::string receivedData(buffer);
 	checkPassword(receivedData);
+	parseOther(receivedData);
 	//std::cout << "pass?" << receivedData << std::endl;
 	return (bytes);
 }

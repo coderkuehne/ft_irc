@@ -6,7 +6,7 @@
 /*   By: kkwasny <kkwasny@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/04 13:13:15 by kekuhne           #+#    #+#             */
-/*   Updated: 2024/04/09 20:01:14 by kkwasny          ###   ########.fr       */
+/*   Updated: 2024/04/11 13:45:31 by kkwasny          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,7 @@ class Server
 		int		createSocket();
 		int		acceptSocket();
 		void	checkPassword(std::string data);
+		void    parseOther(std::string dtat);
 		int		sendSocket(std::string message, int client_socket);
 		int		receiveSocket(int client_socket);
 		void	closeSocket();
