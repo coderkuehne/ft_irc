@@ -32,11 +32,13 @@ class Server
 		int		receiveFromClient(Client);
 		void	closeSocket(void);
 
-		void	checkPassword(std::string data);
-		void	parseOther(std::string dtat);
-
+//		void	checkPassword(std::string data);
+//		void	parseOther(std::string client_data);
 		Client*	checkClientRegistered(const std::string&);
-		void	registerClient(Client&, std::string&);
+
+		bool	authenticatePassword(Client&, std::string&);
+		bool	registerClientNames(Client&, std::string&);
+		void	authenticateClient(Client&, std::string&);
 
 		Client*	getClient(const std::string&);
 
