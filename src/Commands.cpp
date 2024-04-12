@@ -112,7 +112,7 @@ int Server::cmd_join(std::vector<std::string> args, Client &client)
 		if (args[1] == _channels[i].getName())
 		{
 			_channels[i].addClient(client);
-			sendToClient(":ft_irc 332  * :"+ _channels[i].getTopic() + END, client);
+			sendToClient(":ft_irc 332 * :"+ _channels[i].getTopic() + END, client);
 			return (0);
 		}
 	}
@@ -122,9 +122,14 @@ int Server::cmd_join(std::vector<std::string> args, Client &client)
 	
 	newChannel.addClient(client);
 	addChannel(newChannel);
-	std::cout << "Are you here?" << client.getNickname() << std::endl;
+	std::cout << "Are you here? " << client.getNickname() << " and " << _clients[0].getNickname() << " in " << newChannel.getName() << std::endl;
 	sendToClient(":" + client.getNickname() + " JOIN " + newChannel.getName() + END, client);
 	sendToClient(":ft_irc 332 " + client.getNickname() + " " + newChannel.getName() + " :" + newChannel.getTopic() + END, client);
+	for (size_t i = 0; i < _clients.size(); i++)
+		sendToClient(":ft_irc 353 " + client.getNickname() + " = " + newChannel.getName() + " :" + _clients[i].getNickname() + END, client);
+    sendToClient(":ft_irc 366 " + client.getNickname() + " " + newChannel.getName() + " :End of /NAMES list" + END, client);
+	
+	
 	std::cout << newChannel.getName() <<"Are you alive?" << std::endl;
 	return (0);
 }
