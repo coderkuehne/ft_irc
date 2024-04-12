@@ -2,29 +2,43 @@
 #include "Parser.hpp"
 #include "Commands.hpp"
 
-void	Server::parseCommand(std::string command, Client& client) {
-	std::vector <std::string> commands;
+void	Server::parseCommand(std::string clientPackage, Client& client) {
+	std::vector <std::string> commands = splitStringByEND(clientPackage);
 
-	for (std::vector<std::string>::iterator it = strings.begin(); it != strings.end(); ++it) {
-		std::string command;
-		std::istringstream iss(*it);
-		iss >> command;
+	for (std::vector<std::string>::iterator it = commands.begin(); it != commands.end(); ++it) {
+		std::string			command;
+		std::istringstream	not_ss(*it);
+		not_ss >> command;
 
-		switch(convertCommand(command)) {
+		std::string	parameter = "";
+		not_ss >> parameter; //this should always be the first argument after command
+
+		int	cmd = convertCommand(command);
+		switch(cmd) {
 			case QUIT: {
 				//quit();
-				break;
+				return;
 			}
 			case PASS: {
-				authenticatePassword(client, *it);
-				break;
+				if (authenticatePassword(client, parameter) < 0)
+					return;
+				continue;
 			}
-			case NICK: {
+			case 0:
+				continue;
+		}
+		if (!client.isAuthenticated()) {
+			sendToClient("ERROR :This server requires a password" + END, client);
+			return;
+		}
 
+		switch(cmd) {
+			case NICK: {
+				changeNickname(parameter, client);
 				break;
 			}
 			case USER: {
-
+				setUsername(parameter, client);
 				break;
 			}
 			case JOIN: {
@@ -35,7 +49,6 @@ void	Server::parseCommand(std::string command, Client& client) {
 				break;
 			}
 		}
-
 	}
 }
 
@@ -45,41 +58,11 @@ std::vector<std::string>	splitStringByEND(const std::string& str) {
 	std::string::size_type		end = str.find(END);
 
 	while (end != std::string::npos) {
-		tokens.push_back(str.substr(start, end - start + 2));
+		tokens.push_back(str.substr(start, end - start));
 		start = end + END.length();
 		end = str.find(END, start);
 	}
-	tokens.push_back(str.substr(start));
 	return tokens;
-}
-
-int	getPassword(std::string registrationData, std::string& receivedPassword)
-{
-	size_t	passPos = registrationData.find("PASS ");
-	size_t	delim = registrationData.find(END);
-
-	if (passPos == std::string::npos)
-		return NO_PASS;
-	if (delim == std::string::npos)
-		return NO_DELIM;
-	if (delim - passPos == 1)
-		return NO_PARAM;
-	receivedPassword = registrationData.substr(passPos + 5, delim - passPos - 5);
-	return (0);
-}
-
-void	getNames(std::string registrationData, std::string& nick, std::string& user)
-{
-	size_t nickPos = registrationData.find(END + "NICK ");
-	size_t userPos = registrationData.find(END + "USER ");
-	size_t delim = registrationData.find("0 *");
-
-	if (nickPos != std::string::npos && userPos != std::string::npos) {
-		nick = registrationData.substr(nickPos + 7, userPos - nickPos - 6);
-	}
-	if (userPos != std::string::npos && delim != std::string::npos) {
-		user = registrationData.substr(userPos + 7, delim - userPos - 7);
-	}
 }
 
 int	convertCommand(const std::string& command) {
