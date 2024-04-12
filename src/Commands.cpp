@@ -134,103 +134,6 @@ int Server::cmd_join(std::vector<std::string> args, Client &client)
 	return (0);
 }
 
-void Server::printClients(void)
-{
-	std::cout << "Total Clients:" << _clients.size() << std::endl;
-	for (size_t i = 0; i < _clients.size(); i++)
-	{
-		std::cout << "\tClient " << i << ": " << _clients[i].getNickname() << " Username : " << _clients[i].getUsername() << "on Socket :" << _clients[i].getSocket() << std::endl;
-	}
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 int Server::cmd_quit(Client &client)
 {
 	for (size_t i = 0; i < _clients.size(); i++)
@@ -243,4 +146,13 @@ int Server::cmd_quit(Client &client)
 		}
 	}
 	return (0);
+}
+
+void Server::printClients(void)
+{
+	std::cout << "Total Clients:" << _clients.size() << std::endl;
+	for (size_t i = 0; i < _clients.size(); i++)
+	{
+		std::cout << "\tClient " << i << ": " << _clients[i].getNickname() << " Username : " << _clients[i].getUsername() << "on Socket :" << _clients[i].getSocket() << std::endl;
+	}
 }
