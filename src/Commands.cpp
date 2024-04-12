@@ -89,7 +89,7 @@ int Server::cmd_msg(std::vector<std::string> args, size_t msg_size, Client &clie
 		return (0);
 	}
 	else
-	{			
+	{		
 		target = getClient(args[1]);
 		if (!target)
 		{

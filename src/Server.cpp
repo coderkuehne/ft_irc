@@ -1,6 +1,6 @@
 #include "Server.hpp"
 #include "Client.hpp"
-#define DEBUG 0
+#define DEBUG 1
 
 Server::Server(const std::string& port, const std::string& password): _port(port), _password(password)
 {
@@ -22,10 +22,11 @@ void Server::start()
 	signal(SIGINT, signalHandler);
 	signal(SIGQUIT, signalHandler);
 
-//	std::cout << GREEN << "Server started, on socket " << _socket << RESET << std::endl;
-//	std::cout <<  GREEN "\tListening on port " << _port << RESET <<  std::endl;
-
-	std::cout << GREEN << "Listening..." << RESET << std::endl;
+	if (DEBUG)
+	{
+		std::cout << GREEN << "Server started, on socket " << _socket << RESET << std::endl;
+		std::cout <<  GREEN "\tListening on port " << _port << RESET <<  std::endl;
+	}
 	while (_running)
 	{
 		if (poll(&_fds[0], _fds.size(), -1) == -1 && _running)
@@ -33,12 +34,7 @@ void Server::start()
 		else
 		{
 			if (_fds[0].revents & POLLIN)
-			{
 				acceptSocket();
-				/* while (!verifyPassword(_clients[_clients.size() - 1].getSocket(), _password))
-					std::cerr << RED << "Incorrect password" << RESET << std::endl; */
-				//suitable place to get initial data from client				
-			}
 			for (size_t i = 1; i < _fds.size(); i++)
 			{
 				if (_fds[i].revents & POLLIN)
@@ -63,14 +59,9 @@ int Server::createSocket()
 {
 	int					i = 1;
 	struct pollfd		fds;
-//	struct sockaddr_in	addr;
 
-//	addr.sin_family = AF_INET;
-//	addr.sin_addr.s_addr = INADDR_ANY;
-//	addr.sin_port = htons(static_cast<uint16_t>(std::atoi(_port.c_str())));
 	setHints();
 	_socket = socket(_serverInfo->ai_family, _serverInfo->ai_socktype, _serverInfo->ai_protocol);
-//	if ((_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 	if (_socket < 0)
 		throw std::runtime_error("Error creating socket");
 	if (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(int)) < 0)
@@ -81,7 +72,6 @@ int Server::createSocket()
 		throw std::runtime_error("Error binding socket");
 	if (listen(_socket, SOMAXCONN) < 0)
 		throw std::runtime_error("Error listening socket");
-
 	fds.fd = _socket;
 	fds.events = POLLIN;
 	fds.revents = 0;
@@ -117,14 +107,12 @@ int Server::acceptSocket()
 	newClientFD.fd = clientSocket;
 	newClientFD.events = POLLIN;
 	newClientFD.revents = 0;
-
 	Client	newClient(clientSocket);
-//	client.setSocket(clientSocket);
-//	client.setIp(inet_ntoa(addr.sin_addr));
+
 	_clients.push_back(newClient);
 	_fds.push_back(newClientFD);
-//	if (DEBUG)
-//		std::cout << GREEN << "Client connected from " << client.getIp() << RESET << std::endl;
+	if (DEBUG)
+		std::cout << GREEN << "Client connected from " << newClient.getSocket() << RESET << std::endl;
 	return (0);
 }
 
@@ -154,7 +142,6 @@ int Server::receiveFromClient(Client &sender)
 		std::string	bufferStr(buffer);
 		if (DEBUG)
 			std::cout << GREEN << "Received: " << bufferStr << RESET << std::endl;
-
 		// if (!sender.isAuthenticated()) {
 		// 	authenticateClient(sender, bufferStr);
 		// 	return bytes;
@@ -184,7 +171,7 @@ void	Server::authenticateClient(Client& client, std::string& buffer) {
 	}
 	else {
 		std::cerr << RED << "Could not authenticate client" << RESET << std::endl;
-		return;
+		return ;
 	}
 	if (registerClientNames(client, buffer)) {
 		client.beRegistered();
@@ -192,7 +179,7 @@ void	Server::authenticateClient(Client& client, std::string& buffer) {
 	}
 	else {
 		std::cerr << RED << "Could not register client" << RESET << std::endl;
-		return;
+		return ;
 	}
 	sendToClient( ":ft_irc 001 " + client.getNickname() + " :Welcome to the 42 Network, " + client.getNickname() + END, client);
 	sendToClient( ":ft_irc 002 " + client.getNickname() + " :Your host is ft_irc, running version 1.0" + END, client);
@@ -215,12 +202,6 @@ Client*	Server::getClient(const std::string& nick)
 		if (nick == _clients[i].getNickname())
 			return &_clients[i];
 	}
-	// for (clientIt it = _clients.begin(); it != _clients.end(); ++it)
-	// {
-	// 	std::cout << "it->getNickname(): " << it->getNickname() << std::endl;
-	// 	if (nick == it->getNickname())
-	// 		return &(*it);
-	// }
 	return (NULL);
 }
 
@@ -255,27 +236,6 @@ void Server::signalHandler(int signum)
 	std::cout << YELLOW <<"Signal received" << signum << RESET << std::endl;
 	_running = false;
 }
-
-
-
-// int Server::cmd_join(std::vector<std::string> args)
-// {
-	
-// 	return (0);
-// }
-
-// int Server::cmd_leave(std::vector<std::string> args)
-// {
-// 	(void)client;
-// 	if (args.size() < i + 1)
-// 	{
-// 		std::cerr << RED << "Invalid command" << RESET << std::endl;
-// 		return (0);
-// 	}
-// 	//client->leaveChannel(args[i + 1]);
-// 	return (1);
-// }
-
 
 //parses the command from the client
 //the command is in the format "COMMAND ARG1 ARG2 ARG3"
