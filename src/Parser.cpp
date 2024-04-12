@@ -65,7 +65,7 @@ int	getPassword(std::string registrationData, std::string& receivedPassword)
 	if (delim - passPos == 1)
 		return NO_PARAM;
 	receivedPassword = registrationData.substr(passPos + 5, delim - passPos - 5);
-	return 0;
+	return (0);
 }
 
 void	getNames(std::string registrationData, std::string& nick, std::string& user)

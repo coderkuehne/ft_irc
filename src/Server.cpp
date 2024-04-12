@@ -22,10 +22,11 @@ void Server::start()
 	signal(SIGINT, signalHandler);
 	signal(SIGQUIT, signalHandler);
 
-//	std::cout << GREEN << "Server started, on socket " << _socket << RESET << std::endl;
-//	std::cout <<  GREEN "\tListening on port " << _port << RESET <<  std::endl;
-
-	std::cout << GREEN << "Listening..." << RESET << std::endl;
+	if (DEBUG)
+	{
+		std::cout << GREEN << "Server started, on socket " << _socket << RESET << std::endl;
+		std::cout <<  GREEN "\tListening on port " << _port << RESET <<  std::endl;
+	}
 	while (_running)
 	{
 		if (poll(&_fds[0], _fds.size(), -1) == -1 && _running)
@@ -33,12 +34,7 @@ void Server::start()
 		else
 		{
 			if (_fds[0].revents & POLLIN)
-			{
 				acceptSocket();
-				/* while (!verifyPassword(_clients[_clients.size() - 1].getSocket(), _password))
-					std::cerr << RED << "Incorrect password" << RESET << std::endl; */
-				//suitable place to get initial data from client				
-			}
 			for (size_t i = 1; i < _fds.size(); i++)
 			{
 				if (_fds[i].revents & POLLIN)
@@ -63,14 +59,9 @@ int Server::createSocket()
 {
 	int					i = 1;
 	struct pollfd		fds;
-//	struct sockaddr_in	addr;
 
-//	addr.sin_family = AF_INET;
-//	addr.sin_addr.s_addr = INADDR_ANY;
-//	addr.sin_port = htons(static_cast<uint16_t>(std::atoi(_port.c_str())));
 	setHints();
 	_socket = socket(_serverInfo->ai_family, _serverInfo->ai_socktype, _serverInfo->ai_protocol);
-//	if ((_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 	if (_socket < 0)
 		throw std::runtime_error("Error creating socket");
 	if (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &i, sizeof(int)) < 0)
@@ -81,7 +72,6 @@ int Server::createSocket()
 		throw std::runtime_error("Error binding socket");
 	if (listen(_socket, SOMAXCONN) < 0)
 		throw std::runtime_error("Error listening socket");
-
 	fds.fd = _socket;
 	fds.events = POLLIN;
 	fds.revents = 0;
@@ -89,7 +79,8 @@ int Server::createSocket()
 	return (0);
 }
 
-void	Server::setHints(void) {
+void	Server::setHints(void)
+{
 	_hints.ai_family = AF_INET;                       // Ipv4
 	_hints.ai_socktype = SOCK_STREAM;                 // Use TCP stream sockets
 	_hints.ai_flags = AI_PASSIVE | AI_ADDRCONFIG;     // Bind to any suitable address
@@ -105,26 +96,24 @@ int Server::acceptSocket()
 	int clientSocket = accept(_socket, (struct sockaddr *)&addr, &addrLength);
 	if (clientSocket < 0) {
 		std::cerr << RED << "Error accepting client" << RESET << std::endl;
-		return 1;
+		return (1);
 	}
 	if (fcntl(clientSocket, F_SETFL, O_NONBLOCK) < 0) {
 		std::cerr << RED << "Error setting client socket to non-blocking" << RESET << std::endl;
-		return 1;
+		return (1);
 	}
 
 	struct pollfd	newClientFD;
 	newClientFD.fd = clientSocket;
 	newClientFD.events = POLLIN;
 	newClientFD.revents = 0;
-
 	Client	newClient(clientSocket);
-//	client.setSocket(clientSocket);
-//	client.setIp(inet_ntoa(addr.sin_addr));
+
 	_clients.push_back(newClient);
 	_fds.push_back(newClientFD);
-//	if (DEBUG)
-//		std::cout << GREEN << "Client connected from " << client.getIp() << RESET << std::endl;
-	return 0;
+	if (DEBUG)
+		std::cout << GREEN << "Client connected from " << newClient.getSocket() << RESET << std::endl;
+	return (0);
 }
 
 //sends a message to the client
@@ -153,12 +142,8 @@ int Server::receiveFromClient(Client& sender)
 		std::string	bufferStr(buffer);
 		if (DEBUG)
 			std::cout << GREEN << "Received: " << bufferStr << RESET << std::endl;
-
-		if (!sender.isAuthenticated()) {
-			authenticateClient(sender, bufferStr);
-			return bytes;
-		}
-		return bytes;
+		parseCommand(bufferStr, sender);
+		return (bytes);
 	}
 
 	std::cout << RED << "Client disconnected" << RESET << std::endl;
@@ -174,40 +159,25 @@ int Server::receiveFromClient(Client& sender)
 	return (0);
 }
 
-void	Server::authenticateClient(Client& client, std::string& buffer) {
-	std::cout << YELLOW << "Attempting to authenticate user" << RESET << std::endl;
-	if (authenticatePassword(client, buffer)) {
-		client.beAuthenticated();
-		std::cout << GREEN << "Client successfully authenticated" << RESET << std::endl;
+Client*	Server::getClient(const std::string& nick)
+{
+	if (DEBUG)
+	{
+		std::cout << "getClient: " << nick << std::endl;
+		std::cout << "clients.size(): " << _clients.size() << std::endl;
 	}
-	else {
-		std::cerr << RED << "Could not authenticate client" << RESET << std::endl;
-		return;
+	for (size_t i = 0; i < _clients.size(); i++)
+	{
+		if (DEBUG)
+			std::cout << "clients[i].getNickname(): " << _clients[i].getNickname() << std::endl;
+		if (nick == _clients[i].getNickname())
+			return &_clients[i];
 	}
-	if (registerClientNames(client, buffer)) {
-		client.beRegistered();
-		std::cout << GREEN << "Client successfully registered" << RESET << std::endl;
-	}
-	else {
-		std::cerr << RED << "Could not register client" << RESET << std::endl;
-		return;
-	}
-	sendToClient( ":ft_irc 001 " + client.getNickname() + " :Welcome to the 42 Network, " + client.getNickname() + END, client);
-	sendToClient( ":ft_irc 002 " + client.getNickname() + " :Your host is ft_irc, running version 1.0" + END, client);
-	sendToClient( ":ft_irc 003 " + client.getNickname() + " :This server was created today, probably" + END, client);
-	sendToClient( ":ft_irc 004 " + client.getNickname() + " :ft_irc 1.0" + END, client);
-
+	return (NULL);
 }
 
-Client*	Server::getClient(const std::string& nick) {
-	for (clientIt it = _clients.begin(); it != _clients.end(); ++it) {
-		if (nick == it->getNickname())
-			return &(*it);
-	}
-	return NULL;
-}
-
-Client*	Server::checkClientRegistered(const std::string& username) {
+Client*	Server::checkClientRegistered(const std::string& username)
+{
 	for (clientIt it = _clients.begin(); it != _clients.end(); ++it) {
 		if (username == it->getUsername())
 			return &(*it);
@@ -236,37 +206,6 @@ void Server::signalHandler(int signum)
 {
 	std::cout << YELLOW <<"Signal received" << signum << RESET << std::endl;
 	_running = false;
-}
-
-int Server::cmd_nick(std::string nick, Client &client)
-{
-	//if no nickname is given
-	if (nick.empty())
-	{
-		std::cerr << RED << "No nickname given" << RESET << std::endl;
-		sendToClient(":ft_irc 431 :No nickname given" + END, client);
-		return (0);
-	}
-	//if nickname is invalid (starts with #, :, or space)
-	if (nick[0] == '#' || nick[0] == ':' || nick[0] == ' ')
-	{
-		std::cerr << RED << "Invalid nickname" << RESET << std::endl;
-		sendToClient(":ft_irc 432 :Erroneous nickname" + END, client);
-		return (0);
-	
-	}
-	//if nickname is invalid
-	for (size_t i = 0; i < _clients.size(); i++)
-	{
-		if (nick == _clients[i].getNickname())
-		{
-			std::cerr << RED << "Nickname already in use" << RESET << std::endl;
-			sendToClient(":ft_irc 433 :Nickname is already in use" + END, client);
-			return (0);
-		}
-	}
-	client.setNickname(nick);
-	return (1);
 }
 
 // int Server::cmd_msg(std::vector<std::string> args, Client &client)
