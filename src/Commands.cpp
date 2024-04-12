@@ -2,75 +2,83 @@
 #include "Parser.hpp"
 #include "Client.hpp"
 
-bool	Server::authenticatePassword(Client& client, std::string& inputPassword) {
-	std::string	password;
-	switch(getPassword(inputPassword, password)) {
-		case NO_PASS: {
-			sendToClient("ERROR :This server requires a password" + END, client);
-			return false;
-		}
-		case NO_DELIM:
-			return false;
-		case NO_PARAM: {
+int	Server::authenticatePassword(Client& client, std::string& inputPassword) {
+	if (inputPassword.empty()) {
 			sendToClient(":ft_irc 461 * :No password provided" + END, client);
-			break;
+			return -1;
 		}
-		default: {
-			if (password == _password)
-				return true;
-			sendToClient(":ft_irc 464 * :Password is incorrect" + END, client);
-			return false;
-		}
+	if (inputPassword == _password) {
+		client.beAuthenticated();
+		return 0;
 	}
-	return false;
+	else {
+		sendToClient(":ft_irc 464 * :Password is incorrect" + END, client);
+		return -1;
+	}
 }
 
-bool	Server::registerClientNames(Client& client, std::string& registrationData) {
-	std::string	nick = "";
-	std::string	user = "";
-
-	getNames(registrationData, nick, user);
-	if (checkClientRegistered(user)) {
-		sendToClient(":ft_irc 462 * :Username already registered" + END, client);
-	}
-	else if (!user.empty())
-		client.setUsername(user);
-	else
-		client.setUsername("Guesteroni");
-
-	client.setNickname(nick);
-
-	if (!client.getNickname().empty() && !client.getUsername().empty())
-		return true;
-	return false;
-}
-
-int Server::cmd_nick(std::string nick, Client &client)
+int	Server::changeNickname(std::string nick, Client &client)
 {
 	if (nick.empty())
 	{
 		std::cerr << RED << "No nickname given" << RESET << std::endl;
-		sendToClient(":ft_irc 431 No nickname given" + END, client);
-		return (0);
+		sendToClient(":ft_irc 431 :No nickname given" + END, client);
+		return (-1);
 	}
 	if (nick[0] == '#' || nick[0] == ':' || nick[0] == ' ')
 	{
 		std::cerr << RED << "Invalid nickname" << RESET << std::endl;
-		sendToClient(":ft_irc 432 Erroneous nickname" + END, client);
-		return (0);
+		sendToClient(":ft_irc 432 :Erroneous nickname" + END, client);
+		return (-1);
 	}
-	for (size_t i = 0; i < _clients.size(); i++)
-	{
-		if (nick == _clients[i].getNickname())
-		{
-			std::cerr << RED << "Nickname already in use" << RESET << std::endl;
-			sendToClient(":ft_irc 433 Nickname is already in use" + END, client);
-			return (0);
-		}
+	if (getClient(nick)) {
+		std::cerr << RED << "Nickname already in use" << RESET << std::endl;
+		sendToClient(":ft_irc 433 :Nickname is already in use" + END, client);
+		return (-1);
 	}
 	client.setNickname(nick);
-	sendToClient(":ft_irc 001 " + client.getNickname() + " :Nickname changed to , " + client.getNickname() + END, client);
-	return (1);
+	registerClient(client);
+	return (0);
+}
+
+int	Server::setUsername(std::string user, Client &client)
+{
+	if (client.isRegistered()) {
+		std::cerr << RED << "User already registered" << RESET << std::endl;
+		sendToClient(":ft_irc 462 :User is already registered" + END, client);
+		return (-1);
+	}
+	if (user.empty())
+	{
+		std::cerr << RED << "No username given" << RESET << std::endl;
+		sendToClient(":ft_irc 431 :No username given" + END, client);
+		return (-1);
+	}
+//	if (user[0] == '#' || user[0] == ':' || user[0] == ' ')
+//	{
+//		std::cerr << RED << "Invalid username" << RESET << std::endl;
+//		sendToClient(":ft_irc 432 Erroneous username" + END, client);
+//		return (-1);
+//	}
+	for (size_t i = 0; i < _clients.size(); i++)
+	{
+		if (user == _clients[i].getUsername())
+		{
+			std::cerr << RED << "Username already in use" << RESET << std::endl;
+			sendToClient(":ft_irc 462 :User is already registered" + END, client);
+			return (-1);
+		}
+	}
+	client.setUsername(user);
+	registerClient(client);
+	return (0);
+}
+
+void	Server::registerClient(Client &client) {
+	if (!client.isRegistered() && !client.getNickname().empty() && !client.getUsername().empty()) {
+		client.beRegistered();
+		sendToClient(":ft_irc 001 " + client.getNickname() + " :Welcome to our ft_irc server, " + client.getNickname() + END, client);
+	}
 }
 
 int Server::cmd_msg(std::vector<std::string> args, size_t msg_size, Client &client)
