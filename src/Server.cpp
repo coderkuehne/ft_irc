@@ -128,7 +128,7 @@ int Server::acceptSocket()
 }
 
 //sends a message to the client
-int Server::sendToClient(std::string message, Client client)
+int Server::sendToClient(std::string message, Client &client)
 {
 	if (send(client.getSocket(), message.c_str(), message.length(), 0) < 0)
 	{
@@ -141,7 +141,7 @@ int Server::sendToClient(std::string message, Client client)
 	return (0);
 }
 
-int Server::receiveFromClient(Client sender)
+int Server::receiveFromClient(Client &sender)
 {
 	char	buffer[BUFFER_SIZE];
 	bzero(buffer, BUFFER_SIZE);
@@ -154,11 +154,12 @@ int Server::receiveFromClient(Client sender)
 		if (DEBUG)
 			std::cout << GREEN << "Received: " << bufferStr << RESET << std::endl;
 
-		if (!sender.isAuthenticated()) {
-			authenticateClient(sender, bufferStr);
-			return bytes;
-		}
-		return bytes;
+		// if (!sender.isAuthenticated()) {
+		// 	authenticateClient(sender, bufferStr);
+		// 	return bytes;
+		// }
+		parseCommand(bufferStr, sender);
+		return (bytes);
 	}
 
 	std::cout << RED << "Client disconnected" << RESET << std::endl;
@@ -199,12 +200,24 @@ void	Server::authenticateClient(Client& client, std::string& buffer) {
 
 }
 
-Client*	Server::getClient(const std::string& nick) {
-	for (clientIt it = _clients.begin(); it != _clients.end(); ++it) {
-		if (nick == it->getNickname())
-			return &(*it);
+Client*	Server::getClient(const std::string& nick)
+{
+	std::cout << "getClient: " << nick << std::endl;
+	std::cout << "clients.size(): " << _clients.size() << std::endl;
+
+	for (size_t i = 0; i < _clients.size(); i++)
+	{
+		std::cout << "clients[i].getNickname(): " << _clients[i].getNickname() << std::endl;
+		if (nick == _clients[i].getNickname())
+			return &_clients[i];
 	}
-	return NULL;
+	// for (clientIt it = _clients.begin(); it != _clients.end(); ++it)
+	// {
+	// 	std::cout << "it->getNickname(): " << it->getNickname() << std::endl;
+	// 	if (nick == it->getNickname())
+	// 		return &(*it);
+	// }
+	return (NULL);
 }
 
 Client*	Server::checkClientRegistered(const std::string& username) {
@@ -238,57 +251,7 @@ void Server::signalHandler(int signum)
 	_running = false;
 }
 
-int Server::cmd_nick(std::string nick, Client &client)
-{
-	//if no nickname is given
-	if (nick.empty())
-	{
-		std::cerr << RED << "No nickname given" << RESET << std::endl;
-		sendToClient(":ft_irc 431 :No nickname given" + END, client);
-		return (0);
-	}
-	//if nickname is invalid (starts with #, :, or space)
-	if (nick[0] == '#' || nick[0] == ':' || nick[0] == ' ')
-	{
-		std::cerr << RED << "Invalid nickname" << RESET << std::endl;
-		sendToClient(":ft_irc 432 :Erroneous nickname" + END, client);
-		return (0);
-	
-	}
-	//if nickname is invalid
-	for (size_t i = 0; i < _clients.size(); i++)
-	{
-		if (nick == _clients[i].getNickname())
-		{
-			std::cerr << RED << "Nickname already in use" << RESET << std::endl;
-			sendToClient(":ft_irc 433 :Nickname is already in use" + END, client);
-			return (0);
-		}
-	}
-	client.setNickname(nick);
-	return (1);
-}
 
-// int Server::cmd_msg(std::vector<std::string> args, Client &client)
-// {
-	// Server *server = &client->getServer();
-	// if (args.size() < i + 1)
-	// {
-	// 	std::cerr << RED << "Invalid command" << RESET << std::endl;
-	// 	return (0);
-	// }
-	// Client *receiver = server->getClient(args[i + 1]);
-	// if (receiver == NULL)
-	// {
-	// 	std::cerr << RED << "Client not found" << RESET << std::endl;
-	// 	return (0);
-	// }
-	// std::string message;
-	// while ( ++i < args.size())
-	// 	message += args[i] + " ";
-	// server->sendToClient(client->getNickname() + " : " + message + "\n", *receiver);
-	// return (args.size() - i);
-// }
 
 // int Server::cmd_join(std::vector<std::string> args)
 // {
@@ -315,26 +278,20 @@ int Server::cmd_nick(std::string nick, Client &client)
 //send and receive private messages using your reference client.
 void Server::parseCommand(std::string command, Client &client)
 {
-	size_t i = 0;
 	std::vector<std::string>	args;
-	std::string					arg;
-	std::stringstream			ss(command);
+	std::stringstream			not_ss(command);
 
-	while (ss >> arg)
-		args.push_back(arg);
-	if (args.size() == 0)
-		return;
-	while (i < args.size())
-	{
-		if (args[i++] == "/nick" && cmd_nick(args[i], client))
-			i++;
-		// if (args[i] == "/msg")
-		// 	i += cmd_msg(args, client);
+	while (not_ss >> command)
+		args.push_back(command);
+	for (size_t i = 0; i < args.size(); i++)
+		std::cout << args[i] << std::endl;
+	std::cout << args.size() << std::endl;
+	if (args[0] == "NICK")
+		cmd_nick(args[1], client);
+	if (args[0] == "PRIVMSG")
+		cmd_msg(args, args.size() , client);
 		// if (args[i] == "/join")
 		// 	i += Cmd_join(args);
 		// if (args[i] == "/leave") /quit
 		// 	i += Cmd_join(args);
-		else
-			i++;
-	}
 }

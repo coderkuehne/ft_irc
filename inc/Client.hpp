@@ -28,8 +28,6 @@ class Client {
 		void		beRegistered(void) { _registered = true; };
 		bool		isAuthenticated() { return _authenticated; };
 		void		beAuthenticated() { _authenticated = true; };
-
-
 };
 
 #endif
