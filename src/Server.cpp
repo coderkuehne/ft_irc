@@ -154,10 +154,10 @@ int Server::receiveFromClient(Client sender)
 		if (DEBUG)
 			std::cout << GREEN << "Received: " << bufferStr << RESET << std::endl;
 
-		if (!sender.isAuthenticated()) {
-			authenticateClient(sender, bufferStr);
-			return bytes;
-		}
+		// if (!sender.isAuthenticated()) {
+		// 	authenticateClient(sender, bufferStr);
+		// 	return bytes;
+		// }
 		return bytes;
 	}
 
@@ -290,11 +290,12 @@ int Server::cmd_nick(std::string nick, Client &client)
 	// return (args.size() - i);
 // }
 
-// int Server::cmd_join(std::vector<std::string> args)
-// {
-	
-// 	return (0);
-// }
+int Server::cmd_join(std::vector<std::string> args)
+{
+	(void)args;
+	std::cout << "yy" << std::endl;
+	return (0);
+}
 
 // int Server::cmd_leave(std::vector<std::string> args)
 // {
@@ -330,8 +331,8 @@ void Server::parseCommand(std::string command, Client &client)
 			i++;
 		// if (args[i] == "/msg")
 		// 	i += cmd_msg(args, client);
-		// if (args[i] == "/join")
-		// 	i += Cmd_join(args);
+		if (args[i] == "/join")
+			i += cmd_join(args);
 		// if (args[i] == "/leave") /quit
 		// 	i += Cmd_join(args);
 		else

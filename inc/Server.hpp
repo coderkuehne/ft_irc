@@ -22,7 +22,7 @@ class Server
 		static bool					_running;
 
 	public:
-		Server(const std::string& port = "6789", const std::string& password = "123");
+		Server(const std::string& port = "7789", const std::string& password = "123");
 		~Server(void);
 
 		void	start(void);
