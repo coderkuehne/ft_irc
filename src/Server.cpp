@@ -142,10 +142,10 @@ int Server::receiveFromClient(Client &sender)
 		std::string	bufferStr(buffer);
 		if (DEBUG)
 			std::cout << GREEN << "Received: " << bufferStr << RESET << std::endl;
-		// if (!sender.isAuthenticated()) {
-		// 	authenticateClient(sender, bufferStr);
-		// 	return bytes;
-		// }
+		if (!sender.isAuthenticated()) {
+			authenticateClient(sender, bufferStr);
+			return bytes;
+		}
 		parseCommand(bufferStr, sender);
 		return (bytes);
 	}
@@ -257,8 +257,11 @@ void Server::parseCommand(std::string command, Client &client)
 		if (args[0] == "LIST")
 			printClients();
 	}
-		// if (args[i] == "/join")
-		// 	i += Cmd_join(args);
-		// if (args[i] == "/leave") /quit
-		// 	i += Cmd_join(args);
+	if (args[0] == "JOIN")
+	{
+		cmd_join(args, client);
+		// std::cout << _channels[0].getName() << " was created woooho " << std::endl;
+	}
+	if (args[0] == "QUIT")
+		cmd_quit(client);
 }

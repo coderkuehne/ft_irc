@@ -105,6 +105,30 @@ int Server::cmd_msg(std::vector<std::string> args, size_t msg_size, Client &clie
 	return (1);
 }
 
+int Server::cmd_join(std::vector<std::string> args, Client &client)
+{
+	for (size_t i = 0; i < _channels.size(); i++)
+	{
+		if (args[1] == _channels[i].getName())
+		{
+			_channels[i].addClient(client);
+			sendToClient(":ft_irc 332  * :"+ _channels[i].getTopic() + END, client);
+			return (0);
+		}
+	}
+	Channel newChannel(args[1], "");
+	if (args.size() == 3)
+		newChannel.setKey(args[2]);
+	
+	newChannel.addClient(client);
+	addChannel(newChannel);
+	std::cout << "Are you here?" << client.getNickname() << std::endl;
+	sendToClient(":" + client.getNickname() + " JOIN " + newChannel.getName() + END, client);
+	sendToClient(":ft_irc 332 " + client.getNickname() + " " + newChannel.getName() + " :" + newChannel.getTopic() + END, client);
+	std::cout << newChannel.getName() <<"Are you alive?" << std::endl;
+	return (0);
+}
+
 void Server::printClients(void)
 {
 	std::cout << "Total Clients:" << _clients.size() << std::endl;
@@ -112,4 +136,106 @@ void Server::printClients(void)
 	{
 		std::cout << "\tClient " << i << ": " << _clients[i].getNickname() << " Username : " << _clients[i].getUsername() << "on Socket :" << _clients[i].getSocket() << std::endl;
 	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int Server::cmd_quit(Client &client)
+{
+	for (size_t i = 0; i < _clients.size(); i++)
+	{
+		if (_clients[i].getSocket() == client.getSocket())
+		{
+			//part from all channels
+			_clients.erase(_clients.begin() + i);
+			_fds.erase(_fds.begin() + i + 1);
+		}
+	}
+	return (0);
 }

@@ -22,7 +22,7 @@ class Server
 		static bool					_running;
 
 	public:
-		Server(const std::string& port = "6789", const std::string& password = "123");
+		Server(const std::string& port = "7789", const std::string& password = "123");
 		~Server(void);
 
 		void	start(void);
@@ -30,7 +30,7 @@ class Server
 		int		createSocket(void);
 		int		acceptSocket(void);
 		int		sendToClient(std::string, Client&);
-		int		sendToChannel(std::string, Client&);
+		int		sendToChannel(std::string, Channel &channel);
 		int		receiveFromClient(Client&);
 		void	closeSocket(void);
 
@@ -49,9 +49,10 @@ class Server
 
 		int		cmd_nick(std::string nick, Client &client);
 		int		cmd_msg(std::vector<std::string> args,size_t msg_size, Client &client);
-		int		cmd_join(std::vector<std::string> args);
+		int		cmd_join(std::vector<std::string> args, Client &client);
 		int		cmd_leave(std::vector<std::string> args);
-
+		int		cmd_quit(Client &client);
+		void	addChannel(Channel channel){ _channels.push_back(channel); };
 		void	printClients(void);
 		
 };
