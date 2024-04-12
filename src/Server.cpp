@@ -307,34 +307,3 @@ int Server::cmd_nick(std::string nick, Client &client)
 // 	//client->leaveChannel(args[i + 1]);
 // 	return (1);
 // }
-
-
-//parses the command from the client
-//the command is in the format "COMMAND ARG1 ARG2 ARG3"
-//You must be able to authenticate, set a nickname, a username, join a channel,
-//send and receive private messages using your reference client.
-void Server::parseCommand(std::string command, Client &client)
-{
-	size_t i = 0;
-	std::vector<std::string>	args;
-	std::string					arg;
-	std::stringstream			ss(command);
-
-	while (ss >> arg)
-		args.push_back(arg);
-	if (args.size() == 0)
-		return;
-	while (i < args.size())
-	{
-		if (args[i++] == "/nick" && cmd_nick(args[i], client))
-			i++;
-		// if (args[i] == "/msg")
-		// 	i += cmd_msg(args, client);
-		// if (args[i] == "/join")
-		// 	i += Cmd_join(args);
-		// if (args[i] == "/leave") /quit
-		// 	i += Cmd_join(args);
-		else
-			i++;
-	}
-}

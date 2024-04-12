@@ -1,10 +1,10 @@
 #include "Server.hpp"
-#include "parser.hpp"
+#include "Parser.hpp"
 #include "Client.hpp"
 
-bool	Server::authenticatePassword(Client& client, std::string& registrationData) {
+bool	Server::authenticatePassword(Client& client, std::string& inputPassword) {
 	std::string	password;
-	switch(getPassword(registrationData, password)) {
+	switch(getPassword(inputPassword, password)) {
 		case NO_PASS: {
 			sendToClient("ERROR :This server requires a password" + END, client);
 			return false;

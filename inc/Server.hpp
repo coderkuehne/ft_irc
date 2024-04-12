@@ -34,9 +34,9 @@ class Server
 		int		receiveFromClient(Client&);
 		void	closeSocket(void);
 
-		void	parseCommand(std::string command, Client &client);
-
 		Client*	checkClientRegistered(const std::string&);
+
+		void	parseCommand(std::string, Client&);
 
 		bool	authenticatePassword(Client&, std::string&);
 		bool	registerClientNames(Client&, std::string&);
@@ -51,7 +51,7 @@ class Server
 		int cmd_msg(std::vector<std::string> args, Client &client);
 		int cmd_join(std::vector<std::string> args);
 		int cmd_leave(std::vector<std::string> args);
-		
+
 };
 
 #endif
