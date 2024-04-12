@@ -1,5 +1,5 @@
 #include "Server.hpp"
-#include "Parser.hpp"
+#include "parser.hpp"
 #include "Client.hpp"
 
 bool	Server::authenticatePassword(Client& client, std::string& registrationData) {

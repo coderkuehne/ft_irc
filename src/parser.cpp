@@ -1,5 +1,5 @@
 #include "Server.hpp"
-#include "Parser.hpp"
+#include "parser.hpp"
 
 int	getPassword(std::string registrationData, std::string& receivedPassword)
 {
