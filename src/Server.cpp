@@ -146,8 +146,8 @@ int Server::receiveFromClient(Client &sender)
 			authenticateClient(sender, bufferStr);
 			return bytes;
 		}
-		//TEMP DEBUG
-		sender.setNickname("42karo");
+		// //TEMP DEBUG
+		// sender.setNickname("42karo");
 		parseCommand(bufferStr, sender);
 		return (bytes);
 	}

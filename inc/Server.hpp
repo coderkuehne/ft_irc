@@ -54,6 +54,8 @@ class Server
 		int		cmd_quit(Client &client);
 		void	addChannel(Channel channel){ _channels.push_back(channel); };
 		void	printClients(void);
+
+		void    welcomePrompt(Client &client, Channel &channel);
 		
 };
 
