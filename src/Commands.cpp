@@ -113,20 +113,20 @@ int Server::cmd_msg(std::vector<std::string> args, size_t msg_size, Client &clie
 	return (1);
 }
 
-int Server::joinChannel(std::vector<std::string> args, Client &client)
+int Server::joinChannel(std::vector<std::string> channels, Client &client)
 {
 	for (size_t i = 0; i < _channels.size(); i++)
 	{
-		if (args[1] == _channels[i].getName())
+		if (channels[1] == _channels[i].getName())
 		{
 			_channels[i].addClient(client);
 			sendToClient(":ft_irc 332 * :"+ _channels[i].getTopic() + END, client);
 			return (0);
 		}
 	}
-	Channel newChannel(args[1], "");
-	if (args.size() == 3)
-		newChannel.setKey(args[2]);
+	Channel newChannel(channels[1], "");
+	if (channels.size() == 3)
+		newChannel.setKey(channels[2]);
 	
 	newChannel.addClient(client);
 	addChannel(newChannel);

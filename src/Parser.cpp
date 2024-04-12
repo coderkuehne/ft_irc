@@ -13,6 +13,9 @@ void	Server::parseCommand(std::string clientPackage, Client& client) {
 		std::string	parameter = "";
 		not_ss >> parameter; //this should always be the first argument after command
 
+		std::string	parameter2 = "";
+		not_ss >> parameter2;
+
 		int	cmd = convertCommand(command);
 		switch(cmd) {
 			case QUIT: {
@@ -42,7 +45,9 @@ void	Server::parseCommand(std::string clientPackage, Client& client) {
 				break;
 			}
 			case JOIN: {
-//				joinChannel()
+//				currently channel list is a single string formatted channel1,channel2,channel3
+//				parse to be a vector holding them separately, same with keys list, then pass to joinChannel
+//				joinChannel(parameter, client);
 				break;
 			}
 			default: {
