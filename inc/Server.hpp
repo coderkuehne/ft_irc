@@ -29,9 +29,9 @@ class Server
 		void	setHints(void);
 		int		createSocket(void);
 		int		acceptSocket(void);
-		int		sendToClient(std::string, Client);
-		int		sendToChannel(std::string);
-		int		receiveFromClient(Client);
+		int		sendToClient(std::string, Client&);
+		int		sendToChannel(std::string, Channel &channel);
+		int		receiveFromClient(Client&);
 		void	closeSocket(void);
 
 		void	parseCommand(std::string command, Client &client);
@@ -47,10 +47,13 @@ class Server
 
 		static void	signalHandler(int signum);
 
-		int cmd_nick(std::string nick, Client &client);
-		int cmd_msg(std::vector<std::string> args, Client &client);
-		int cmd_join(std::vector<std::string> args);
-		int cmd_leave(std::vector<std::string> args);
+		int		cmd_nick(std::string nick, Client &client);
+		int		cmd_msg(std::vector<std::string> args,size_t msg_size, Client &client);
+		int		cmd_join(std::vector<std::string> args, Client &client);
+		int		cmd_leave(std::vector<std::string> args);
+
+		void	addChannel(Channel channel){ _channels.push_back(channel); };
+		void	printClients(void);
 		
 };
 
