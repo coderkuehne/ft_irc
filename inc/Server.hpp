@@ -51,7 +51,7 @@ class Server
 		int		cmd_msg(std::vector<std::string> args,size_t msg_size, Client &client);
 		int		cmd_join(std::vector<std::string> args, Client &client);
 		int		cmd_leave(std::vector<std::string> args);
-
+		int		cmd_quit(Client &client);
 		void	addChannel(Channel channel){ _channels.push_back(channel); };
 		void	printClients(void);
 		

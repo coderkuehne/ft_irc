@@ -262,4 +262,6 @@ void Server::parseCommand(std::string command, Client &client)
 		cmd_join(args, client);
 		// std::cout << _channels[0].getName() << " was created woooho " << std::endl;
 	}
+	if (args[0] == "QUIT")
+		cmd_quit(client);
 }
