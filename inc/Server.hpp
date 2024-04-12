@@ -47,10 +47,12 @@ class Server
 
 		static void	signalHandler(int signum);
 
-		int cmd_nick(std::string nick, Client &client);
-		int cmd_msg(std::vector<std::string> args,size_t msg_size, Client &client);
-		int cmd_join(std::vector<std::string> args);
-		int cmd_leave(std::vector<std::string> args);
+		int		cmd_nick(std::string nick, Client &client);
+		int		cmd_msg(std::vector<std::string> args,size_t msg_size, Client &client);
+		int		cmd_join(std::vector<std::string> args);
+		int		cmd_leave(std::vector<std::string> args);
+
+		void	printClients(void);
 		
 };
 

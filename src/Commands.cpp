@@ -77,8 +77,6 @@ int Server::cmd_msg(std::vector<std::string> args, size_t msg_size, Client &clie
 {
 	Client	*target;
 
-	for (size_t i = 0; i < msg_size; i++)
-		std::cout << args[i] << std::endl;
 	if (msg_size < 3)
 	{
 		std::cerr << RED << "Invalid command" << RESET << std::endl;
@@ -104,6 +102,14 @@ int Server::cmd_msg(std::vector<std::string> args, size_t msg_size, Client &clie
 	for (size_t i = 1; i < msg_size; i++)
 		message += args[i] + " ";
 	sendToClient(":" + client.getNickname() + " PRIVMSG " + target->getNickname() + " :" + message + END, *target);
-	std::cout << "cmd_msg3" << std::endl;
 	return (1);
+}
+
+void Server::printClients(void)
+{
+	std::cout << "Total Clients:" << _clients.size() << std::endl;
+	for (size_t i = 0; i < _clients.size(); i++)
+	{
+		std::cout << "\tClient " << i << ": " << _clients[i].getNickname() << " Username : " << _clients[i].getUsername() << "on Socket :" << _clients[i].getSocket() << std::endl;
+	}
 }

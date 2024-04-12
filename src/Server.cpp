@@ -1,6 +1,6 @@
 #include "Server.hpp"
 #include "Client.hpp"
-#define DEBUG 1
+#define DEBUG 0
 
 Server::Server(const std::string& port, const std::string& password): _port(port), _password(password)
 {
@@ -89,7 +89,8 @@ int Server::createSocket()
 	return (0);
 }
 
-void	Server::setHints(void) {
+void	Server::setHints(void)
+{
 	_hints.ai_family = AF_INET;                       // Ipv4
 	_hints.ai_socktype = SOCK_STREAM;                 // Use TCP stream sockets
 	_hints.ai_flags = AI_PASSIVE | AI_ADDRCONFIG;     // Bind to any suitable address
@@ -105,11 +106,11 @@ int Server::acceptSocket()
 	int clientSocket = accept(_socket, (struct sockaddr *)&addr, &addrLength);
 	if (clientSocket < 0) {
 		std::cerr << RED << "Error accepting client" << RESET << std::endl;
-		return 1;
+		return (1);
 	}
 	if (fcntl(clientSocket, F_SETFL, O_NONBLOCK) < 0) {
 		std::cerr << RED << "Error setting client socket to non-blocking" << RESET << std::endl;
-		return 1;
+		return (1);
 	}
 
 	struct pollfd	newClientFD;
@@ -124,7 +125,7 @@ int Server::acceptSocket()
 	_fds.push_back(newClientFD);
 //	if (DEBUG)
 //		std::cout << GREEN << "Client connected from " << client.getIp() << RESET << std::endl;
-	return 0;
+	return (0);
 }
 
 //sends a message to the client
@@ -202,12 +203,15 @@ void	Server::authenticateClient(Client& client, std::string& buffer) {
 
 Client*	Server::getClient(const std::string& nick)
 {
-	std::cout << "getClient: " << nick << std::endl;
-	std::cout << "clients.size(): " << _clients.size() << std::endl;
-
+	if (DEBUG)
+	{
+		std::cout << "getClient: " << nick << std::endl;
+		std::cout << "clients.size(): " << _clients.size() << std::endl;
+	}
 	for (size_t i = 0; i < _clients.size(); i++)
 	{
-		std::cout << "clients[i].getNickname(): " << _clients[i].getNickname() << std::endl;
+		if (DEBUG)
+			std::cout << "clients[i].getNickname(): " << _clients[i].getNickname() << std::endl;
 		if (nick == _clients[i].getNickname())
 			return &_clients[i];
 	}
@@ -220,7 +224,8 @@ Client*	Server::getClient(const std::string& nick)
 	return (NULL);
 }
 
-Client*	Server::checkClientRegistered(const std::string& username) {
+Client*	Server::checkClientRegistered(const std::string& username)
+{
 	for (clientIt it = _clients.begin(); it != _clients.end(); ++it) {
 		if (username == it->getUsername())
 			return &(*it);
@@ -283,13 +288,15 @@ void Server::parseCommand(std::string command, Client &client)
 
 	while (not_ss >> command)
 		args.push_back(command);
-	for (size_t i = 0; i < args.size(); i++)
-		std::cout << args[i] << std::endl;
-	std::cout << args.size() << std::endl;
 	if (args[0] == "NICK")
 		cmd_nick(args[1], client);
 	if (args[0] == "PRIVMSG")
 		cmd_msg(args, args.size() , client);
+	if (DEBUG)
+	{
+		if (args[0] == "LIST")
+			printClients();
+	}
 		// if (args[i] == "/join")
 		// 	i += Cmd_join(args);
 		// if (args[i] == "/leave") /quit
