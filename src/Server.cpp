@@ -128,7 +128,7 @@ int Server::acceptSocket()
 }
 
 //sends a message to the client
-int Server::sendToClient(std::string message, Client client)
+int Server::sendToClient(std::string message, Client& client)
 {
 	if (send(client.getSocket(), message.c_str(), message.length(), 0) < 0)
 	{
@@ -141,7 +141,7 @@ int Server::sendToClient(std::string message, Client client)
 	return (0);
 }
 
-int Server::receiveFromClient(Client sender)
+int Server::receiveFromClient(Client& sender)
 {
 	char	buffer[BUFFER_SIZE];
 	bzero(buffer, BUFFER_SIZE);

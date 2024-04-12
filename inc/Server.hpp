@@ -29,9 +29,9 @@ class Server
 		void	setHints(void);
 		int		createSocket(void);
 		int		acceptSocket(void);
-		int		sendToClient(std::string, Client);
+		int		sendToClient(std::string, Client&);
 		int		sendToChannel(std::string);
-		int		receiveFromClient(Client);
+		int		receiveFromClient(Client&);
 		void	closeSocket(void);
 
 		void	parseCommand(std::string command, Client &client);
