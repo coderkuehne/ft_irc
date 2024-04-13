@@ -81,9 +81,9 @@ int Server::createSocket()
 
 void	Server::setHints(void)
 {
-	_hints.ai_family = AF_INET;                       // Ipv4
-	_hints.ai_socktype = SOCK_STREAM;                 // Use TCP stream sockets
-	_hints.ai_flags = AI_PASSIVE | AI_ADDRCONFIG;     // Bind to any suitable address
+	_hints.ai_family = AF_INET;							// Ipv4
+	_hints.ai_socktype = SOCK_STREAM;					// Use TCP stream sockets
+	_hints.ai_flags = AI_PASSIVE | AI_ADDRCONFIG;		// Bind to any suitable address
 	if (getaddrinfo(NULL, _port.c_str(), &_hints, &_serverInfo) < 0) {
 		throw std::runtime_error("Error retrieving address information");
 	}

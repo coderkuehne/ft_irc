@@ -117,11 +117,11 @@ int Server::cmd_msg(std::vector<std::string> args, size_t msg_size, Client &clie
 
 void Server::welcomePrompt(Client &client, Channel &channel)
 {
-    sendToClient(":" + client.getNickname() + " JOIN " + channel.getName() + END, client);
+	sendToClient(":" + client.getNickname() + " JOIN " + channel.getName() + END, client);
 	sendToClient(":ft_irc 332 " + client.getNickname() + " " + channel.getName() + " :" + channel.getTopic() + END, client);
 	for (size_t i = 0; i < _clients.size(); i++)
 		sendToClient(":ft_irc 353 " + client.getNickname() + " = " + channel.getName() + " :" + _clients[i].getNickname() + END, client);
-    sendToClient(":ft_irc 366 " + client.getNickname() + " " + channel.getName() + " :End of /NAMES list" + END, client);
+	sendToClient(":ft_irc 366 " + client.getNickname() + " " + channel.getName() + " :End of /NAMES list" + END, client);
 }
 
 int Server::joinChannel(std::string& channelName, std::string& key, Client &client)
@@ -157,7 +157,7 @@ int Server::joinChannel(std::string& channelName, std::string& key, Client &clie
 	// sendToClient(":ft_irc 332 " + client.getNickname() + " " + newChannel.getName() + " :" + newChannel.getTopic() + END, client);
 	// for (size_t i = 0; i < _clients.size(); i++)
 	// 	sendToClient(":ft_irc 353 " + client.getNickname() + " = " + newChannel.getName() + " :" + _clients[i].getNickname() + END, client);
-    // sendToClient(":ft_irc 366 " + client.getNickname() + " " + newChannel.getName() + " :End of /NAMES list" + END, client);
+	// sendToClient(":ft_irc 366 " + client.getNickname() + " " + newChannel.getName() + " :End of /NAMES list" + END, client);
 
 	return (0);
 }

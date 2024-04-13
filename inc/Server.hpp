@@ -58,7 +58,7 @@ class Server
 		void	addChannel(Channel channel){ _channels.push_back(channel); };
 		void	printClients(void);
 
-		void    welcomePrompt(Client &client, Channel &channel);
+		void	welcomePrompt(Client &client, Channel &channel);
 		
 };
 
