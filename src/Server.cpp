@@ -117,7 +117,7 @@ int Server::acceptSocket()
 }
 
 //sends a message to the client
-int Server::sendToClient(std::string message, Client &client)
+int Server::sendToClient(std::string message, Client& client)
 {
 	if (send(client.getSocket(), message.c_str(), message.length(), 0) < 0)
 	{
@@ -130,7 +130,7 @@ int Server::sendToClient(std::string message, Client &client)
 	return (0);
 }
 
-int Server::receiveFromClient(Client &sender)
+int Server::receiveFromClient(Client& sender)
 {
 	char	buffer[BUFFER_SIZE];
 	bzero(buffer, BUFFER_SIZE);
@@ -142,12 +142,10 @@ int Server::receiveFromClient(Client &sender)
 		std::string	bufferStr(buffer);
 		if (DEBUG)
 			std::cout << GREEN << "Received: " << bufferStr << RESET << std::endl;
-		if (!sender.isAuthenticated()) {
-			authenticateClient(sender, bufferStr);
-			return bytes;
-		}
-		// //TEMP DEBUG
-		// sender.setNickname("42karo");
+
+//		//TEMP DEBUG
+//		if ()
+//		sender.setNickname("42karo");
 		parseCommand(bufferStr, sender);
 		return (bytes);
 	}
@@ -163,31 +161,6 @@ int Server::receiveFromClient(Client &sender)
 	}
 	close(sender.getSocket());
 	return (0);
-}
-
-void	Server::authenticateClient(Client& client, std::string& buffer) {
-	std::cout << YELLOW << "Attempting to authenticate user" << RESET << std::endl;
-	if (authenticatePassword(client, buffer)) {
-		client.beAuthenticated();
-		std::cout << GREEN << "Client successfully authenticated" << RESET << std::endl;
-	}
-	else {
-		std::cerr << RED << "Could not authenticate client" << RESET << std::endl;
-		return ;
-	}
-	if (registerClientNames(client, buffer)) {
-		client.beRegistered();
-		std::cout << GREEN << "Client successfully registered" << RESET << std::endl;
-	}
-	else {
-		std::cerr << RED << "Could not register client" << RESET << std::endl;
-		return ;
-	}
-	sendToClient( ":ft_irc 001 " + client.getNickname() + " :Welcome to the 42 Network, " + client.getNickname() + END, client);
-	sendToClient( ":ft_irc 002 " + client.getNickname() + " :Your host is ft_irc, running version 1.0" + END, client);
-	sendToClient( ":ft_irc 003 " + client.getNickname() + " :This server was created today, probably" + END, client);
-	sendToClient( ":ft_irc 004 " + client.getNickname() + " :ft_irc 1.0" + END, client);
-
 }
 
 Client*	Server::getClient(const std::string& nick)
@@ -239,31 +212,23 @@ void Server::signalHandler(int signum)
 	_running = false;
 }
 
-//parses the command from the client
-//the command is in the format "COMMAND ARG1 ARG2 ARG3"
-//You must be able to authenticate, set a nickname, a username, join a channel,
-//send and receive private messages using your reference client.
-void Server::parseCommand(std::string command, Client &client)
-{
-	std::vector<std::string>	args;
-	std::stringstream			not_ss(command);
-
-	while (not_ss >> command)
-		args.push_back(command);
-	if (args[0] == "NICK")
-		cmd_nick(args[1], client);
-	if (args[0] == "PRIVMSG")
-		cmd_msg(args, args.size() , client);
-	if (DEBUG)
-	{
-		if (args[0] == "LIST")
-			printClients();
-	}
-	if (args[0] == "JOIN")
-	{
-		cmd_join(args, client);
-		// std::cout << _channels[0].getName() << " was created woooho " << std::endl;
-	}
-	if (args[0] == "QUIT")
-		cmd_quit(client);
-}
+// int Server::cmd_msg(std::vector<std::string> args, Client &client)
+// {
+	// Server *server = &client->getServer();
+	// if (args.size() < i + 1)
+	// {
+	// 	std::cerr << RED << "Invalid command" << RESET << std::endl;
+	// 	return (0);
+	// }
+	// Client *receiver = server->getClient(args[i + 1]);
+	// if (receiver == NULL)
+	// {
+	// 	std::cerr << RED << "Client not found" << RESET << std::endl;
+	// 	return (0);
+	// }
+	// std::string message;
+	// while ( ++i < args.size())
+	// 	message += args[i] + " ";
+	// server->sendToClient(client->getNickname() + " : " + message + "\n", *receiver);
+	// return (args.size() - i);
+// }

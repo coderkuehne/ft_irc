@@ -1,31 +1,93 @@
 #include "Server.hpp"
 #include "Parser.hpp"
+#include "Commands.hpp"
 
-int	getPassword(std::string registrationData, std::string& receivedPassword)
-{
-	size_t	passPos = registrationData.find("PASS ");
-	size_t	delim = registrationData.find(END + ("NICK "));
+void	Server::parseCommand(std::string clientPackage, Client& client) {
+	std::vector <std::string> commands = splitStringByEND(clientPackage);
 
-	if (passPos == std::string::npos)
-		return NO_PASS;
-	if (delim == std::string::npos)
-		return NO_DELIM;
-	if (delim - passPos == 1)
-		return NO_PARAM;
-	receivedPassword = registrationData.substr(passPos + 5, delim - passPos - 5);
-	return (0);
+	for (std::vector<std::string>::iterator it = commands.begin(); it != commands.end(); ++it) {
+		std::string			command;
+		std::istringstream	not_ss(*it);
+		not_ss >> command;
+
+		std::string	parameter = "";
+		not_ss >> parameter; //this should always be the first argument after command
+
+		std::string	parameter2 = "";
+		not_ss >> parameter2;
+
+		int	cmd = convertCommand(command);
+		switch(cmd) {
+			case QUIT: {
+				//quit();
+				return;
+			}
+			case PASS: {
+				if (authenticatePassword(client, parameter) < 0)
+					return;
+				continue;
+			}
+			case 0:
+				continue;
+		}
+		if (!client.isAuthenticated()) {
+			sendToClient("ERROR :This server requires a password" + END, client);
+			return;
+		}
+
+		switch(cmd) {
+			case NICK: {
+				changeNickname(parameter, client);
+				break;
+			}
+			case USER: {
+				setUsername(parameter, client);
+				break;
+			}
+			case JOIN: {
+//				currently channel list is a single string formatted channel1,channel2,channel3
+//				parse to be a vector holding them separately, same with keys list, then pass to joinChannel
+//				joinChannel(parameter, client);
+				break;
+			}
+			default: {
+				break;
+			}
+		}
+	}
 }
 
-void	getNames(std::string registrationData, std::string& nick, std::string& user)
-{
-	size_t nickPos = registrationData.find(END + "NICK ");
-	size_t userPos = registrationData.find(END + "USER ");
-	size_t delim = registrationData.find("0 *");
+std::vector<std::string>	splitStringByEND(const std::string& str) {
+	std::vector<std::string>	tokens;
+	std::string::size_type		start = 0;
+	std::string::size_type		end = str.find(END);
 
-	if (nickPos != std::string::npos && userPos != std::string::npos) {
-		nick = registrationData.substr(nickPos + 7, userPos - nickPos - 6);
+	while (end != std::string::npos) {
+		tokens.push_back(str.substr(start, end - start));
+		start = end + END.length();
+		end = str.find(END, start);
 	}
-	if (userPos != std::string::npos && delim != std::string::npos) {
-		user = registrationData.substr(userPos + 7, delim - userPos - 7);
+	return tokens;
+}
+
+int	convertCommand(const std::string& command) {
+	if (command == "QUIT") {
+		return QUIT;
 	}
+	else if (command == "PASS") {
+		return PASS;
+	}
+	else if (command == "NICK") {
+		return NICK;
+	}
+	else if (command == "USER") {
+		return USER;
+	}
+	else if (command == "PRIVMSG") {
+		return PRIVMSG;
+	}
+	else if (command == "JOIN") {
+		return JOIN;
+	}
+	return 0;
 }
