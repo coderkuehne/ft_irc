@@ -211,24 +211,3 @@ void Server::signalHandler(int signum)
 	std::cout << YELLOW <<"Signal received" << signum << RESET << std::endl;
 	_running = false;
 }
-
-// int Server::cmd_msg(std::vector<std::string> args, Client &client)
-// {
-	// Server *server = &client->getServer();
-	// if (args.size() < i + 1)
-	// {
-	// 	std::cerr << RED << "Invalid command" << RESET << std::endl;
-	// 	return (0);
-	// }
-	// Client *receiver = server->getClient(args[i + 1]);
-	// if (receiver == NULL)
-	// {
-	// 	std::cerr << RED << "Client not found" << RESET << std::endl;
-	// 	return (0);
-	// }
-	// std::string message;
-	// while ( ++i < args.size())
-	// 	message += args[i] + " ";
-	// server->sendToClient(client->getNickname() + " : " + message + "\n", *receiver);
-	// return (args.size() - i);
-// }
