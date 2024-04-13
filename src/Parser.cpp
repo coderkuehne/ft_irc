@@ -70,6 +70,24 @@ std::vector<std::string>	splitStringByEND(const std::string& str) {
 	return tokens;
 }
 
+std::vector<std::string>	splitStringByComma(const std::string& str) {
+	std::vector<std::string> tokens;
+	std::string::size_type start = 0;
+	std::string::size_type end = str.find(",");
+
+	while (end != std::string::npos) {
+		tokens.push_back(str.substr(start, end - start));
+		start = end + 1;
+		end = str.find(",", start);
+	}
+
+	if (start < str.length()) {
+		tokens.push_back(str.substr(start));
+	}
+
+	return tokens;
+}
+
 int	convertCommand(const std::string& command) {
 	if (command == "QUIT") {
 		return QUIT;
