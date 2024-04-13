@@ -124,17 +124,22 @@ void Server::welcomePrompt(Client &client, Channel &channel)
     sendToClient(":ft_irc 366 " + client.getNickname() + " " + channel.getName() + " :End of /NAMES list" + END, client);
 }
 
-int Server::joinChannel(std::vector<std::string> args, Client &client)
+int Server::joinChannel(std::string& channelName, std::string& key, Client &client)
 {
 	//std::cout << "what is input " << client.getNickname() << " and " << args[1][0] << " ." << std::endl;
-	if (args.size() < 1)
+	if (channelName.empty())
 	{
 		sendToClient(":ft_irc 461 *" + client.getNickname() + " " + "JOIN" + " :Not enough parameters" + END, client);
 		return (1);
-	}  
+	}
+	if (channelName[0] != '#')
+	{
+		sendToClient(":ft_irc 476 " + channelName + " :Bad Channel Mask" + END, client);
+		return (1);
+	}
 	for (size_t i = 0; i < _channels.size(); i++)
 	{
-		if (args[1] == _channels[i].getName())
+		if (channelName == _channels[i].getName())
 		{
 			_channels[i].addClient(client);
 			welcomePrompt(client, _channels[i]);
@@ -142,16 +147,10 @@ int Server::joinChannel(std::vector<std::string> args, Client &client)
 			return (0);
 		}
 	}
-	Channel newChannel(args[1], "");
-	if (args.size() == 3)
-		newChannel.setKey(args[2]);
-	if (args[1][0] != '#')
-	{
-		sendToClient(":ft_irc 476 " + newChannel.getName() + " :Bad Channel Mask" + END, client);
-		return (1);
-	}  
-	newChannel.addClient(client);
+	Channel newChannel(channelName, key); //if no key is supplied, key is set to ""
 	addChannel(newChannel);
+
+	newChannel.addClient(client);
 	std::cout << "hiello?" << std::endl;
 	welcomePrompt(client, newChannel);
 	// sendToClient(":" + client.getNickname() + " JOIN " + newChannel.getName() + END, client);
@@ -159,7 +158,7 @@ int Server::joinChannel(std::vector<std::string> args, Client &client)
 	// for (size_t i = 0; i < _clients.size(); i++)
 	// 	sendToClient(":ft_irc 353 " + client.getNickname() + " = " + newChannel.getName() + " :" + _clients[i].getNickname() + END, client);
     // sendToClient(":ft_irc 366 " + client.getNickname() + " " + newChannel.getName() + " :End of /NAMES list" + END, client);
-	
+
 	return (0);
 }
 

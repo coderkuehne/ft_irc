@@ -45,9 +45,7 @@ void	Server::parseCommand(std::string clientPackage, Client& client) {
 				break;
 			}
 			case JOIN: {
-//				currently channel list is a single string formatted channel1,channel2,channel3
-//				parse to be a vector holding them separately, same with keys list, then pass to joinChannel
-//				joinChannel(parameter, client);
+				joinChannel(parameter, parameter2, client);
 				break;
 			}
 			default: {
@@ -67,24 +65,6 @@ std::vector<std::string>	splitStringByEND(const std::string& str) {
 		start = end + END.length();
 		end = str.find(END, start);
 	}
-	return tokens;
-}
-
-std::vector<std::string>	splitStringByComma(const std::string& str) {
-	std::vector<std::string> tokens;
-	std::string::size_type start = 0;
-	std::string::size_type end = str.find(",");
-
-	while (end != std::string::npos) {
-		tokens.push_back(str.substr(start, end - start));
-		start = end + 1;
-		end = str.find(",", start);
-	}
-
-	if (start < str.length()) {
-		tokens.push_back(str.substr(start));
-	}
-
 	return tokens;
 }
 

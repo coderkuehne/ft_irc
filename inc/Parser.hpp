@@ -2,7 +2,6 @@
 # define PARSER_HPP
 
 std::vector<std::string>	splitStringByEND(const std::string&);
-std::vector<std::string>	splitStringByComma(const std::string&);
 int							convertCommand(const std::string&);
 
 int		getPassword(std::string, std::string&);
