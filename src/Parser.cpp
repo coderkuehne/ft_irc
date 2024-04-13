@@ -48,6 +48,10 @@ void	Server::parseCommand(std::string clientPackage, Client& client) {
 				joinChannel(parameter, parameter2, client);
 				break;
 			}
+			case PRIVMSG: {
+				message(parameter, parameter2, *it, client);
+				break;
+			}
 			default: {
 				break;
 			}

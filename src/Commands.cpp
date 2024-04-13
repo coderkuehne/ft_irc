@@ -81,39 +81,59 @@ void	Server::registerClient(Client &client) {
 	}
 }
 
-int Server::cmd_msg(std::vector<std::string> args, size_t msg_size, Client &client)
+int Server::message(std::string& target, std::string& message, std::string& receivedString, Client &client)
 {
-	Client	*target;
-
-	if (msg_size < 3)
+	if (target.empty() || message.empty())
 	{
 		std::cerr << RED << "Invalid command" << RESET << std::endl;
 		sendToClient(":ft_irc 461 * :Not enough parameters" + END, client);
-		return (0);
+		return 1;
 	}
-	if (args[1][0] == '#')
-	{
+
+	if (target[0] == '#') {
 		//channel message
-		return (0);
+		return 1;
 	}
-	else
+
+	Client	*recipient = getClient(target);
+	if (!recipient)
 	{
-		target = getClient(args[1]);
-		if (!target)
-		{
-			std::cerr << RED << "Invalid target" << RESET << std::endl;
-			sendToClient(":ft_irc 401 * :No such nick/channel" + END, client);
-			return (0);
-		}
+		std::cerr << RED << "Invalid target" << RESET << std::endl;
+		sendToClient(":ft_irc 401 * :No such user" + END, client);
+		return 1;
 	}
-	std::string		message;
-	for (size_t i = 1; i < msg_size; i++)
-		message += args[i] + " ";
-	sendToClient(":" + client.getNickname() + " PRIVMSG " + target->getNickname() + " :" + message + END, *target);
-	return (1);
+	sendToClient(":" + client.getNickname() + " " + receivedString + END, *recipient);
+	return 0;
+//
+//	Client	*target;
+//
+//	if (msg_size < 3)
+//	{
+//		std::cerr << RED << "Invalid command" << RESET << std::endl;
+//		sendToClient(":ft_irc 461 * :Not enough parameters" + END, client);
+//		return (0);
+//	}
+//	if (args[1][0] == '#')
+//	{
+//		//channel message
+//		return (0);
+//	}
+//	else
+//	{
+//		target = getClient(args[1]);
+//		if (!target)
+//		{
+//			std::cerr << RED << "Invalid target" << RESET << std::endl;
+//			sendToClient(":ft_irc 401 * :No such nick/channel" + END, client);
+//			return (0);
+//		}
+//	}
+//	std::string		message;
+//	for (size_t i = 1; i < msg_size; i++)
+//		message += args[i] + " ";
+//	sendToClient(":" + client.getNickname() + " PRIVMSG " + target->getNickname() + " :" + message + END, *target);
+//	return (1);
 }
-
-
 
 void Server::welcomePrompt(Client &client, Channel &channel)
 {
