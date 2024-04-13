@@ -124,7 +124,7 @@ void Server::welcomePrompt(Client &client, Channel &channel)
     sendToClient(":ft_irc 366 " + client.getNickname() + " " + channel.getName() + " :End of /NAMES list" + END, client);
 }
 
-int Server::cmd_join(std::vector<std::string> args, Client &client)
+int Server::joinChannel(std::vector<std::string> args, Client &client)
 {
 	//std::cout << "what is input " << client.getNickname() << " and " << args[1][0] << " ." << std::endl;
 	if (args.size() < 1)
@@ -134,7 +134,7 @@ int Server::cmd_join(std::vector<std::string> args, Client &client)
 	}  
 	for (size_t i = 0; i < _channels.size(); i++)
 	{
-		if (channels[1] == _channels[i].getName())
+		if (args[1] == _channels[i].getName())
 		{
 			_channels[i].addClient(client);
 			welcomePrompt(client, _channels[i]);
