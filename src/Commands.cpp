@@ -17,7 +17,7 @@ int	Server::authenticatePassword(Client& client, std::string& inputPassword) {
 	}
 }
 
-int	Server::changeNickname(std::string nick, Client &client)
+int	Server::changeNickname(const std::string& nick, Client &client)
 {
 	if (nick.empty())
 	{
@@ -41,7 +41,7 @@ int	Server::changeNickname(std::string nick, Client &client)
 	return (0);
 }
 
-int	Server::setUsername(std::string user, Client &client)
+int	Server::setUsername(const std::string& user, Client &client) const
 {
 	if (client.isRegistered()) {
 		std::cerr << RED << "User already registered" << RESET << std::endl;
@@ -74,7 +74,7 @@ int	Server::setUsername(std::string user, Client &client)
 	return (0);
 }
 
-void	Server::registerClient(Client &client) {
+void	Server::registerClient(Client &client) const {
 	if (!client.isRegistered() && !client.getNickname().empty() && !client.getUsername().empty()) {
 		client.beRegistered();
 		sendToClient(":ft_irc 001 " + client.getNickname() + " :Welcome to our ft_irc server, " + client.getNickname() + END, client);
@@ -175,16 +175,20 @@ int Server::joinChannel(std::string& channelName, std::string& key, Client &clie
 	return (0);
 }
 
-int Server::cmd_quit(Client &client)
+int Server::quit(Client &client, std::string& quitMessage)
 {
 	for (size_t i = 0; i < _clients.size(); i++)
 	{
-		if (_clients[i].getSocket() == client.getSocket())
+		if (_clients[i] == client)
 		{
 			//part from all channels
+			close(client.getSocket());
 			_clients.erase(_clients.begin() + i);
 			_fds.erase(_fds.begin() + i + 1);
 		}
+	}
+	for (size_t i = 0; i < _clients.size(); ++i) {
+		sendToClient(":" + client.getNickname() + " QUIT :Quit " + quitMessage + END, _clients[i]);
 	}
 	return (0);
 }
