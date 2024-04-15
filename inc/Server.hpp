@@ -32,7 +32,7 @@ class Server
 		int		sendToClient(const std::string&, const Client&) const;
 		int		sendToChannel(std::string, Channel &channel);
 		int		receiveFromClient(Client&);
-		void	closeSocket(void);
+		void	closeSockets(void);
 
 		Client*	checkClientRegistered(const std::string&);
 

@@ -10,7 +10,7 @@ Server::Server(const std::string& port, const std::string& password): _port(port
 
 Server::~Server()
 {
-	closeSocket();
+	closeSockets();
 	free(_serverInfo);
 	std::cout << "Shutting down" << std::endl;
 }
@@ -175,7 +175,7 @@ Client*	Server::getClient(const std::string& nick)
 	return (NULL);
 }
 
-void Server::closeSocket()
+void Server::closeSockets()
 {
 	for (size_t i = 0; i < _clients.size(); i++)
 	{
