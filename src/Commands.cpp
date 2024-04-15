@@ -190,6 +190,41 @@ int Server::quit(Client &client, std::string& quitMessage)
 	return (0);
 }
 
+int Server::SetTopic(Client &client, Channel &channel, std::string& newTopic)
+{
+	if (newTopic.empty())
+	{
+		sendToClient(":ft_irc 461" + client.getNickname() + " TOPIC " + ":Not enough parameters" + END, client);
+		return (1);
+	}
+	for (size_t i = 0; i < _channels.size(); i++)
+	{
+		if (channel.getName() == _channels[i].getName())
+		{
+			if (client not connected to the channel)
+			{
+				sendToClient(":ft_irc 442" + client.getNickname() + " " + channel.getName() + " :You're not on that channel" + END, client);
+				return (1);
+			}
+			if (newTopic.empty())
+			{
+				//just print the current topic
+			}
+			else
+			{
+				//set the topic
+				//let others know who set the topic and what is the topic 
+			}
+		}
+		else
+		{
+			sendToClient(":ft_irc 403" + client.getNickname() + " " + channel.getName() + " :No such channel" + END, client);
+			return (1);
+		}
+	}
+	return (0);
+}
+
 void Server::printClients(void)
 {
 	std::cout << "Total Clients:" << _clients.size() << std::endl;

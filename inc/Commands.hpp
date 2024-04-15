@@ -9,5 +9,4 @@
 # define PRIVMSG 103
 # define JOIN 104
 # define QUIT 200
-
 #endif

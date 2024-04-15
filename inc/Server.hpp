@@ -61,7 +61,7 @@ class Server
 
 		void	notifyOfOtherClientJoiningChannel(Client &client, Channel &channel);
 		void	responseForClientJoiningChannel(Client &client, Channel &channel);
-
+		int		SetTopic(Client &client,Channel &channel, std::string& newTopic);
 		
 };
 
