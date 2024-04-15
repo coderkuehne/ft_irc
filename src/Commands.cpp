@@ -146,24 +146,26 @@ void Server::welcomePrompt(Client &client, Channel &channel)
 
 int Server::joinChannel(std::string& channelName, std::string& key, Client &client)
 {
-	//std::cout << "what is input " << client.getNickname() << " and " << args[1][0] << " ." << std::endl;
+	std::cout << "what is input " << channelName << " ." << std::endl;
 	if (channelName.empty())
 	{
-		sendToClient(":ft_irc 461 *" + client.getNickname() + " " + "JOIN" + " :Not enough parameters" + END, client);
+		std::cout << "what is input " << client.getNickname() << " ." << std::endl;
+
+		sendToClient(":ft_irc 461" + client.getNickname() + " JOIN " + ":Not enough parameters" + END, client);
 		return (1);
 	}
 	if (channelName[0] != '#')
 	{
-		sendToClient(":ft_irc 476 " + channelName + " :Bad Channel Mask" + END, client);
+		sendToClient(":ft_irc 476 " + channelName + " :Bad Channel Mask, Put '#' Before Channel Name" + END, client);
 		return (1);
 	}
+
 	for (size_t i = 0; i < _channels.size(); i++)
 	{
 		if (channelName == _channels[i].getName())
 		{
 			_channels[i].addClient(client);
 			welcomePrompt(client, _channels[i]);
-			//sendToClient(":ft_irc 332 * :"+ _channels[i].getTopic() + END, client);
 			return (0);
 		}
 	}
@@ -173,12 +175,6 @@ int Server::joinChannel(std::string& channelName, std::string& key, Client &clie
 	newChannel.addClient(client);
 	std::cout << "hiello?" << std::endl;
 	welcomePrompt(client, newChannel);
-	// sendToClient(":" + client.getNickname() + " JOIN " + newChannel.getName() + END, client);
-	// sendToClient(":ft_irc 332 " + client.getNickname() + " " + newChannel.getName() + " :" + newChannel.getTopic() + END, client);
-	// for (size_t i = 0; i < _clients.size(); i++)
-	// 	sendToClient(":ft_irc 353 " + client.getNickname() + " = " + newChannel.getName() + " :" + _clients[i].getNickname() + END, client);
-	// sendToClient(":ft_irc 366 " + client.getNickname() + " " + newChannel.getName() + " :End of /NAMES list" + END, client);
-
 	return (0);
 }
 
