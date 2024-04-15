@@ -182,16 +182,19 @@ int Server::joinChannel(std::string& channelName, std::string& key, Client &clie
 	return (0);
 }
 
-int Server::cmd_quit(Client &client)
+int Server::quit(Client &client, const std::string& quitMessage)
 {
 	for (size_t i = 0; i < _clients.size(); i++)
 	{
-		if (_clients[i].getSocket() == client.getSocket())
+		if (_clients[i] == client)
 		{
 			//part from all channels
 			_clients.erase(_clients.begin() + i);
 			_fds.erase(_fds.begin() + i + 1);
 		}
+	}
+	for (size_t i = 0; i < _clients.size(); ++i) {
+		sendToClient(":" + client.getNickname() + " QUIT :Quit " + quitMessage + END, _clients[i]);
 	}
 	return (0);
 }
