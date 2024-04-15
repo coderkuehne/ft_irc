@@ -117,7 +117,7 @@ int Server::acceptSocket()
 }
 
 //sends a message to the client
-int Server::sendToClient(std::string message, Client& client)
+int	Server::sendToClient(const std::string& message, const Client& client) const
 {
 	if (send(client.getSocket(), message.c_str(), message.length(), 0) < 0)
 	{
@@ -130,7 +130,7 @@ int Server::sendToClient(std::string message, Client& client)
 	return (0);
 }
 
-int Server::receiveFromClient(Client& sender)
+int	Server::receiveFromClient(Client& sender)
 {
 	char	buffer[BUFFER_SIZE];
 	bzero(buffer, BUFFER_SIZE);
@@ -149,17 +149,11 @@ int Server::receiveFromClient(Client& sender)
 		parseCommand(bufferStr, sender);
 		return (bytes);
 	}
-
-	std::cout << RED << "Client disconnected" << RESET << std::endl;
-	for (size_t i = 0; i < _clients.size(); i++)
-	{
-		if (_clients[i].getSocket() == sender.getSocket())
-		{
-			_clients.erase(_clients.begin() + i);
-			_fds.erase(_fds.begin() + i + 1);
-		}
+	else {
+		std::cout << RED << "Client disconnected" << RESET << std::endl;
+		std::string	message = "User has been disconnected";
+		quit(sender, message);
 	}
-	close(sender.getSocket());
 	return (0);
 }
 
@@ -178,15 +172,6 @@ Client*	Server::getClient(const std::string& nick)
 			return &_clients[i];
 	}
 	return (NULL);
-}
-
-Client*	Server::checkClientRegistered(const std::string& username)
-{
-	for (clientIt it = _clients.begin(); it != _clients.end(); ++it) {
-		if (username == it->getUsername())
-			return &(*it);
-	}
-	return NULL;
 }
 
 void Server::closeSocket()
