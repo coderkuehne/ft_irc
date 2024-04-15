@@ -19,7 +19,7 @@ void	Server::parseCommand(std::string clientPackage, Client& client) {
 		int	cmd = convertCommand(command);
 		switch(cmd) {
 			case QUIT: {
-				//quit();
+				cmd_quit(client);
 				return;
 			}
 			case PASS: {

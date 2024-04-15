@@ -130,6 +130,23 @@ int Server::sendToClient(std::string message, Client& client)
 	return (0);
 }
 
+int Server::sendToChannel(std::string message, Channel &channel, Client &client)
+{
+	for (size_t i = 0; i < channel.getClients().size(); i++)
+	{
+		if (send(channel.getClients()[i].getSocket(), message.c_str(), message.length(), 0) < 0 
+			&& channel.getClients()[i].getSocket() != client.getSocket())
+		{
+			std::cerr << RED << "Error sending message" << RESET << std::endl;
+			return (-1);
+		}
+		else
+			if (DEBUG)
+				std::cout << GREEN << "Sent: " << message << " to socket " << channel.getClients()[i].getSocket() << RESET << std::endl;
+	}
+	return (0);
+}
+
 int Server::receiveFromClient(Client& sender)
 {
 	char	buffer[BUFFER_SIZE];
@@ -176,6 +193,16 @@ Client*	Server::getClient(const std::string& nick)
 			std::cout << "clients[i].getNickname(): " << _clients[i].getNickname() << std::endl;
 		if (nick == _clients[i].getNickname())
 			return &_clients[i];
+	}
+	return (NULL);
+}
+
+Channel *Server::getChannel(const std::string& name)
+{
+	for (size_t i = 0; i < _channels.size(); i++)
+	{
+		if (name == _channels[i].getName())
+			return (&_channels[i]);
 	}
 	return (NULL);
 }

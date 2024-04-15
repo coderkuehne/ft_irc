@@ -81,6 +81,26 @@ void	Server::registerClient(Client &client) {
 	}
 }
 
+int Server::ChannelMessage(std::string& target, std::string& message, std::string& receivedString, Client &client)
+{
+	if (target.empty() || message.empty())
+	{
+		std::cerr << RED << "Invalid command" << RESET << std::endl;
+		sendToClient(":ft_irc 461 * :Not enough parameters" + END, client);
+		return (1);
+	}
+
+	Channel	*channel = getChannel(target);
+	if (!channel)
+	{
+		std::cerr << RED << "Invalid target" << RESET << std::endl;
+		sendToClient(":ft_irc 401 * :No such channel" + END, client);
+		return (1);
+	}
+	sendToChannel(":" + client.getNickname() + " " + receivedString + END, *channel, client);
+	return (0);
+}
+
 int Server::message(std::string& target, std::string& message, std::string& receivedString, Client &client)
 {
 	if (target.empty() || message.empty())
@@ -91,7 +111,7 @@ int Server::message(std::string& target, std::string& message, std::string& rece
 	}
 
 	if (target[0] == '#') {
-		//channel message
+		ChannelMessage(target, message, receivedString, client);
 		return 1;
 	}
 
@@ -104,35 +124,6 @@ int Server::message(std::string& target, std::string& message, std::string& rece
 	}
 	sendToClient(":" + client.getNickname() + " " + receivedString + END, *recipient);
 	return 0;
-//
-//	Client	*target;
-//
-//	if (msg_size < 3)
-//	{
-//		std::cerr << RED << "Invalid command" << RESET << std::endl;
-//		sendToClient(":ft_irc 461 * :Not enough parameters" + END, client);
-//		return (0);
-//	}
-//	if (args[1][0] == '#')
-//	{
-//		//channel message
-//		return (0);
-//	}
-//	else
-//	{
-//		target = getClient(args[1]);
-//		if (!target)
-//		{
-//			std::cerr << RED << "Invalid target" << RESET << std::endl;
-//			sendToClient(":ft_irc 401 * :No such nick/channel" + END, client);
-//			return (0);
-//		}
-//	}
-//	std::string		message;
-//	for (size_t i = 1; i < msg_size; i++)
-//		message += args[i] + " ";
-//	sendToClient(":" + client.getNickname() + " PRIVMSG " + target->getNickname() + " :" + message + END, *target);
-//	return (1);
 }
 
 void Server::welcomePrompt(Client &client, Channel &channel)

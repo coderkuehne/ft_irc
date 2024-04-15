@@ -30,7 +30,7 @@ class Server
 		int		createSocket(void);
 		int		acceptSocket(void);
 		int		sendToClient(std::string, Client&);
-		int		sendToChannel(std::string, Channel &channel);
+		int		sendToChannel(std::string, Channel &, Client &);
 		int		receiveFromClient(Client&);
 		void	closeSocket(void);
 
@@ -52,6 +52,7 @@ class Server
 		void	registerClient(Client& client);
 
 		int		message(std::string&, std::string&, std::string&, Client &client);
+		int		ChannelMessage(std::string&, std::string&, std::string&, Client &client);
 		int		joinChannel(std::string&, std::string&, Client&);
 		int		cmd_leave(std::vector<std::string> args);
 		int		cmd_quit(Client &client);
