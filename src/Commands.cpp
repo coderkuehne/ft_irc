@@ -126,7 +126,7 @@ int Server::message(std::string& target, std::string& message, std::string& rece
 	return 0;
 }
 
-void Server::welcomePrompt(Client &client, Channel &channel)
+void Server::responseForClientJoiningChannel(Client &client, Channel &channel)
 {
 	sendToClient(":" + client.getNickname() + " JOIN " + channel.getName() + END, client);
 	sendToClient(":ft_irc 332 " + client.getNickname() + " " + channel.getName() + " :" + channel.getTopic() + END, client);
@@ -153,17 +153,19 @@ int Server::joinChannel(std::string& channelName, std::string& key, Client &clie
 		if (channelName == _channels[i].getName())
 		{
 			_channels[i].addClient(client);
-			welcomePrompt(client, _channels[i]);
-			//sendToClient(":ft_irc 332 * :"+ _channels[i].getTopic() + END, client);
+			responseForClientJoiningChannel(client, _channels[i]);
+			sendToChannel(":" + client.getNickname() + " JOIN " + _channels[i].getName() + END, _channels[i], client);
 			return (0);
 		}
 	}
 	Channel newChannel(channelName, key); //if no key is supplied, key is set to ""
+	newChannel.addClient(client);
+
 	addChannel(newChannel);
 
-	newChannel.addClient(client);
 	std::cout << "hiello?" << std::endl;
-	welcomePrompt(client, newChannel);
+	responseForClientJoiningChannel(client, newChannel);
+
 	// sendToClient(":" + client.getNickname() + " JOIN " + newChannel.getName() + END, client);
 	// sendToClient(":ft_irc 332 " + client.getNickname() + " " + newChannel.getName() + " :" + newChannel.getTopic() + END, client);
 	// for (size_t i = 0; i < _clients.size(); i++)

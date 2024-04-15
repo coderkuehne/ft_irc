@@ -56,10 +56,12 @@ class Server
 		int		joinChannel(std::string&, std::string&, Client&);
 		int		cmd_leave(std::vector<std::string> args);
 		int		cmd_quit(Client &client);
-		void	addChannel(Channel channel){ _channels.push_back(channel); };
+		void	addChannel(Channel &channel){ _channels.push_back(channel); };
 		void	printClients(void);
 
-		void	welcomePrompt(Client &client, Channel &channel);
+		void	notifyOfOtherClientJoiningChannel(Client &client, Channel &channel);
+		void	responseForClientJoiningChannel(Client &client, Channel &channel);
+
 		
 };
 

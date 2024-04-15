@@ -132,10 +132,14 @@ int Server::sendToClient(std::string message, Client& client)
 
 int Server::sendToChannel(std::string message, Channel &channel, Client &client)
 {
+		// if (client.getNickname() != channel.getClients()[i].getNickname())
+		// 	sendToClient(message, channel.getClients()[i]);
 	for (size_t i = 0; i < channel.getClients().size(); i++)
 	{
-		if (send(channel.getClients()[i].getSocket(), message.c_str(), message.length(), 0) < 0 
-			&& channel.getClients()[i].getSocket() != client.getSocket())
+		// Client&	recipient = channel.getClients()[i];
+		// std::cout << "clients: " << channel.getClients()[i].getNickname() << std::endl;
+		if (channel.getClients()[i].getSocket() != client.getSocket() 
+			&& send(channel.getClients()[i].getSocket(), message.c_str(), message.length(), 0) < 0 )
 		{
 			std::cerr << RED << "Error sending message" << RESET << std::endl;
 			return (-1);
