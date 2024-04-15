@@ -11,6 +11,7 @@ Server::Server(const std::string& port, const std::string& password): _port(port
 Server::~Server()
 {
 	closeSocket();
+	free(_serverInfo);
 	std::cout << "Shutting down" << std::endl;
 }
 
