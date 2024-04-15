@@ -9,9 +9,12 @@ OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.cpp=.o))
 
 NAME = ircserv
 
+PRUNE = git fetch --prune
+
 all:$(NAME)
 
 $(NAME): $(OBJ)
+	$(PRUNE)
 	@$(CXX) $(CXX_FLAGS) $(OBJ) -o $(NAME)
 	@echo "OK"
 

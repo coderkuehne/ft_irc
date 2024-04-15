@@ -31,6 +31,6 @@
 # define ERR_NICKNAMEINUSE 433
 # define ERR_NEEDMOREPARAMS 461
 
-const std::string    END = "\r\n";
+const std::string	END = "\r\n";
 
 #endif
