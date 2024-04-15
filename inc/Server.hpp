@@ -29,14 +29,14 @@ class Server
 		void	setHints(void);
 		int		createSocket(void);
 		int		acceptSocket(void);
-		int		sendToClient(std::string, Client&);
-		int		sendToChannel(std::string, Channel &channel);
+		int		sendToClient(const std::string&, const Client&) const;
+		int		sendToChannel(std::string, Channel &channel, Client &client);
 		int		receiveFromClient(Client&);
-		void	closeSocket(void);
+		void	closeSockets(void);
 
 		Client*	checkClientRegistered(const std::string&);
 
-		void	parseCommand(std::string, Client&);
+		void	parseCommand(const std::string&, Client&);
 
 		int	authenticatePassword(Client&, std::string&);
 //		bool	registerClientNames(Client&, std::string&);
@@ -47,18 +47,21 @@ class Server
 
 		static void	signalHandler(int signum);
 
-		int		changeNickname(std::string nick, Client &client);
-		int		setUsername(std::string user, Client &client);
-		void	registerClient(Client& client);
+		int		changeNickname(const std::string& nick, Client &client);
+		int		setUsername(const std::string& user, Client &client) const;
+		void	registerClient(Client& client) const;
 
 		int		message(std::string&, std::string&, std::string&, Client &client);
+		int		ChannelMessage(std::string&, std::string&, std::string&, Client &client);
 		int		joinChannel(std::string&, std::string&, Client&);
 		int		cmd_leave(std::vector<std::string> args);
-		int		cmd_quit(Client &client);
+		int		quit(Client &client, std::string& quitMessage);
 		void	addChannel(Channel channel){ _channels.push_back(channel); };
 		void	printClients(void);
 
-		void	welcomePrompt(Client &client, Channel &channel);
+		void	notifyOfOtherClientJoiningChannel(Client &client, Channel &channel);
+		void	responseForClientJoiningChannel(Client &client, Channel &channel);
+
 		
 };
 

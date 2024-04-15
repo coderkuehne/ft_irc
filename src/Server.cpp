@@ -10,7 +10,8 @@ Server::Server(const std::string& port, const std::string& password): _port(port
 
 Server::~Server()
 {
-	closeSocket();
+	closeSockets();
+	free(_serverInfo);
 	std::cout << "Shutting down" << std::endl;
 }
 
@@ -117,7 +118,7 @@ int Server::acceptSocket()
 }
 
 //sends a message to the client
-int Server::sendToClient(std::string message, Client& client)
+int	Server::sendToClient(const std::string& message, const Client& client) const
 {
 	if (send(client.getSocket(), message.c_str(), message.length(), 0) < 0)
 	{
@@ -127,6 +128,27 @@ int Server::sendToClient(std::string message, Client& client)
 	else
 		if (DEBUG)
 			std::cout << GREEN << "Sent: " << message << " to socket " << client.getSocket() << RESET << std::endl;
+	return (0);
+}
+
+int Server::sendToChannel(std::string message, Channel &channel, Client &client)
+{
+		// if (client.getNickname() != channel.getClients()[i].getNickname())
+		// 	sendToClient(message, channel.getClients()[i]);
+	for (size_t i = 0; i < channel.getClients().size(); i++)
+	{
+		// Client&	recipient = channel.getClients()[i];
+		// std::cout << "clients: " << channel.getClients()[i].getNickname() << std::endl;
+		if (channel.getClients()[i].getSocket() != client.getSocket() 
+			&& send(channel.getClients()[i].getSocket(), message.c_str(), message.length(), 0) < 0 )
+		{
+			std::cerr << RED << "Error sending message" << RESET << std::endl;
+			return (-1);
+		}
+		else
+			if (DEBUG)
+				std::cout << GREEN << "Sent: " << message << " to socket " << channel.getClients()[i].getSocket() << RESET << std::endl;
+	}
 	return (0);
 }
 
@@ -149,17 +171,11 @@ int Server::receiveFromClient(Client& sender)
 		parseCommand(bufferStr, sender);
 		return (bytes);
 	}
-
-	std::cout << RED << "Client disconnected" << RESET << std::endl;
-	for (size_t i = 0; i < _clients.size(); i++)
-	{
-		if (_clients[i].getSocket() == sender.getSocket())
-		{
-			_clients.erase(_clients.begin() + i);
-			_fds.erase(_fds.begin() + i + 1);
-		}
+	else {
+		std::cout << RED << "Client disconnected" << RESET << std::endl;
+		std::string	message = "User has been disconnected";
+		quit(sender, message);
 	}
-	close(sender.getSocket());
 	return (0);
 }
 
@@ -180,6 +196,16 @@ Client*	Server::getClient(const std::string& nick)
 	return (NULL);
 }
 
+Channel *Server::getChannel(const std::string& name)
+{
+	for (size_t i = 0; i < _channels.size(); i++)
+	{
+		if (name == _channels[i].getName())
+			return (&_channels[i]);
+	}
+	return (NULL);
+}
+
 Client*	Server::checkClientRegistered(const std::string& username)
 {
 	for (clientIt it = _clients.begin(); it != _clients.end(); ++it) {
@@ -189,7 +215,7 @@ Client*	Server::checkClientRegistered(const std::string& username)
 	return NULL;
 }
 
-void Server::closeSocket()
+void Server::closeSockets()
 {
 	for (size_t i = 0; i < _clients.size(); i++)
 	{

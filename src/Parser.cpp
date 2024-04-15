@@ -2,7 +2,7 @@
 #include "Parser.hpp"
 #include "Commands.hpp"
 
-void	Server::parseCommand(std::string clientPackage, Client& client) {
+void	Server::parseCommand(const std::string& clientPackage, Client& client) {
 	std::vector <std::string> commands = splitStringByEND(clientPackage);
 
 	for (std::vector<std::string>::iterator it = commands.begin(); it != commands.end(); ++it) {
@@ -17,9 +17,9 @@ void	Server::parseCommand(std::string clientPackage, Client& client) {
 		not_ss >> parameter2;
 
 		int	cmd = convertCommand(command);
-		switch(cmd) {
+		switch (cmd) {
 			case QUIT: {
-				//quit();
+				quit(client, parameter);
 				return;
 			}
 			case PASS: {
@@ -29,6 +29,8 @@ void	Server::parseCommand(std::string clientPackage, Client& client) {
 			}
 			case 0:
 				continue;
+			default:
+				break;
 		}
 		if (!client.isAuthenticated()) {
 			sendToClient("ERROR :This server requires a password" + END, client);
