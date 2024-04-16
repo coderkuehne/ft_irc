@@ -187,14 +187,17 @@ int Server::joinChannel(std::string& channelName, std::string& key, Client &clie
 
 int Server::quit(Client &client, std::string& quitMessage)
 {
-	for (size_t i = 0; i < _clients.size(); i++)
+	for (clientIt it = _clients.begin(); it != _clients.end(); ++it)
 	{
-		if (_clients[i] == client)
+		if (*it == client)
 		{
 			//part from all channels
+
 			close(client.getSocket());
-			_clients.erase(_clients.begin() + i);
-			_fds.erase(_fds.begin() + i + 1);
+			_fds.erase(_fds.begin() + std::distance(_clients.begin(), it) + 1);
+			_clients.erase(it);
+			std::cout << "Successful quit" << std::endl;
+			break;
 		}
 	}
 	for (size_t i = 0; i < _clients.size(); ++i) {
