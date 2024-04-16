@@ -145,7 +145,7 @@ int Server::sendToChannel(std::string message, Channel &channel, Client &client)
 	for (size_t i = 0; i < channel.getClients().size(); i++)
 	{
 		target = channel.getClients()[i].getSocket();
-		if (target != sender 
+		if ((target != sender) 
 			&& send(target, message.c_str(), message.length(), 0) < 0 )
 		{
 			std::cerr << RED << "Error sending message" << RESET << std::endl;

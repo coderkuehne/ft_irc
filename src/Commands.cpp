@@ -217,7 +217,9 @@ int Server::kickClient(const std::string &_channel,const std::string &_target, C
 		sendToClient(":ft_irc 401 * :No such channel" + END, client);
 		return (0);
 	}
+	std::cout << "Channel : " << channel->getName() << std::endl;
 	sendToClient(":" + client.getNickname() + " KICK " + _channel + " " + _target + END, client);
+	sendToChannel(":" + client.getNickname() + " KICK " + _channel + " " + _target + END, *channel , client);
 	channel->removeClient(_target);
 	std::cout << "target : " << target->getNickname() << std::endl;
 	std::cout << client.getNickname() << " kicked " << _target << " from " << _channel << std::endl;
