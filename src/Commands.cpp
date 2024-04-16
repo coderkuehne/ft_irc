@@ -190,7 +190,7 @@ int Server::quit(Client &client, std::string& quitMessage)
 	return (0);
 }
 
-int Server::SetTopic(Client &client, std::string& channel, std::string& newTopic)
+int Server::cmdTopic(Client &client, std::string& channel, std::string& newTopic)
 {
 	if (newTopic.empty())
 	{
@@ -208,12 +208,14 @@ int Server::SetTopic(Client &client, std::string& channel, std::string& newTopic
 			}
 			if (newTopic.empty())
 			{
-				//just print the current topic
+				sendToClient(":ft_irc 332 " + client.getNickname() + " " + _channels[i].getName() + " :" + _channels[i].getTopic() + END, client);
+				return (1);
 			}
 			else
 			{
-				//set the topic
-				//let others know who set the topic and what is the topic 
+				_channels[i].setTopic(newTopic);
+				for (size_t j = 0; j < _clients.size(); j++)
+					sendToClient(":ft_irc 333 " + _clients[j].getNickname() + " " + _channels[i].getName() + " " + client.getNickname() + " " + "setat whatever that fucking is" + END, client);
 			}
 		}
 		else

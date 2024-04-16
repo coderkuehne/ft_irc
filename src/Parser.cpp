@@ -51,7 +51,7 @@ void	Server::parseCommand(const std::string& clientPackage, Client& client) {
 				break;
 			}
 			case TOPIC: {
-				SetTopic(client, parameter, parameter2);
+				cmdTopic(client, parameter, parameter2);
 				break;
 			}
 			case PRIVMSG: {
@@ -97,7 +97,7 @@ int	convertCommand(const std::string& command) {
 	else if (command == "JOIN") {
 		return JOIN;
 	}
-	else if (command == "JOIN") {
+	else if (command == "TOPIC") {
 		return TOPIC;
 	}
 	return 0;

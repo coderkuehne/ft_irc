@@ -20,6 +20,7 @@ class Channel
 		std::string	getName() { return _name; };
 		std::string getTopic() { return _topic;};
 		std::vector<Client>	getClients() { return _clients; };
+		void	setTopic(const std::string& topic) { _topic = topic; };
 		void	setKey(const std::string& key) { _key = key; };
 		void	addClient(Client client) { _clients.push_back(client); };
 		void	removeClient(Client client) { (void)client; return ; };
