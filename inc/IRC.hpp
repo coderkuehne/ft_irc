@@ -33,4 +33,8 @@
 
 const std::string	END = "\r\n";
 
+class Client;
+typedef std::vector<std::string>::iterator	stringIt;
+typedef std::vector<Client>::iterator		clientIt;
+
 #endif

@@ -7,7 +7,6 @@
 
 class Server
 {
-	typedef std::vector<Client>::iterator	clientIt;
 	private:
 		const std::string&	_port;
 		const std::string	_password;
@@ -61,6 +60,7 @@ class Server
 
 		void	notifyOfOtherClientJoiningChannel(Client &client, Channel &channel);
 		void	responseForClientJoiningChannel(Client &client, Channel &channel);
+		void	names(Client& client, std::string& channelName);
 
 		
 };
