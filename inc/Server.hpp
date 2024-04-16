@@ -20,6 +20,8 @@ class Server
 		std::vector<struct pollfd>	_fds;
 		static bool					_running;
 
+		int	guestCount;
+
 	public:
 		Server(const std::string& port = "7779", const std::string& password = "123");
 		~Server(void);
@@ -47,7 +49,7 @@ class Server
 		static void	signalHandler(int signum);
 
 		int		changeNickname(const std::string& nick, Client &client);
-		int		setUsername(const std::string& user, Client &client) const;
+		int		setUsername(std::string& user, Client &client);
 		void	registerClient(Client& client) const;
 
 		int		message(std::string&, std::string&, std::string&, Client &client);

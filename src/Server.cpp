@@ -5,6 +5,7 @@
 Server::Server(const std::string& port, const std::string& password): _port(port), _password(password)
 {
 	_running = false;
+	guestCount = 0;
 	memset(&_hints, 0, sizeof(_hints));
 }
 

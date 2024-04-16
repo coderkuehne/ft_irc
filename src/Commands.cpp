@@ -42,7 +42,7 @@ int	Server::changeNickname(const std::string& nick, Client &client)
 	return (0);
 }
 
-int	Server::setUsername(const std::string& user, Client &client) const
+int	Server::setUsername(std::string& user, Client &client)
 {
 	if (client.isRegistered()) {
 		std::cerr << RED << "User already registered" << RESET << std::endl;
@@ -55,19 +55,15 @@ int	Server::setUsername(const std::string& user, Client &client) const
 		sendToClient(":ft_irc 431 :No username given" + END, client);
 		return (-1);
 	}
-//	if (user[0] == '#' || user[0] == ':' || user[0] == ' ')
-//	{
-//		std::cerr << RED << "Invalid username" << RESET << std::endl;
-//		sendToClient(":ft_irc 432 Erroneous username" + END, client);
-//		return (-1);
-//	}
 	for (size_t i = 0; i < _clients.size(); i++)
 	{
 		if (user == _clients[i].getUsername())
 		{
 			std::cerr << RED << "Username already in use" << RESET << std::endl;
-			sendToClient(":ft_irc 462 :User is already registered" + END, client);
-			return (-1);
+			sendToClient(":ft_irc NOTICE :Username is taken, registering as guest" + END, client);
+			std::stringstream	ss;
+			ss << ++guestCount;
+			user = "Guest" + ss.str();
 		}
 	}
 	client.setUsername(user);
