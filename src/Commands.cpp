@@ -89,7 +89,7 @@ int Server::ChannelMessage(std::string& target, std::string& message, std::strin
 		sendToClient(":ft_irc 461 * :Not enough parameters" + END, client);
 		return (1);
 	}
-
+	
 	Channel	*channel = getChannel(target);
 	if (!channel)
 	{
@@ -200,4 +200,15 @@ void Server::printClients(void)
 	{
 		std::cout << "\tClient " << i << ": " << _clients[i].getNickname() << " Username : " << _clients[i].getUsername() << "on Socket :" << _clients[i].getSocket() << std::endl;
 	}
+}
+
+int Server::kickClient(const std::string _channel,const std::string &_target, Client &client)
+{
+	//check if client is operator;
+	Client *target = getClient(_target);
+	std::cout << "target : " << target->getNickname() << std::endl;
+	if (target == NULL)
+		sendToClient(":" + client.getNickname() + " " + _target + " " + _channel + END, client);
+	std::cout << client.getNickname() << " kicked " << _target << " from " << _channel << std::endl;
+	return (0);
 }

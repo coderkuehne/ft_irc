@@ -54,6 +54,10 @@ void	Server::parseCommand(const std::string& clientPackage, Client& client) {
 				message(parameter, parameter2, *it, client);
 				break;
 			}
+			case KICK: {
+				kickClient(parameter, parameter2, client);
+				break;
+			}
 			default: {
 				break;
 			}
@@ -92,6 +96,9 @@ int	convertCommand(const std::string& command) {
 	}
 	else if (command == "JOIN") {
 		return JOIN;
+	}
+	else if (command == "KICK") {
+		return KICK;
 	}
 	return 0;
 }

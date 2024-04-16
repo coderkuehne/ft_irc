@@ -62,7 +62,7 @@ class Server
 		void	notifyOfOtherClientJoiningChannel(Client &client, Channel &channel);
 		void	responseForClientJoiningChannel(Client &client, Channel &channel);
 
-		
+		int		kickClient(const std::string channel, const std::string &target, Client &client);
 };
 
 #endif
