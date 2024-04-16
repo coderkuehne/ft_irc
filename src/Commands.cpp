@@ -22,18 +22,18 @@ int	Server::changeNickname(const std::string& nick, Client &client)
 	if (nick.empty())
 	{
 		std::cerr << RED << "No nickname given" << RESET << std::endl;
-		sendToClient(":ft_irc 431 :No nickname given" + END, client);
+		sendToClient(":ft_irc 431 * :No nickname given" + END, client);
 		return (-1);
 	}
 	if (nick[0] == '#' || nick[0] == ':' || nick[0] == ' ')
 	{
 		std::cerr << RED << "Invalid nickname" << RESET << std::endl;
-		sendToClient(":ft_irc 432 :Erroneous nickname" + END, client);
+		sendToClient(":ft_irc 432" + (client.getNickname().empty() ? "*" : nick) + " :Erroneous nickname" + END, client);
 		return (-1);
 	}
 	if (getClient(nick)) {
 		std::cerr << RED << "Nickname already in use" << RESET << std::endl;
-		sendToClient(":ft_irc 433 :Nickname is already in use" + END, client);
+		sendToClient(":ft_irc 433 " + (client.getNickname().empty() ? "*" : nick) + " :Nickname is already in use" + END, client);
 		return (-1);
 	}
 	client.setNickname(nick);
@@ -52,7 +52,7 @@ int	Server::setUsername(std::string& user, Client &client)
 	if (user.empty())
 	{
 		std::cerr << RED << "No username given" << RESET << std::endl;
-		sendToClient(":ft_irc 431 :No username given" + END, client);
+		sendToClient(":ft_irc 431 " + (client.getNickname().empty() ? "*" : client.getUsername()) + " :No username given" + END, client);
 		return (-1);
 	}
 	for (size_t i = 0; i < _clients.size(); i++)
@@ -60,7 +60,7 @@ int	Server::setUsername(std::string& user, Client &client)
 		if (user == _clients[i].getUsername())
 		{
 			std::cerr << RED << "Username already in use" << RESET << std::endl;
-			sendToClient(":ft_irc NOTICE :Username is taken, registering as guest" + END, client);
+			sendToClient(":ft_irc NOTICE " + (client.getNickname().empty() ? "*" : client.getNickname()) + " :Username is taken, registering as guest" + END, client);
 			std::stringstream	ss;
 			ss << ++guestCount;
 			user = "Guest" + ss.str();
@@ -74,6 +74,7 @@ int	Server::setUsername(std::string& user, Client &client)
 void	Server::registerClient(Client &client) const {
 	if (!client.isRegistered() && !client.getNickname().empty() && !client.getUsername().empty()) {
 		client.beRegistered();
+		std::cout << "New user registered: Nickname: " << client.getNickname() << " Username: " << client.getUsername() << std::endl;
 		sendToClient(":ft_irc 001 " + client.getNickname() + " :Welcome to our ft_irc server, " + client.getNickname() + END, client);
 	}
 }
