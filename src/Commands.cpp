@@ -130,9 +130,21 @@ void Server::responseForClientJoiningChannel(Client &client, Channel &channel)
 {
 	sendToClient(":" + client.getNickname() + " JOIN " + channel.getName() + END, client);
 	sendToClient(":ft_irc 332 " + client.getNickname() + " " + channel.getName() + " :" + channel.getTopic() + END, client);
-	for (size_t i = 0; i < channel.getClientsSize(); i++)
-		sendToClient(":ft_irc 353 " + channel.getClients()[i].getNickname() + " = " + channel.getName() + " :" + _clients[i].getNickname() + END, client);
-	sendToClient(":ft_irc 366 " + client.getNickname() + " " + channel.getName() + " :End of /NAMES list" + END, client);
+}
+
+void	Server::names(Client& client, std::string& channelName)
+{
+	Channel	*channel = getChannel(channelName);
+	if (!channel)
+	{
+		sendToClient(":ft_irc 401 * :No such channel" + END, client);
+		return;
+	}
+	std::string	list = channel->getClientList();
+	sendToClient(":ft_irc 353 " + client.getNickname() + " = " + channelName + " :" + channel->getClientList() + END, client);
+	sendToClient(":ft_irc 366 " + client.getNickname() + " " + channelName + " :End of /NAMES list" + END, client);
+//	sendToClient(":ft_irc 352 " + client.getNickname() + " " + channel->getName() + " " + list + END, client);
+//	sendToClient(":ft_irc 315 " + client.getNickname() + " " + channel->getName() + " :End of /WHO list" + END, client);
 }
 
 int Server::joinChannel(std::string& channelName, std::string& key, Client &client)
@@ -159,7 +171,7 @@ int Server::joinChannel(std::string& channelName, std::string& key, Client &clie
 		}
 	}
 	Channel newChannel(channelName, key); //if no key is supplied, key is set to ""
-	newChannel.addClient(client);
+	newChannel.addOperator(client);
 
 	addChannel(newChannel);
 

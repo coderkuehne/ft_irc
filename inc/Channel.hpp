@@ -9,6 +9,7 @@ class Channel
 		std::string	_name;
 		std::string	_topic;
 		std::string _key;
+		std::vector<Client>	_operators;
 		std::vector<Client>	_clients;
 
 	public:
@@ -23,7 +24,27 @@ class Channel
 		size_t	getClientsSize(){ return _clients.size(); }
 		void	setKey(const std::string& key) { _key = key; };
 		void	addClient(Client client) { _clients.push_back(client); };
+		void	addOperator(Client client) { _operators.push_back(client); };
 		void	removeClient(Client client) { (void)client; return ; };
+
+
+
+
+		std::string	getClientList(void) {
+			std::string	list = "";
+			for (clientIt it = _operators.begin(); it != _operators.end(); ++it) {
+				if (!list.empty())
+					list += " ";
+				list += "@" + it->getNickname();
+			}
+			for (clientIt it = _clients.begin(); it != _clients.end(); ++it) {
+				if (!list.empty())
+					list += " ";
+				list += it->getNickname();
+			}
+			return list;
+		}
+
 };
 
 #endif

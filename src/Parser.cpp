@@ -54,6 +54,10 @@ void	Server::parseCommand(const std::string& clientPackage, Client& client) {
 				message(parameter, parameter2, *it, client);
 				break;
 			}
+			case WHO: {
+				names(client, parameter);
+				break;
+			}
 			default: {
 				break;
 			}
@@ -92,6 +96,9 @@ int	convertCommand(const std::string& command) {
 	}
 	else if (command == "JOIN") {
 		return JOIN;
+	}
+	else if (command == "WHO") {
+		return WHO;
 	}
 	return 0;
 }
