@@ -37,6 +37,7 @@ int	Server::changeNickname(const std::string& nick, Client &client)
 		return (-1);
 	}
 	client.setNickname(nick);
+	sendToClient(":ft_irc NICK " + nick + END, client);
 	registerClient(client);
 	return (0);
 }
