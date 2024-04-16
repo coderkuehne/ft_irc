@@ -19,10 +19,25 @@ class Channel
 
 		std::string	getName() { return _name; };
 		std::string getTopic() { return _topic;};
-		std::vector<Client>	getClients() { return _clients; };
+		std::vector<Client>	getClients() { return _clients; }
 		void	setKey(const std::string& key) { _key = key; };
 		void	addClient(Client client) { _clients.push_back(client); };
-		void	removeClient(Client client) { (void)client; return ; };
+		void	removeClient(const std::string &name)
+		{
+			for (size_t i = 0; i < _clients.size(); i++)
+			{
+				std::cout << " searching user to remove "<< _clients[i].getNickname() << std::endl;
+				if (name == _clients[i].getNickname())
+				{
+					std::cout << "gotcha" << std::endl;
+					_clients.erase(_clients.begin() + i);
+					if (DEBUG)
+						std::cout << "removed " << _clients[i].getNickname() << " from " << _name << std::endl;
+					return ;
+				}
+			}
+			return ;
+		};
 };
 
 #endif

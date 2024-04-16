@@ -202,13 +202,24 @@ void Server::printClients(void)
 	}
 }
 
-int Server::kickClient(const std::string _channel,const std::string &_target, Client &client)
+int Server::kickClient(const std::string &_channel,const std::string &_target, Client &client)
 {
 	//check if client is operator;
 	Client *target = getClient(_target);
-	std::cout << "target : " << target->getNickname() << std::endl;
 	if (target == NULL)
-		sendToClient(":" + client.getNickname() + " " + _target + " " + _channel + END, client);
+	{
+		sendToClient(":ft_irc 441 " + client.getNickname() + " " + _target + " " + _channel + " " + ":They aren`t on that Channel" + END, client);
+		return (0);
+	}
+	Channel *channel = getChannel(_channel);
+	if (channel == NULL)
+	{
+		sendToClient(":ft_irc 401 * :No such channel" + END, client);
+		return (0);
+	}
+	sendToClient(":" + client.getNickname() + " KICK " + _channel + " " + _target + END, client);
+	channel->removeClient(_target);
+	std::cout << "target : " << target->getNickname() << std::endl;
 	std::cout << client.getNickname() << " kicked " << _target << " from " << _channel << std::endl;
-	return (0);
+	return (1);
 }
