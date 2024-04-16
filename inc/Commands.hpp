@@ -9,4 +9,5 @@
 # define PRIVMSG 103
 # define JOIN 104
 # define QUIT 200
+# define TOPIC 77 //should it be random?
 #endif

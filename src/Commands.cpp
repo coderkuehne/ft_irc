@@ -190,7 +190,7 @@ int Server::quit(Client &client, std::string& quitMessage)
 	return (0);
 }
 
-int Server::SetTopic(Client &client, Channel &channel, std::string& newTopic)
+int Server::SetTopic(Client &client, std::string& channel, std::string& newTopic)
 {
 	if (newTopic.empty())
 	{
@@ -199,11 +199,11 @@ int Server::SetTopic(Client &client, Channel &channel, std::string& newTopic)
 	}
 	for (size_t i = 0; i < _channels.size(); i++)
 	{
-		if (channel.getName() == _channels[i].getName())
+		if (channel == _channels[i].getName())
 		{
 			if (client not connected to the channel)
 			{
-				sendToClient(":ft_irc 442" + client.getNickname() + " " + channel.getName() + " :You're not on that channel" + END, client);
+				sendToClient(":ft_irc 442" + client.getNickname() + " " + _channels[i].getName() + " :You're not on that channel" + END, client);
 				return (1);
 			}
 			if (newTopic.empty())
@@ -218,7 +218,7 @@ int Server::SetTopic(Client &client, Channel &channel, std::string& newTopic)
 		}
 		else
 		{
-			sendToClient(":ft_irc 403" + client.getNickname() + " " + channel.getName() + " :No such channel" + END, client);
+			sendToClient(":ft_irc 403" + client.getNickname() + " " + channel + " :No such channel" + END, client);
 			return (1);
 		}
 	}
