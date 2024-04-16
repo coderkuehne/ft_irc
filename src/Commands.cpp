@@ -130,8 +130,8 @@ void Server::responseForClientJoiningChannel(Client &client, Channel &channel)
 {
 	sendToClient(":" + client.getNickname() + " JOIN " + channel.getName() + END, client);
 	sendToClient(":ft_irc 332 " + client.getNickname() + " " + channel.getName() + " :" + channel.getTopic() + END, client);
-	for (size_t i = 0; i < _clients.size(); i++)
-		sendToClient(":ft_irc 353 " + client.getNickname() + " = " + channel.getName() + " :" + _clients[i].getNickname() + END, client);
+	for (size_t i = 0; i < channel.getClientsSize(); i++)
+		sendToClient(":ft_irc 353 " + channel.getClients()[i].getNickname() + " = " + channel.getName() + " :" + _clients[i].getNickname() + END, client);
 	sendToClient(":ft_irc 366 " + client.getNickname() + " " + channel.getName() + " :End of /NAMES list" + END, client);
 }
 
