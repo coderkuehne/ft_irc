@@ -195,9 +195,9 @@ int isClientConnectedToChannel(Client &client, Channel &channel)
 	for (size_t j = 0; j < channel.getClients().size(); j++)
     {
         if (channel.getClients()[j].getNickname() == client.getNickname())
-            return 1;
+            return (1);
     }	
-    return 0;
+    return (0);
 }
 
 int Server::cmdTopic(Client &client, std::string& channel, std::string& newTopic)
@@ -227,7 +227,7 @@ int Server::cmdTopic(Client &client, std::string& channel, std::string& newTopic
 				for (size_t j = 0; j < _clients.size(); j++)
 				{
 					sendToClient(":ft_irc 333 " + _clients[j].getNickname() + " " + _channels[i].getName() + " " + client.getNickname() + " " + "setat whatever that fucking is" + END, _clients[j]);
-					sendToClient(":ft_irc 332 " + client.getNickname() + " " + _channels[i].getName() + " :" + _channels[i].getTopic() + END, _clients[j]);
+					sendToChannel(":ft_irc 332 " + _clients[j].getNickname() + " " + _channels[i].getName() + " :" + _channels[i].getTopic() + END, _channels[i], _clients[j]);
 				}
 			}
 		}
