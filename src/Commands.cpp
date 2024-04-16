@@ -190,23 +190,33 @@ int Server::quit(Client &client, std::string& quitMessage)
 	return (0);
 }
 
+int isClientConnectedToChannel(Client &client, Channel &channel)
+{
+	for (size_t j = 0; j < channel.getClients().size(); j++)
+    {
+        if (channel.getClients()[j].getNickname() == client.getNickname())
+            return 1;
+    }	
+    return 0;
+}
+
 int Server::cmdTopic(Client &client, std::string& channel, std::string& newTopic)
 {
-	if (newTopic.empty())
+	if (channel.empty())
 	{
 		sendToClient(":ft_irc 461" + client.getNickname() + " TOPIC " + ":Not enough parameters" + END, client);
 		return (1);
-	}
+	}	
 	for (size_t i = 0; i < _channels.size(); i++)
 	{
 		if (channel == _channels[i].getName())
 		{
-			if (client not connected to the channel)
+			if (!isClientConnectedToChannel(client, _channels[i]))
 			{
 				sendToClient(":ft_irc 442" + client.getNickname() + " " + _channels[i].getName() + " :You're not on that channel" + END, client);
 				return (1);
 			}
-			if (newTopic.empty())
+			else if (newTopic.empty())
 			{
 				sendToClient(":ft_irc 332 " + client.getNickname() + " " + _channels[i].getName() + " :" + _channels[i].getTopic() + END, client);
 				return (1);
@@ -215,7 +225,10 @@ int Server::cmdTopic(Client &client, std::string& channel, std::string& newTopic
 			{
 				_channels[i].setTopic(newTopic);
 				for (size_t j = 0; j < _clients.size(); j++)
-					sendToClient(":ft_irc 333 " + _clients[j].getNickname() + " " + _channels[i].getName() + " " + client.getNickname() + " " + "setat whatever that fucking is" + END, client);
+				{
+					sendToClient(":ft_irc 333 " + _clients[j].getNickname() + " " + _channels[i].getName() + " " + client.getNickname() + " " + "setat whatever that fucking is" + END, _clients[j]);
+					sendToClient(":ft_irc 332 " + client.getNickname() + " " + _channels[i].getName() + " :" + _channels[i].getTopic() + END, _clients[j]);
+				}
 			}
 		}
 		else
