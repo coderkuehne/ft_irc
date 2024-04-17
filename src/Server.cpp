@@ -141,7 +141,7 @@ int Server::sendToChannel(std::string message, Channel &channel, Client &client)
 	{
 		// Client&	recipient = channel.getClients()[i];
 		// std::cout << "clients: " << channel.getClients()[i].getNickname() << std::endl;
-		if (channel.getClients()[i].getSocket() != client.getSocket() 
+		if (channel.getClients()[i].getSocket() != client.getSocket()
 			&& send(channel.getClients()[i].getSocket(), message.c_str(), message.length(), 0) < 0 )
 		{
 			std::cerr << RED << "Error sending message" << RESET << std::endl;
@@ -165,7 +165,7 @@ int Server::receiveFromClient(Client& sender)
 		buffer[bytes] = '\0';
 		std::string	bufferStr(buffer);
 		if (DEBUG)
-			std::cout << GREEN << "Received: " << bufferStr << RESET << std::endl;
+			std::cout << GREEN << "Received: " << bufferStr << " from " << sender.getNickname() << " socket " << sender.getSocket() << RESET << std::endl;
 
 //		//TEMP DEBUG
 //		if ()
