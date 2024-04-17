@@ -1,6 +1,6 @@
 #include "Server.hpp"
 #include "Client.hpp"
-#define DEBUG 1
+
 
 Server::Server(const std::string& port, const std::string& password): _port(port), _password(password)
 {
@@ -134,21 +134,27 @@ int	Server::sendToClient(const std::string& message, const Client& client) const
 
 int Server::sendToChannel(std::string message, Channel &channel, Client &client)
 {
-		// if (client.getNickname() != channel.getClients()[i].getNickname())
-		// 	sendToClient(message, channel.getClients()[i]);
+	int target;
+	int sender = client.getSocket();
+
+	if (message.empty())
+	{
+		std::cerr << RED << "Invalid command" << RESET << std::endl;
+		sendToClient(":ft_irc 461 * :Not enough parameters", client);
+		return (1);
+	}
 	for (size_t i = 0; i < channel.getClients().size(); i++)
 	{
-		// Client&	recipient = channel.getClients()[i];
-		// std::cout << "clients: " << channel.getClients()[i].getNickname() << std::endl;
-		if (channel.getClients()[i].getSocket() != client.getSocket() 
-			&& send(channel.getClients()[i].getSocket(), message.c_str(), message.length(), 0) < 0 )
+		target = channel.getClients()[i].getSocket();
+		if ((target != sender) 
+			&& send(target, message.c_str(), message.length(), 0) < 0 )
 		{
 			std::cerr << RED << "Error sending message" << RESET << std::endl;
 			return (-1);
 		}
 		else
 			if (DEBUG)
-				std::cout << GREEN << "Sent: " << message << " to socket " << channel.getClients()[i].getSocket() << RESET << std::endl;
+				std::cout << GREEN << "Sent: " << message << " to socket " << target << RESET << std::endl;
 	}
 	return (0);
 }

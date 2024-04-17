@@ -46,6 +46,22 @@ class Channel
 			return list;
 		}
 
+		void	removeClient(const std::string &name)
+		{
+			for (size_t i = 0; i < _clients.size(); i++)
+			{
+				std::cout << " searching user to remove "<< _clients[i].getNickname() << std::endl;
+				if (name == _clients[i].getNickname())
+				{
+					std::cout << "gotcha" << std::endl;
+					_clients.erase(_clients.begin() + i);
+					if (DEBUG)
+						std::cout << "removed " << _clients[i].getNickname() << " from " << _name << std::endl;
+					return ;
+				}
+			}
+			return ;
+		};
 };
 
 #endif

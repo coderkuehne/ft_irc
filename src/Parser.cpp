@@ -60,6 +60,9 @@ void	Server::parseCommand(const std::string& clientPackage, Client& client) {
 			}
 			case WHO: {
 				names(client, parameter);
+			}
+			case KICK: {
+				kickClient(parameter, parameter2, client);
 				break;
 			}
 			default: {
@@ -107,6 +110,9 @@ int	convertCommand(const std::string& command) {
 	else if (command == "TOPIC") 
 	{
 		return TOPIC;
+	}
+	else if (command == "KICK") {
+		return KICK;
 	}
 	return 0;
 }
