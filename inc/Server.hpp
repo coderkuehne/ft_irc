@@ -64,6 +64,7 @@ class Server
 		void	responseForClientJoiningChannel(Client &client, Channel &channel);
 		void	names(Client& client, std::string& channelName);
 
+		int		cmdTopic(Client &client, std::string& channel, std::string& newTopic);
 		
 };
 

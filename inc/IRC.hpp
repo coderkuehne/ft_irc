@@ -18,6 +18,7 @@
 # include <poll.h>
 # include <sstream>
 # include <cstdlib>
+# include <ctime>
 
 # define RED "\033[31m"
 # define GREEN "\033[32m"

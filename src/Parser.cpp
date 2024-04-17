@@ -50,6 +50,10 @@ void	Server::parseCommand(const std::string& clientPackage, Client& client) {
 				joinChannel(parameter, parameter2, client);
 				break;
 			}
+			case TOPIC: {
+				cmdTopic(client, parameter, parameter2);
+				break;
+			}
 			case PRIVMSG: {
 				message(parameter, parameter2, *it, client);
 				break;
@@ -99,6 +103,10 @@ int	convertCommand(const std::string& command) {
 	}
 	else if (command == "WHO") {
 		return WHO;
+	}
+	else if (command == "TOPIC") 
+	{
+		return TOPIC;
 	}
 	return 0;
 }

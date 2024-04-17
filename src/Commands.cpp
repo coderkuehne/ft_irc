@@ -147,17 +147,20 @@ void	Server::names(Client& client, std::string& channelName)
 
 int Server::joinChannel(std::string& channelName, std::string& key, Client &client)
 {
-	//std::cout << "what is input " << client.getNickname() << " and " << args[1][0] << " ." << std::endl;
+	std::cout << "what is input " << channelName << " ." << std::endl;
 	if (channelName.empty())
 	{
-		sendToClient(":ft_irc 461 *" + client.getNickname() + " " + "JOIN" + " :Not enough parameters" + END, client);
+		std::cout << "what is input " << client.getNickname() << " ." << std::endl;
+
+		sendToClient(":ft_irc 461" + client.getNickname() + " JOIN " + ":Not enough parameters" + END, client);
 		return (1);
 	}
 	if (channelName[0] != '#')
 	{
-		sendToClient(":ft_irc 476 " + channelName + " :Bad Channel Mask" + END, client);
+		sendToClient(":ft_irc 476 " + channelName + " :Bad Channel Mask, Put '#' Before Channel Name" + END, client);
 		return (1);
 	}
+
 	for (size_t i = 0; i < _channels.size(); i++)
 	{
 		if (channelName == _channels[i].getName())
@@ -175,12 +178,6 @@ int Server::joinChannel(std::string& channelName, std::string& key, Client &clie
 
 	std::cout << "hiello?" << std::endl;
 	responseForClientJoiningChannel(client, newChannel);
-
-	// sendToClient(":" + client.getNickname() + " JOIN " + newChannel.getName() + END, client);
-	// sendToClient(":ft_irc 332 " + client.getNickname() + " " + newChannel.getName() + " :" + newChannel.getTopic() + END, client);
-	// for (size_t i = 0; i < _clients.size(); i++)
-	// 	sendToClient(":ft_irc 353 " + client.getNickname() + " = " + newChannel.getName() + " :" + _clients[i].getNickname() + END, client);
-	// sendToClient(":ft_irc 366 " + client.getNickname() + " " + newChannel.getName() + " :End of /NAMES list" + END, client);
 
 	return (0);
 }
@@ -202,6 +199,61 @@ int Server::quit(Client &client, std::string& quitMessage)
 	}
 	for (size_t i = 0; i < _clients.size(); ++i) {
 		sendToClient(":" + client.getNickname() + " QUIT :Quit " + quitMessage + END, _clients[i]);
+	}
+	return (0);
+}
+
+int isClientConnectedToChannel(Client &client, Channel &channel)
+{
+	for (size_t j = 0; j < channel.getClients().size(); j++)
+    {
+        if (channel.getClients()[j].getNickname() == client.getNickname())
+            return (1);
+    }	
+    return (0);
+}
+
+int Server::cmdTopic(Client &client, std::string& channel, std::string& newTopic)
+{	
+	std::time_t currentTime = std::time(NULL);
+	std::string timestampStr = std::ctime(&currentTime);
+
+	std::cout << "curr time is: " << timestampStr << std::endl;
+	if (channel.empty())
+	{
+		sendToClient(":ft_irc 461" + client.getNickname() + " TOPIC " + ":Not enough parameters" + END, client);
+		return (1);
+	}	
+	for (size_t i = 0; i < _channels.size(); i++)
+	{
+		if (channel == _channels[i].getName())
+		{
+			if (!isClientConnectedToChannel(client, _channels[i]))
+			{
+				sendToClient(":ft_irc 442" + client.getNickname() + " " + _channels[i].getName() + " :You're not on that channel" + END, client);
+				return (1);
+			}
+			else if (newTopic.empty())
+			{
+				sendToClient(":ft_irc 332 " + client.getNickname() + " " + _channels[i].getName() + " :" + _channels[i].getTopic() + END, client);
+				return (1);
+			}
+			else
+			{
+				_channels[i].setTopic(newTopic);
+				std::cout << "so now the topic is " << _channels[i].getTopic() << std::endl;
+				for (size_t j = 0; j < _clients.size(); j++)
+				{
+					sendToClient(":ft_irc 333 " + _clients[j].getNickname() + " " + _channels[i].getName() + " " + client.getNickname() + " " + timestampStr + END, _clients[j]);
+					sendToChannel(":ft_irc 332 " + _clients[j].getNickname() + " " + _channels[i].getName() + " " + _channels[i].getTopic() + END, _channels[i], _clients[j]);
+				}
+			}
+		}
+		else
+		{
+			sendToClient(":ft_irc 403" + client.getNickname() + " " + channel + " :No such channel" + END, client);
+			return (1);
+		}
 	}
 	return (0);
 }

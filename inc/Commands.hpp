@@ -10,5 +10,5 @@
 # define JOIN 104
 # define WHO 105
 # define QUIT 200
-
+# define TOPIC 77 //should it be random?
 #endif
