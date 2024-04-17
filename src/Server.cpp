@@ -1,6 +1,6 @@
 #include "Server.hpp"
 #include "Client.hpp"
-
+#include "Commands.hpp"
 
 Server::Server(const std::string& port, const std::string& password): _port(port), _password(password)
 {
@@ -170,7 +170,7 @@ int Server::receiveFromClient(Client& sender)
 		buffer[bytes] = '\0';
 		std::string	bufferStr(buffer);
 		if (DEBUG)
-			std::cout << GREEN << "Received: " << bufferStr << RESET << std::endl;
+			std::cout << GREEN << "Received: " << bufferStr << " from " << sender.getNickname() << " socket " << sender.getSocket() << RESET << std::endl;
 
 //		//TEMP DEBUG
 //		if ()
@@ -186,7 +186,7 @@ int Server::receiveFromClient(Client& sender)
 	return (0);
 }
 
-Client*	Server::getClient(const std::string& nick)
+Client*	Server::findClient(const std::string& nick)
 {
 	if (DEBUG)
 	{
@@ -203,7 +203,7 @@ Client*	Server::getClient(const std::string& nick)
 	return (NULL);
 }
 
-Channel *Server::getChannel(const std::string& name)
+Channel *Server::findChannel(const std::string& name)
 {
 	for (size_t i = 0; i < _channels.size(); i++)
 	{

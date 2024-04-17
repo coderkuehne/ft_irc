@@ -1,22 +1,30 @@
 #include "Server.hpp"
 #include "Parser.hpp"
 #include "Commands.hpp"
+#include "IRC.hpp"
 
 void	Server::parseCommand(const std::string& clientPackage, Client& client) {
 	std::vector <std::string> commands = splitStringByEND(clientPackage);
 
 	for (std::vector<std::string>::iterator it = commands.begin(); it != commands.end(); ++it) {
 		std::string			command;
-		std::istringstream	not_ss(*it);
-		not_ss >> command;
+		std::istringstream	notSS(*it);
+		notSS >> command;
 
-		std::string	parameter = "";
-		not_ss >> parameter; //this should always be the first argument after command
+		std::string	parameter;
+		notSS >> parameter; //this should always be the first argument after command
 
-		std::string	parameter2 = "";
-		not_ss >> parameter2;
+		std::string	parameter2;
+		notSS >> parameter2;
 
-		int	cmd = convertCommand(command);
+		std::string	message;
+		size_t		colon = clientPackage.find(':', 1);
+		if (colon != std::string::npos)
+			message = clientPackage.substr();
+		else
+			message = "";
+
+		int	cmd = commandToMacro(command);
 		switch (cmd) {
 			case QUIT: {
 				quit(client, parameter);
@@ -55,7 +63,7 @@ void	Server::parseCommand(const std::string& clientPackage, Client& client) {
 				break;
 			}
 			case PRIVMSG: {
-				message(parameter, parameter2, *it, client);
+				sendMessage(parameter, parameter2, *it, client);
 				break;
 			}
 			case WHO: {
@@ -85,7 +93,7 @@ std::vector<std::string>	splitStringByEND(const std::string& str) {
 	return tokens;
 }
 
-int	convertCommand(const std::string& command) {
+int	commandToMacro(const std::string& command) {
 	if (command == "QUIT") {
 		return QUIT;
 	}
@@ -115,4 +123,34 @@ int	convertCommand(const std::string& command) {
 		return KICK;
 	}
 	return 0;
+}
+
+std::string	macroToCommand(int command) {
+	if (command == QUIT) {
+		return "QUIT";
+	}
+	else if (command == PASS) {
+		return "PASS";
+	}
+	else if (command == NICK) {
+		return "NICK";
+	}
+	else if (command == USER) {
+		return "USER";
+	}
+	else if (command == PRIVMSG) {
+		return "PRIVMSG";
+	}
+	else if (command == JOIN) {
+		return "JOIN";
+	}
+	else if (command == WHO) {
+		return "WHO";
+	}
+	else if (command > 0) {
+		std::stringstream	ss;
+		ss << std::setw(3) << std::setfill('0') << command;
+		return ss.str();
+	}
+	return "";
 }

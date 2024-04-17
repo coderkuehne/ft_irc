@@ -43,8 +43,8 @@ class Server
 //		bool	registerClientNames(Client&, std::string&);
 //		void	authenticateClient(Client&, std::string&);
 
-		Client*		getClient(const std::string&);
-		Channel*	getChannel(const std::string&);
+		Client*		findClient(const std::string&);
+		Channel*	findChannel(const std::string&);
 
 		static void	signalHandler(int signum);
 
@@ -52,7 +52,7 @@ class Server
 		int		setUsername(std::string& user, Client &client);
 		void	registerClient(Client& client) const;
 
-		int		message(std::string&, std::string&, std::string&, Client &client);
+		int		sendMessage(std::string&, std::string&, std::string&, Client &client);
 		int		ChannelMessage(std::string&, std::string&, std::string&, Client &client);
 		int		joinChannel(std::string&, std::string&, Client&);
 		int		cmd_leave(std::vector<std::string> args);
