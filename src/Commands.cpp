@@ -34,7 +34,7 @@ int	Server::changeNickname(const std::string& nick, Client &client)
 	}
 	if (getClient(nick)) {
 		std::cerr << RED << "Nickname already in use" << RESET << std::endl;
-		sendToClient(":ft_irc 433 " + (client.getNickname().empty() ? "*" : nick) + " :Nickname is already in use" + END, client);
+		sendToClient(":ft_irc 433 * " + nick + " :Nickname is already in use" + END, client);
 		return (-1);
 	}
 	client.setNickname(nick);
