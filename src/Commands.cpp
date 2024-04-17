@@ -4,18 +4,14 @@
 #include "Commands.hpp"
 
 int	Server::authenticatePassword(Client& client, std::string& inputPassword) {
-	if (inputPassword.empty()) {
-			sendToClient(":ft_irc 461 * :No password provided" + END, client);
-			return -1;
-		}
+	if (inputPassword.empty())
+			return sendToClient(buildReply(SERVER, client, 461, ""), client);
 	if (inputPassword == _password) {
 		client.beAuthenticated();
 		return 0;
 	}
-	else {
-		sendToClient(":ft_irc 464 * :Password is incorrect" + END, client);
-		return -1;
-	}
+	else
+		return sendToClient(buildReply(SERVER, client, 464, ""), client);
 }
 
 int	Server::changeNickname(const std::string& nick, Client &client)
@@ -23,14 +19,12 @@ int	Server::changeNickname(const std::string& nick, Client &client)
 	if (nick.empty())
 	{
 		std::cerr << RED << "No nickname given" << RESET << std::endl;
-		sendToClient(":ft_irc 431 * :No nickname given" + END, client);
-		return (-1);
+		return sendToClient(buildReply(SERVER, client, 431, ""), client);
 	}
 	if (nick[0] == '#' || nick[0] == ':' || nick[0] == ' ')
 	{
 		std::cerr << RED << "Invalid nickname" << RESET << std::endl;
-		sendToClient(":ft_irc 432" + (client.getNickname().empty() ? "*" : nick) + " :Erroneous nickname" + END, client);
-		return (-1);
+		return sendToClient(buildReply(SERVER, client, 432, ""), client);
 	}
 	if (findClient(nick)) {
 		std::cerr << RED << "Nickname already in use" << RESET << std::endl;
@@ -76,7 +70,7 @@ void	Server::registerClient(Client &client) const {
 	if (!client.isRegistered() && !client.getNickname().empty() && !client.getUsername().empty()) {
 		client.beRegistered();
 		std::cout << "New user registered: Nickname: " << client.getNickname() << " Username: " << client.getUsername() << std::endl;
-		sendToClient(buildReply(SERVER, client, 001, "", NULL), client);
+		sendToClient(buildReply(SERVER, client, 001, ""), client);
 	}
 }
 
@@ -186,13 +180,7 @@ int Server::joinChannel(std::string& channelName, std::string& key, Client &clie
 	return (0);
 }
 
-bool	requiresChannel(int code) {
-	if (code == JOIN || code == 332 || code == 353 || code == 366)
-		return true;
-	return false;
-}
-
-std::string	buildReply(const std::string& sender, Client& recipient, int messageCode, const std::string& message, Channel* channel) {
+std::string	buildReply(const std::string& sender, Client& recipient, int messageCode, const std::string& message, int paramCount, ...) {
 	std::string	reply;
 	if (!sender.empty())
 		reply += ":" + sender + " ";
@@ -201,8 +189,12 @@ std::string	buildReply(const std::string& sender, Client& recipient, int message
 		reply +=  "* ";
 	else
 		reply += recipient.getNickname() + " ";
-	if (requiresChannel(messageCode) && channel)
-		reply += channel->getName()  + " ";
+
+	va_list	args;
+	va_start(args, paramCount);
+	for (int i = 0; i < paramCount; ++i)
+		reply += std::string(va_arg(args, char *)) + " ";
+
 	if ((messageCode >= 1 && messageCode <= 5) || messageCode > 400 || messageCode == 366) // pre-defined: 1-5 are welcome, 400+ are errors
 		reply += NUMERIC_REPLIES.at(messageCode);
 	else if (!message.empty())

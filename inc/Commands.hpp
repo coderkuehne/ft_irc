@@ -11,6 +11,6 @@
 # define WHO 105
 # define QUIT 169
 
-std::string	buildReply(const std::string&, Client&, int, const std::string&, Channel*);
+std::string	buildReply(const std::string& sender, Client& recipient, const std::string& message, int messageCode, ...);
 
 #endif

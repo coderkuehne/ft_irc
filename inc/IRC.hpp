@@ -20,6 +20,7 @@
 # include <cstdlib>
 # include <sstream>
 # include <iomanip>
+# include <cstdarg>
 
 # define RED "\033[31m"
 # define GREEN "\033[32m"
@@ -33,7 +34,6 @@
 # define ERR_NICKNAMEINUSE 433
 # define ERR_NEEDMOREPARAMS 461
 
-const	std::string	SERVER = "ft_irc";
 const	std::string	END = "\r\n";
 
 inline std::map<int, std::string> generateNumericReplies() {
