@@ -55,6 +55,7 @@ class Server
 		int		sendMessage(std::string&, std::string&, std::string&, Client &client);
 		int		ChannelMessage(std::string&, std::string&, std::string&, Client &client);
 		int		joinChannel(std::string&, std::string&, Client&);
+		int		partChannel(const std::string&, const std::string&, Client&);
 		int		cmd_leave(std::vector<std::string> args);
 		int		quit(Client &client, std::string& quitMessage);
 		void	addChannel(Channel channel){ _channels.push_back(channel); };

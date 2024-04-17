@@ -58,6 +58,10 @@ void	Server::parseCommand(const std::string& clientPackage, Client& client) {
 				joinChannel(parameter, parameter2, client);
 				break;
 			}
+			case PART: {
+				partChannel(parameter, parameter2, client);
+				break;
+			}
 			case TOPIC: {
 				cmdTopic(client, parameter, parameter2);
 				break;
@@ -121,6 +125,9 @@ int	commandToMacro(const std::string& command) {
 	}
 	else if (command == "KICK") {
 		return KICK;
+	}
+	else if (command == "PART") {
+		return PART;
 	}
 	return 0;
 }

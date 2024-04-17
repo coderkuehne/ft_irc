@@ -288,24 +288,40 @@ void Server::printClients(void)
 
 int Server::kickClient(const std::string &_channel,const std::string &_target, Client &client)
 {
-	//check if client is operator;
+	Channel *channel = findChannel(_channel);
+
+	if (!channel->clientIsOp(client))
+	{
+		sendToClient(":ft_irc 481 " + client.getNickname() + " " + channel->getName() + " :You`re not a channel operator" + END, client);
+		return (0);
+	}
 	Client *target = findClient(_target);
 	if (target == NULL)
 	{
 		sendToClient(":ft_irc 441 " + client.getNickname() + " " + _target + " " + _channel + " " + ":They aren`t on that Channel" + END, client);
 		return (0);
 	}
-	Channel *channel = findChannel(_channel);
 	if (channel == NULL)
 	{
-		sendToClient(":ft_irc 401 * :No such channel" + END, client);
+		sendToClient(":ft_irc NOTICE " + client.getNickname() + ": No such channel" + END, client);
 		return (0);
 	}
-	std::cout << "Channel : " << channel->getName() << std::endl;
 	sendToClient(":" + client.getNickname() + " KICK " + _channel + " " + _target + END, client);
 	sendToChannel(":" + client.getNickname() + " KICK " + _channel + " " + _target + END, *channel , client);
 	channel->removeClient(_target);
-	std::cout << "target : " << target->getNickname() << std::endl;
-	std::cout << client.getNickname() << " kicked " << _target << " from " << _channel << std::endl;
+	return (1);
+}
+
+int Server::partChannel(const std::string &_channel, const std::string &_reason, Client &client)
+{
+	Channel *channel = findChannel(_channel);
+	if (channel == NULL)
+	{
+		sendToClient(":ft_irc NOTICE " + client.getNickname() + " " + _channel + " :No such channel" + END, client);
+		return (0);
+	}
+	std::cout << "Parting because " << _reason << std::endl;
+	sendToClient(":" + client.getNickname() + " PART " + _channel + " " +_reason + END, client);
+	sendToChannel(":" + client.getNickname() + " PART " + _channel + " " + _reason + END, *channel , client);
 	return (1);
 }

@@ -63,6 +63,35 @@ class Channel
 			}
 			return ;
 		};
+
+		void	removeOperator(const std::string &name)
+		{
+			for (size_t i = 0; i < _operators.size(); i++)
+			{
+				std::cout << " searching user to remove "<< _operators[i].getNickname() << std::endl;
+				if (name == _operators[i].getNickname())
+				{
+					std::cout << "gotcha" << std::endl;
+					_operators.erase(_operators.begin() + i);
+					if (DEBUG)
+						std::cout << "removed " << _operators[i].getNickname() << " from " << _name << std::endl;
+					return ;
+				}
+			}
+			return ;
+		}
+
+		bool	clientIsOp(const Client Client)
+		{
+			std::string name = Client.getNickname();
+		
+    		for (size_t i = 0; i < _operators.size(); ++i)
+			{
+        		if (_operators[i].getNickname() == name)
+            		return (true);
+			}
+    		return (false);
+    	}
 };
 
 #endif

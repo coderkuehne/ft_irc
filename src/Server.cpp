@@ -138,6 +138,12 @@ int Server::sendToChannel(std::string message, Channel &channel, Client &client)
 	int target_op = -1;
 	int sender = client.getSocket();
 
+	if (message.empty())
+	{
+		std::cerr << RED << "Invalid command" << RESET << std::endl;
+		sendToClient(":ft_irc 461 * :Not enough parameters", client);
+		return (1);
+	}
 	for (size_t i = 0; i < channel.getOps().size(); ++i)
 	{
 		target_op = channel.getOps()[i].getSocket();

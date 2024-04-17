@@ -10,6 +10,7 @@
 # define JOIN 104
 # define WHO 105
 # define KICK 106
+# define PART 107
 # define TOPIC 77 //should it be random?
 # define QUIT 169
 
