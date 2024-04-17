@@ -33,7 +33,26 @@
 # define ERR_NICKNAMEINUSE 433
 # define ERR_NEEDMOREPARAMS 461
 
-const std::string	END = "\r\n";
+const	std::string	SERVER = "ft_irc";
+const	std::string	END = "\r\n";
+
+inline std::map<int, std::string> generateNumericReplies() {
+	std::map<int, std::string> map;
+	map[001] = ":Welcome to our ft_irc server, ";
+	map[401] = ":No such nick";
+	map[403] = ":No such channel";
+	map[404] = ":Cannot send to channel";
+	map[431] = ":Not enough parameters";
+	map[432] = ":Erroneous nickname";
+	map[433] = ":Nickname already in use";
+	map[461] = ":Not enough parameters";
+	map[462] = ":User is already registered";
+	map[464] = ":Password is incorrect";
+	map[476] = ":Bad channel mask";
+	return map;
+}
+
+const std::map<int, std::string> NUMERIC_REPLIES = generateNumericReplies();
 
 class Client;
 typedef std::vector<std::string>::iterator	stringIt;

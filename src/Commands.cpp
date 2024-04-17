@@ -1,6 +1,7 @@
 #include "Server.hpp"
 #include "Parser.hpp"
 #include "Client.hpp"
+#include "Commands.hpp"
 
 int	Server::authenticatePassword(Client& client, std::string& inputPassword) {
 	if (inputPassword.empty()) {
@@ -75,7 +76,7 @@ void	Server::registerClient(Client &client) const {
 	if (!client.isRegistered() && !client.getNickname().empty() && !client.getUsername().empty()) {
 		client.beRegistered();
 		std::cout << "New user registered: Nickname: " << client.getNickname() << " Username: " << client.getUsername() << std::endl;
-		sendToClient(":ft_irc 001 " + client.getNickname() + " :Welcome to our ft_irc server, " + client.getNickname() + END, client);
+		sendToClient(buildReply(SERVER, client, 001, ""), client);
 	}
 }
 
@@ -99,7 +100,7 @@ int Server::ChannelMessage(std::string& target, std::string& message, std::strin
 	return (0);
 }
 
-int Server::message(std::string& target, std::string& message, std::string& receivedString, Client &client)
+int Server::sendMessage(std::string& target, std::string& message, std::string& receivedString, Client &client)
 {
 	if (target.empty() || message.empty())
 	{
@@ -190,9 +191,17 @@ std::string	buildReply(const std::string& sender, Client& recipient, int message
 	if (!sender.empty())
 		reply += ":" + sender + " ";
 	reply += macroToCommand(messageCode) + " ";
-	if (1) // message requires client name included
+	if (recipient.getNickname().empty())
+		reply +=  "* ";
+	else
 		reply += recipient.getNickname() + " ";
-	reply += message + END;
+	if ((messageCode >= 1 && messageCode <= 5) || messageCode > 400) // pre-defined: 1-5 are welcome, 400+ are errors
+		reply += NUMERIC_REPLIES.at(messageCode);
+	else if (!message.empty())
+		reply += message;
+	if (messageCode == 001)
+		reply += recipient.getNickname();
+	reply += END;
 	return reply;
 }
 

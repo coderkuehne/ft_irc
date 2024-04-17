@@ -8,14 +8,21 @@ void	Server::parseCommand(const std::string& clientPackage, Client& client) {
 
 	for (std::vector<std::string>::iterator it = commands.begin(); it != commands.end(); ++it) {
 		std::string			command;
-		std::istringstream	not_ss(*it);
-		not_ss >> command;
+		std::istringstream	notSS(*it);
+		notSS >> command;
 
-		std::string	parameter = "";
-		not_ss >> parameter; //this should always be the first argument after command
+		std::string	parameter;
+		notSS >> parameter; //this should always be the first argument after command
 
-		std::string	parameter2 = "";
-		not_ss >> parameter2;
+		std::string	parameter2;
+		notSS >> parameter2;
+
+		std::string	message;
+		size_t		colon = clientPackage.find(':', 1);
+		if (colon != std::string::npos)
+			message = clientPackage.substr();
+		else
+			message = "";
 
 		int	cmd = commandToMacro(command);
 		switch (cmd) {
@@ -52,7 +59,7 @@ void	Server::parseCommand(const std::string& clientPackage, Client& client) {
 				break;
 			}
 			case PRIVMSG: {
-				message(parameter, parameter2, *it, client);
+				sendMessage(parameter, parameter2, *it, client);
 				break;
 			}
 			case WHO: {
