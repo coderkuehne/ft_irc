@@ -5,13 +5,13 @@
 
 int	Server::authenticatePassword(Client& client, std::string& inputPassword) {
 	if (inputPassword.empty())
-			return sendToClient(buildReply(SERVER, client, 461, ""), client);
+			return sendToClient(buildReply(SERVER, client, 461, "", 0), client);
 	if (inputPassword == _password) {
 		client.beAuthenticated();
 		return 0;
 	}
 	else
-		return sendToClient(buildReply(SERVER, client, 464, ""), client);
+		return sendToClient(buildReply(SERVER, client, 464, "", 0), client);
 }
 
 int	Server::changeNickname(const std::string& nick, Client &client)
@@ -19,12 +19,12 @@ int	Server::changeNickname(const std::string& nick, Client &client)
 	if (nick.empty())
 	{
 		std::cerr << RED << "No nickname given" << RESET << std::endl;
-		return sendToClient(buildReply(SERVER, client, 431, ""), client);
+		return sendToClient(buildReply(SERVER, client, 431, "", 0), client);
 	}
 	if (nick[0] == '#' || nick[0] == ':' || nick[0] == ' ')
 	{
 		std::cerr << RED << "Invalid nickname" << RESET << std::endl;
-		return sendToClient(buildReply(SERVER, client, 432, ""), client);
+		return sendToClient(buildReply(SERVER, client, 432, "", 1, nick.c_str()), client);
 	}
 	if (findClient(nick)) {
 		std::cerr << RED << "Nickname already in use" << RESET << std::endl;
@@ -70,7 +70,7 @@ void	Server::registerClient(Client &client) const {
 	if (!client.isRegistered() && !client.getNickname().empty() && !client.getUsername().empty()) {
 		client.beRegistered();
 		std::cout << "New user registered: Nickname: " << client.getNickname() << " Username: " << client.getUsername() << std::endl;
-		sendToClient(buildReply(SERVER, client, 001, ""), client);
+		sendToClient(buildReply(SERVER, client, 001, "", 1, client.getNickname().c_str()), client);
 	}
 }
 
@@ -181,9 +181,7 @@ int Server::joinChannel(std::string& channelName, std::string& key, Client &clie
 }
 
 std::string	buildReply(const std::string& sender, Client& recipient, int messageCode, const std::string& message, int paramCount, ...) {
-	std::string	reply;
-	if (!sender.empty())
-		reply += ":" + sender + " ";
+	std::string	reply = ":" + sender + " ";
 	reply += macroToCommand(messageCode) + " ";
 	if (recipient.getNickname().empty())
 		reply +=  "* ";

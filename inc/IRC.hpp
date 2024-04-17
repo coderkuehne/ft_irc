@@ -34,6 +34,7 @@
 # define ERR_NICKNAMEINUSE 433
 # define ERR_NEEDMOREPARAMS 461
 
+const	std::string	SERVER = "ft_irc";
 const	std::string	END = "\r\n";
 
 inline std::map<int, std::string> generateNumericReplies() {
