@@ -185,6 +185,17 @@ int Server::joinChannel(std::string& channelName, std::string& key, Client &clie
 	return (0);
 }
 
+std::string	buildReply(const std::string& sender, Client& recipient, int messageCode, const std::string& message) {
+	std::string	reply;
+	if (!sender.empty())
+		reply += ":" + sender + " ";
+	reply += macroToCommand(messageCode) + " ";
+	if (1) // message requires client name included
+		reply += recipient.getNickname() + " ";
+	reply += message + END;
+	return reply;
+}
+
 int Server::quit(Client &client, std::string& quitMessage)
 {
 	for (clientIt it = _clients.begin(); it != _clients.end(); ++it)

@@ -1,6 +1,7 @@
 #include "Server.hpp"
 #include "Parser.hpp"
 #include "Commands.hpp"
+#include "IRC.hpp"
 
 void	Server::parseCommand(const std::string& clientPackage, Client& client) {
 	std::vector <std::string> commands = splitStringByEND(clientPackage);
@@ -16,7 +17,7 @@ void	Server::parseCommand(const std::string& clientPackage, Client& client) {
 		std::string	parameter2 = "";
 		not_ss >> parameter2;
 
-		int	cmd = convertCommand(command);
+		int	cmd = commandToMacro(command);
 		switch (cmd) {
 			case QUIT: {
 				quit(client, parameter);
@@ -78,7 +79,7 @@ std::vector<std::string>	splitStringByEND(const std::string& str) {
 	return tokens;
 }
 
-int	convertCommand(const std::string& command) {
+int	commandToMacro(const std::string& command) {
 	if (command == "QUIT") {
 		return QUIT;
 	}
@@ -101,4 +102,34 @@ int	convertCommand(const std::string& command) {
 		return WHO;
 	}
 	return 0;
+}
+
+std::string	macroToCommand(int command) {
+	if (command == QUIT) {
+		return "QUIT";
+	}
+	else if (command == PASS) {
+		return "PASS";
+	}
+	else if (command == NICK) {
+		return "NICK";
+	}
+	else if (command == USER) {
+		return "USER";
+	}
+	else if (command == PRIVMSG) {
+		return "PRIVMSG";
+	}
+	else if (command == JOIN) {
+		return "JOIN";
+	}
+	else if (command == WHO) {
+		return "WHO";
+	}
+	else if (command > 0) {
+		std::stringstream	ss;
+		ss << std::setw(3) << std::setfill('0') << command;
+		return ss.str();
+	}
+	return "";
 }
