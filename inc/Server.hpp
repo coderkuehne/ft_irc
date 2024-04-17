@@ -43,8 +43,8 @@ class Server
 //		bool	registerClientNames(Client&, std::string&);
 //		void	authenticateClient(Client&, std::string&);
 
-		Client*		getClient(const std::string&);
-		Channel*	getChannel(const std::string&);
+		Client*		findClient(const std::string&);
+		Channel*	findChannel(const std::string&);
 
 		static void	signalHandler(int signum);
 

@@ -179,7 +179,7 @@ int Server::receiveFromClient(Client& sender)
 	return (0);
 }
 
-Client*	Server::getClient(const std::string& nick)
+Client*	Server::findClient(const std::string& nick)
 {
 	if (DEBUG)
 	{
@@ -196,7 +196,7 @@ Client*	Server::getClient(const std::string& nick)
 	return (NULL);
 }
 
-Channel *Server::getChannel(const std::string& name)
+Channel *Server::findChannel(const std::string& name)
 {
 	for (size_t i = 0; i < _channels.size(); i++)
 	{
