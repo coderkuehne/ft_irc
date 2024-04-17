@@ -21,6 +21,7 @@ class Channel
 		std::string	getName() { return _name; };
 		std::string getTopic() { return _topic;};
 		std::vector<Client>	getClients() { return _clients; };
+		std::vector<Client>	getOps() { return _operators; };
 		size_t	getClientsSize(){ return _clients.size(); }
 		void	setTopic(const std::string& topic) { _topic = topic; };
 		void	setKey(const std::string& key) { _key = key; };

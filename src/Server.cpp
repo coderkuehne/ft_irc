@@ -1,5 +1,6 @@
 #include "Server.hpp"
 #include "Client.hpp"
+#include "Commands.hpp"
 #define DEBUG 1
 
 Server::Server(const std::string& port, const std::string& password): _port(port), _password(password)
@@ -134,21 +135,19 @@ int	Server::sendToClient(const std::string& message, const Client& client) const
 
 int Server::sendToChannel(std::string message, Channel &channel, Client &client)
 {
-		// if (client.getNickname() != channel.getClients()[i].getNickname())
-		// 	sendToClient(message, channel.getClients()[i]);
+	// if (client.getNickname() != channel.getClients()[i].getNickname())
+	// 	sendToClient(message, channel.getClients()[i]);
+	for (size_t i = 0; i < channel.getOps().size(); ++i)
+	{
+		if (channel.getOps()[i].getSocket() != client.getSocket())
+			send(channel.getOps()[i].getSocket(), message.c_str(), message.length(), 0);
+	}
 	for (size_t i = 0; i < channel.getClients().size(); i++)
 	{
 		// Client&	recipient = channel.getClients()[i];
 		// std::cout << "clients: " << channel.getClients()[i].getNickname() << std::endl;
-		if (channel.getClients()[i].getSocket() != client.getSocket() 
-			&& send(channel.getClients()[i].getSocket(), message.c_str(), message.length(), 0) < 0 )
-		{
-			std::cerr << RED << "Error sending message" << RESET << std::endl;
-			return (-1);
-		}
-		else
-			if (DEBUG)
-				std::cout << GREEN << "Sent: " << message << " to socket " << channel.getClients()[i].getSocket() << RESET << std::endl;
+		if (channel.getClients()[i].getSocket() != client.getSocket())
+			send(channel.getClients()[i].getSocket(), message.c_str(), message.length(), 0);
 	}
 	return (0);
 }
@@ -164,7 +163,7 @@ int Server::receiveFromClient(Client& sender)
 		buffer[bytes] = '\0';
 		std::string	bufferStr(buffer);
 		if (DEBUG)
-			std::cout << GREEN << "Received: " << bufferStr << RESET << std::endl;
+			std::cout << GREEN << "Received: " << bufferStr << " from " << sender.getNickname() << " socket " << sender.getSocket() << RESET << std::endl;
 
 //		//TEMP DEBUG
 //		if ()
@@ -180,7 +179,7 @@ int Server::receiveFromClient(Client& sender)
 	return (0);
 }
 
-Client*	Server::getClient(const std::string& nick)
+Client*	Server::findClient(const std::string& nick)
 {
 	if (DEBUG)
 	{
@@ -197,7 +196,7 @@ Client*	Server::getClient(const std::string& nick)
 	return (NULL);
 }
 
-Channel *Server::getChannel(const std::string& name)
+Channel *Server::findChannel(const std::string& name)
 {
 	for (size_t i = 0; i < _channels.size(); i++)
 	{

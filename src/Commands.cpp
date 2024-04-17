@@ -1,20 +1,17 @@
 #include "Server.hpp"
 #include "Parser.hpp"
 #include "Client.hpp"
+#include "Commands.hpp"
 
 int	Server::authenticatePassword(Client& client, std::string& inputPassword) {
-	if (inputPassword.empty()) {
-			sendToClient(":ft_irc 461 * :No password provided" + END, client);
-			return -1;
-		}
+	if (inputPassword.empty())
+			return sendToClient(buildReply(SERVER, client, 461, "", 0), client);
 	if (inputPassword == _password) {
 		client.beAuthenticated();
 		return 0;
 	}
-	else {
-		sendToClient(":ft_irc 464 * :Password is incorrect" + END, client);
-		return -1;
-	}
+	else
+		return sendToClient(buildReply(SERVER, client, 464, "", 0), client);
 }
 
 int	Server::changeNickname(const std::string& nick, Client &client)
@@ -22,18 +19,16 @@ int	Server::changeNickname(const std::string& nick, Client &client)
 	if (nick.empty())
 	{
 		std::cerr << RED << "No nickname given" << RESET << std::endl;
-		sendToClient(":ft_irc 431 * :No nickname given" + END, client);
-		return (-1);
+		return sendToClient(buildReply(SERVER, client, 431, "", 0), client);
 	}
 	if (nick[0] == '#' || nick[0] == ':' || nick[0] == ' ')
 	{
 		std::cerr << RED << "Invalid nickname" << RESET << std::endl;
-		sendToClient(":ft_irc 432" + (client.getNickname().empty() ? "*" : nick) + " :Erroneous nickname" + END, client);
-		return (-1);
+		return sendToClient(buildReply(SERVER, client, 432, "", 1, nick.c_str()), client);
 	}
-	if (getClient(nick)) {
+	if (findClient(nick)) {
 		std::cerr << RED << "Nickname already in use" << RESET << std::endl;
-		sendToClient(":ft_irc 433 " + (client.getNickname().empty() ? "*" : nick) + " :Nickname is already in use" + END, client);
+		sendToClient(":ft_irc 433 * " + nick + " :Nickname is already in use" + END, client);
 		return (-1);
 	}
 	client.setNickname(nick);
@@ -75,7 +70,7 @@ void	Server::registerClient(Client &client) const {
 	if (!client.isRegistered() && !client.getNickname().empty() && !client.getUsername().empty()) {
 		client.beRegistered();
 		std::cout << "New user registered: Nickname: " << client.getNickname() << " Username: " << client.getUsername() << std::endl;
-		sendToClient(":ft_irc 001 " + client.getNickname() + " :Welcome to our ft_irc server, " + client.getNickname() + END, client);
+		sendToClient(buildReply(SERVER, client, 001, "", 1, client.getNickname().c_str()), client);
 	}
 }
 
@@ -88,7 +83,7 @@ int Server::ChannelMessage(std::string& target, std::string& message, std::strin
 		return (1);
 	}
 
-	Channel	*channel = getChannel(target);
+	Channel	*channel = findChannel(target);
 	if (!channel)
 	{
 		std::cerr << RED << "Invalid target" << RESET << std::endl;
@@ -99,7 +94,7 @@ int Server::ChannelMessage(std::string& target, std::string& message, std::strin
 	return (0);
 }
 
-int Server::message(std::string& target, std::string& message, std::string& receivedString, Client &client)
+int Server::sendMessage(std::string& target, std::string& message, std::string& receivedString, Client &client)
 {
 	if (target.empty() || message.empty())
 	{
@@ -113,7 +108,7 @@ int Server::message(std::string& target, std::string& message, std::string& rece
 		return 1;
 	}
 
-	Client	*recipient = getClient(target);
+	Client	*recipient = findClient(target);
 	if (!recipient)
 	{
 		std::cerr << RED << "Invalid target" << RESET << std::endl;
@@ -127,12 +122,12 @@ int Server::message(std::string& target, std::string& message, std::string& rece
 void Server::responseForClientJoiningChannel(Client &client, Channel &channel)
 {
 	sendToClient(":" + client.getNickname() + " JOIN " + channel.getName() + END, client);
-	sendToClient(":ft_irc 332 " + client.getNickname() + " " + channel.getName() + " :" + channel.getTopic() + END, client);
+	sendToClient(":ft_irc 332 " + client.getNickname() + " " + channel.getName() + " " + channel.getTopic() + END, client);
 }
 
 void	Server::names(Client& client, std::string& channelName)
 {
-	Channel	*channel = getChannel(channelName);
+	Channel	*channel = findChannel(channelName);
 	if (!channel)
 	{
 		sendToClient(":ft_irc 401 * :No such channel" + END, client);
@@ -180,6 +175,29 @@ int Server::joinChannel(std::string& channelName, std::string& key, Client &clie
 	responseForClientJoiningChannel(client, newChannel);
 
 	return (0);
+}
+
+std::string	buildReply(const std::string& sender, Client& recipient, int messageCode, const std::string& message, int paramCount, ...) {
+	std::string	reply = ":" + sender + " ";
+	reply += macroToCommand(messageCode) + " ";
+	if (recipient.getNickname().empty())
+		reply +=  "* ";
+	else
+		reply += recipient.getNickname() + " ";
+
+	va_list	args;
+	va_start(args, paramCount);
+	for (int i = 0; i < paramCount; ++i)
+		reply += std::string(va_arg(args, char *)) + " ";
+
+	if ((messageCode >= 1 && messageCode <= 5) || messageCode > 400 || messageCode == 366) // pre-defined: 1-5 are welcome, 400+ are errors
+		reply += NUMERIC_REPLIES.at(messageCode);
+	else if (!message.empty())
+		reply += message;
+	if (messageCode == 001)
+		reply += recipient.getNickname();
+	reply += END;
+	return reply;
 }
 
 int Server::quit(Client &client, std::string& quitMessage)
@@ -231,7 +249,7 @@ int Server::cmdTopic(Client &client, std::string& channel, std::string& newTopic
 			}
 			else if (newTopic.empty())
 			{
-				sendToClient(":ft_irc 332 " + client.getNickname() + " " + _channels[i].getName() + " :" + _channels[i].getTopic() + END, client);
+				sendToClient(":ft_irc 332 " + client.getNickname() + " " + _channels[i].getName() + " " + _channels[i].getTopic() + END, client);
 				return (1);
 			}
 			else

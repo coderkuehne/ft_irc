@@ -2,9 +2,8 @@
 # define PARSER_HPP
 
 std::vector<std::string>	splitStringByEND(const std::string&);
-int							convertCommand(const std::string&);
 
-int		getPassword(std::string, std::string&);
-void	getNames(std::string, std::string&, std::string&);
+int							commandToMacro(const std::string&);
+std::string					macroToCommand(int command);
 
 #endif
