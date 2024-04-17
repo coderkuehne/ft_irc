@@ -135,21 +135,19 @@ int	Server::sendToClient(const std::string& message, const Client& client) const
 
 int Server::sendToChannel(std::string message, Channel &channel, Client &client)
 {
-		// if (client.getNickname() != channel.getClients()[i].getNickname())
-		// 	sendToClient(message, channel.getClients()[i]);
+	// if (client.getNickname() != channel.getClients()[i].getNickname())
+	// 	sendToClient(message, channel.getClients()[i]);
+	for (size_t i = 0; i < channel.getOps().size(); ++i)
+	{
+		if (channel.getOps()[i].getSocket() != client.getSocket())
+			send(channel.getOps()[i].getSocket(), message.c_str(), message.length(), 0);
+	}
 	for (size_t i = 0; i < channel.getClients().size(); i++)
 	{
 		// Client&	recipient = channel.getClients()[i];
 		// std::cout << "clients: " << channel.getClients()[i].getNickname() << std::endl;
-		if (channel.getClients()[i].getSocket() != client.getSocket()
-			&& send(channel.getClients()[i].getSocket(), message.c_str(), message.length(), 0) < 0 )
-		{
-			std::cerr << RED << "Error sending message" << RESET << std::endl;
-			return (-1);
-		}
-		else
-			if (DEBUG)
-				std::cout << GREEN << "Sent: " << message << " to socket " << channel.getClients()[i].getSocket() << RESET << std::endl;
+		if (channel.getClients()[i].getSocket() != client.getSocket())
+			send(channel.getClients()[i].getSocket(), message.c_str(), message.length(), 0);
 	}
 	return (0);
 }
