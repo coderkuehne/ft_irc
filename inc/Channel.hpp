@@ -11,9 +11,10 @@ class Channel
 		std::string _key;
 		std::vector<Client>	_operators;
 		std::vector<Client>	_clients;
+		bool	_isInviteOnly;
 
 	public:
-		Channel(std::string name, std::string key): _name(name), _key(key) {
+		Channel(std::string name, std::string key): _name(name), _key(key), _isInviteOnly(false) {
 			_topic = "No topic yet";
 		};
 		~Channel() {};
@@ -27,7 +28,7 @@ class Channel
 		void	setKey(const std::string& key) { _key = key; };
 		void	addClient(Client client) { _clients.push_back(client); };
 		void	addOperator(Client client) { _operators.push_back(client); };
-		void	removeClient(Client client) { (void)client; return ; };
+		bool	getIsInviteOnly(){return (_isInviteOnly);};
 
 
 
@@ -81,9 +82,9 @@ class Channel
 			return ;
 		}
 
-		bool	clientIsOp(const Client Client)
+		bool	clientIsOp(const Client client)
 		{
-			std::string name = Client.getNickname();
+			std::string name = client.getNickname();
 		
     		for (size_t i = 0; i < _operators.size(); ++i)
 			{
@@ -92,6 +93,16 @@ class Channel
 			}
     		return (false);
     	}
+
+		bool	clientIsInChannel(const std::string &name)
+		{
+			for (size_t i = 0; i < _clients.size(); i++)
+			{
+				if (_clients[i].getNickname() == name)
+					return (true);
+			}
+			return (false);
+		}
 };
 
 #endif
