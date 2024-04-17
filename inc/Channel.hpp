@@ -49,8 +49,6 @@ class Channel
 		{
 			std::string name = client.getNickname();
 
-			std::cout << "who are you" << name << std::endl;
-
     		for (size_t i = 0; i < _operators.size(); ++i)
 			{
         		if (_operators[i].getNickname() == name)
