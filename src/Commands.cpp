@@ -201,7 +201,11 @@ int isClientConnectedToChannel(Client &client, Channel &channel)
 }
 
 int Server::cmdTopic(Client &client, std::string& channel, std::string& newTopic)
-{
+{	
+	std::time_t currentTime = std::time(NULL);
+	std::string timestampStr = std::ctime(&currentTime);
+
+	std::cout << "curr time is: " << timestampStr << std::endl;
 	if (channel.empty())
 	{
 		sendToClient(":ft_irc 461" + client.getNickname() + " TOPIC " + ":Not enough parameters" + END, client);
@@ -224,10 +228,11 @@ int Server::cmdTopic(Client &client, std::string& channel, std::string& newTopic
 			else
 			{
 				_channels[i].setTopic(newTopic);
+				std::cout << "so now the topic is " << _channels[i].getTopic() << std::endl;
 				for (size_t j = 0; j < _clients.size(); j++)
 				{
-					sendToClient(":ft_irc 333 " + _clients[j].getNickname() + " " + _channels[i].getName() + " " + client.getNickname() + " " + "setat whatever that fucking is" + END, _clients[j]);
-					sendToChannel(":ft_irc 332 " + _clients[j].getNickname() + " " + _channels[i].getName() + " :" + _channels[i].getTopic() + END, _channels[i], _clients[j]);
+					sendToClient(":ft_irc 333 " + _clients[j].getNickname() + " " + _channels[i].getName() + " " + client.getNickname() + " " + timestampStr + END, _clients[j]);
+					sendToChannel(":ft_irc 332 " + _clients[j].getNickname() + " " + _channels[i].getName() + " " + _channels[i].getTopic() + END, _channels[i], _clients[j]);
 				}
 			}
 		}
