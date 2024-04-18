@@ -14,12 +14,6 @@ int main (int ac, char** av)
 	}
 
 	Server	server(av[1], av[2]);
-
-	// std::time_t currentTime = std::time(NULL);
-	// std::string timestampStr = std::ctime(&currentTime);
-	// server.setTime(timestampStr);
-
-	// std::cout << "curr timestamp is: " << server.getTime() << std::endl;
 	try {
 		server.start();
 	}

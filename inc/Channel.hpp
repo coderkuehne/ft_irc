@@ -31,8 +31,6 @@ class Channel
 		bool	getIsInviteOnly(){return (_isInviteOnly);};
 
 
-
-
 		std::string	getClientList(void) {
 			std::string	list = "";
 			for (clientIt it = _operators.begin(); it != _operators.end(); ++it) {
@@ -81,7 +79,7 @@ class Channel
 		bool	clientIsOp(const Client client)
 		{
 			std::string name = client.getNickname();
-		
+
     		for (size_t i = 0; i < _operators.size(); ++i)
 			{
         		if (_operators[i].getNickname() == name)
