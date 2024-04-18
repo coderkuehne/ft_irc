@@ -82,6 +82,8 @@ int Server::ChannelMessage(std::string& target, std::string& message, Client &cl
 		sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "PRIVMSG"), client);
 		return (1);
 	}
+	
+//	Channel	*channel = getChannel(target);
 
 	Channel	*channel = findChannel(target);
 	if (!channel)
@@ -149,7 +151,7 @@ void	Server::names(Client& client, std::string& channelName)
 
 int Server::joinChannel(std::string& channelName, std::string& key, Client &client)
 {
-	//std::cout << "what is input " << client.getNickname() << " and " << args[1][0] << " ." << std::endl;
+	std::cout << "what is input " << channelName << " ." << std::endl;
 	if (channelName.empty())
 	{
 //		sendToClient(":ft_irc 461 *" + client.getNickname() + " " + "JOIN" + " :Not enough parameters" + END, client);
@@ -158,9 +160,10 @@ int Server::joinChannel(std::string& channelName, std::string& key, Client &clie
 	}
 	if (channelName[0] != '#')
 	{
-		sendToClient(":ft_irc 476 " + channelName + " :Bad Channel Mask" + END, client);
+		sendToClient(":ft_irc 476 " + channelName + " :Bad Channel Mask, Put '#' Before Channel Name" + END, client);
 		return (1);
 	}
+
 	for (size_t i = 0; i < _channels.size(); i++)
 	{
 		if (channelName == _channels[i].getName())
@@ -174,17 +177,10 @@ int Server::joinChannel(std::string& channelName, std::string& key, Client &clie
 	}
 	Channel newChannel(channelName, key); //if no key is supplied, key is set to ""
 	newChannel.addOperator(client);
-
 	addChannel(newChannel);
 
 	std::cout << "hiello?" << std::endl;
 	responseForClientJoiningChannel(client, newChannel);
-
-	// sendToClient(":" + client.getNickname() + " JOIN " + newChannel.getName() + END, client);
-	// sendToClient(":ft_irc 332 " + client.getNickname() + " " + newChannel.getName() + " :" + newChannel.getTopic() + END, client);
-	// for (size_t i = 0; i < _clients.size(); i++)
-	// 	sendToClient(":ft_irc 353 " + client.getNickname() + " = " + newChannel.getName() + " :" + _clients[i].getNickname() + END, client);
-	// sendToClient(":ft_irc 366 " + client.getNickname() + " " + newChannel.getName() + " :End of /NAMES list" + END, client);
 
 	return (0);
 }
@@ -234,6 +230,55 @@ int Server::quit(Client &client, std::string& quitMessage)
 	return (0);
 }
 
+int Server::cmdTopic(const std::string& _channel,const std::string& newTopic,const Client &client)
+{
+	std::string name = client.getNickname();
+
+	if (_channel.empty())
+	{
+		sendToClient(":ft_irc 461" + name + " TOPIC " + ":Not enough parameters" + END, client);
+		return (1);
+	}
+	Channel *channel = findChannel(_channel);
+
+	if (channel == NULL)
+	{
+		sendToClient(":ft_irc 403" + name + " " + _channel + " :No such channel" + END, client);
+		return (1);
+	}
+	if (!channel->clientIsInChannel(name))
+	{
+		sendToClient(":ft_irc 442" + name + " " + _channel + " :You're not on that channel" + END, client);
+		return (1);
+	}
+	bool isOP = channel->clientIsOp(name);
+
+	if (newTopic.empty())
+	{
+		sendToClient(":ft_irc 332 " + name + " " + _channel + " " + channel->getTopic() + END, client);
+		return (1);
+	}
+	if (isOP)
+	{
+		channel->setTopic(newTopic);
+		std::time_t currTime = std::time(NULL);
+		std::stringstream notSS;
+    	notSS << currTime;
+		std::string currTimestamp = notSS.str();
+		for (size_t i = 0; i < channel->getClientsSize(); i++)
+		{
+			sendToChannel(":ft_irc 332 " + _clients[i].getNickname() + " " + channel->getName() + " " + channel->getTopic() + END, *channel, _clients[i]);
+			sendToChannel(":ft_irc 333 " + _clients[i].getNickname() + " " + channel->getName() + " " + name + " " + currTimestamp + END, *channel, _clients[i]);
+		}
+	}
+	if (!isOP)
+	{
+		sendToClient(":ft_irc 482 " + name + " " + _channel + " :You're not channel operator" + END, client);
+		return (1);
+	}
+	return (0);
+}
+
 void Server::printClients(void)
 {
 	std::cout << "Total Clients:" << _clients.size() << std::endl;
@@ -241,4 +286,76 @@ void Server::printClients(void)
 	{
 		std::cout << "\tClient " << i << ": " << _clients[i].getNickname() << " Username : " << _clients[i].getUsername() << "on Socket :" << _clients[i].getSocket() << std::endl;
 	}
+}
+
+int Server::kickClient(const std::string &_channel,const std::string &_target, Client &client)
+{
+	Channel *channel = findChannel(_channel);
+	std::string name = client.getNickname();
+
+	std::cout << "Kick user " << _target << std::endl;
+	if (channel == NULL)
+	{
+		sendToClient(":ft_irc NOTICE " + name + ": No such channel" + END, client);
+		return (0);
+	}
+	if (!channel->clientIsOp(name))
+	{
+		sendToClient(":ft_irc 481 " + name + " " + _channel + " :You`re not a channel operator" + END, client);
+		return (0);
+	}
+	if (!channel->clientIsInChannel(_target))
+	{
+		sendToClient(":ft_irc 441 " + name + " " + _target + " " + _channel + ":User not on channel" + END, client);
+		return (0);
+	}
+	sendToClient(":" + name + " KICK " + _channel + " " + _target + END, client);
+	sendToChannel(":" + name + " KICK " + _channel + " " + _target + END, *channel , client);
+	if (channel->clientIsOp(_target))
+		channel->removeOperator(_target);
+	channel->removeClient(_target);
+	return (1);
+}
+
+int Server::partChannel(const std::string &_channel, const std::string &_reason, Client &client)
+{
+	Channel *channel = findChannel(_channel);
+	std::string name = client.getNickname();
+
+	if (channel == NULL)
+	{
+		sendToClient(":ft_irc NOTICE " + client.getNickname() + " " + _channel + " :No such channel" + END, client);
+		return (0);
+	}
+	sendToClient(":" + name + " PART " + _channel + " " +_reason + END, client);
+	sendToChannel(":" + name + " PART " + _channel + " " + _reason + END, *channel , client);
+	channel->removeClient(name);
+	if (channel->clientIsOp(name))
+		channel->removeOperator(name);
+	return (1);
+}
+
+int Server::inviteChannel(const std::string &_target, const std::string &_channel, const Client client)
+{
+	Channel *channel = findChannel(_channel);
+	std::string name = client.getNickname();
+
+	if (channel == NULL)
+	{
+		sendToClient(":ft_irc 403 " + name + " " + _channel + " :No such channel" + END, client);
+		return (0);
+	}
+	// if (channel->clientIsInChannel(name))
+	// {
+	// 	sendToClient(":ft_irc 441 " + name + " " + _channel + " " + ":They aren`t on that Channel" + END, client);
+	// 	return (0);
+	// }
+	if (!channel->clientIsOp(name) && channel->getIsInviteOnly())
+	{
+		sendToClient(":ft_irc 481 " + name + " " + channel->getName() + " :You`re not a channel operator" + END, client);
+		return (0);
+	}
+	sendToClient(":ft_irc 341", client); // confirmation message to sender
+	sendToClient(":" + name + " INVITE "+ _target + " " + _channel + END, *findClient(_target)); // invite to target user
+	return (1);
 }

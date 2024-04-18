@@ -55,6 +55,7 @@ class Server
 		int		sendMessage(std::string&, std::string&, Client &client);
 		int		ChannelMessage(std::string&, std::string&, Client &client);
 		int		joinChannel(std::string&, std::string&, Client&);
+		int		partChannel(const std::string&, const std::string&, Client&);
 		int		cmd_leave(std::vector<std::string> args);
 		int		quit(Client &client, std::string& quitMessage);
 		void	addChannel(Channel channel){ _channels.push_back(channel); };
@@ -64,7 +65,10 @@ class Server
 		void	responseForClientJoiningChannel(Client &client, Channel &channel);
 		void	names(Client& client, std::string& channelName);
 
+		int		cmdTopic(const std::string& channel,const std::string& newTopic,const Client &client);
 		
+		int		kickClient(const std::string &channel, const std::string &target, Client &client);
+		int		inviteChannel(const std::string &_target, const std::string &_channel, const Client client);
 };
 
 #endif

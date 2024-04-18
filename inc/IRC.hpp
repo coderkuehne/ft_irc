@@ -18,6 +18,7 @@
 # include <poll.h>
 # include <sstream>
 # include <cstdlib>
+# include <ctime>
 # include <sstream>
 # include <iomanip>
 # include <cstdarg>
@@ -28,6 +29,7 @@
 # define RESET "\033[0m"
 
 # define BUFFER_SIZE 1024
+# define DEBUG 1
 
 # define ERR_NONICKNAMEGIVEN 431
 # define ERR_ERRONEUSNICKNAME 432

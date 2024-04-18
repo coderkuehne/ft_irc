@@ -1,7 +1,6 @@
 #include "Server.hpp"
 #include "Client.hpp"
 #include "Commands.hpp"
-#define DEBUG 1
 
 Server::Server(const std::string& port, const std::string& password): _port(port), _password(password)
 {
@@ -135,8 +134,16 @@ int	Server::sendToClient(const std::string& message, const Client& client) const
 
 int Server::sendToChannel(std::string message, Channel &channel, Client &client)
 {
-	// if (client.getNickname() != channel.getClients()[i].getNickname())
-	// 	sendToClient(message, channel.getClients()[i]);
+	int target_clients = -1;
+	int target_op = -1;
+	int sender = client.getSocket();
+
+	if (message.empty())
+	{
+		std::cerr << RED << "Invalid command" << RESET << std::endl;
+		sendToClient(":ft_irc 461 * :Not enough parameters", client);
+		return (1);
+	}
 	for (size_t i = 0; i < channel.getOps().size(); ++i)
 	{
 		if (channel.getOps()[i] != client)

@@ -10,7 +10,11 @@
 # define JOIN 104
 # define WHO 105
 # define NOTICE 110
+# define KICK 106
+# define PART 107
+# define TOPIC 77 //should it be random?
 # define QUIT 169
+# define MODE 108
 
 std::string	buildReply(const std::string& sender, const std::string& recipient, int messageCode, const std::string& message, int paramCount ...);
 
