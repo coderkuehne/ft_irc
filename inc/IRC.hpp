@@ -53,6 +53,7 @@ inline std::map<int, std::string> generateNumericReplies() {
 	map[462] = ":User is already registered";
 	map[464] = ":Password is incorrect";
 	map[476] = ":Bad channel mask";
+	map[482] = ":You're not channel operator";
 	return map;
 }
 
