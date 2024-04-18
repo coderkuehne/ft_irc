@@ -24,6 +24,7 @@ class Channel
 		std::vector<Client>	getClients() { return _clients; };
 		std::vector<Client>	getOps() { return _operators; };
 		size_t	getClientsSize(){ return _clients.size(); }
+		size_t	getOpsSize(){ return _operators.size(); }
 		void	setTopic(const std::string& topic) { _topic = topic; };
 		void	setKey(const std::string& key) { _key = key; };
 		void	addClient(Client client) { _clients.push_back(client); };
