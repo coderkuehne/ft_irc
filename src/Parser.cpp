@@ -20,7 +20,7 @@ void	Server::parseCommand(const std::string& clientPackage, Client& client) {
 		std::string	message;
 		size_t		colon = clientPackage.find(':', 1);
 		if (colon != std::string::npos)
-			message = clientPackage.substr();
+			message = clientPackage.substr(colon);
 		else
 			message = "";
 
@@ -67,7 +67,7 @@ void	Server::parseCommand(const std::string& clientPackage, Client& client) {
 				break;
 			}
 			case PRIVMSG: {
-				sendMessage(parameter, parameter2, *it, client);
+				sendMessage(parameter, message, client);
 				break;
 			}
 			case WHO: {
