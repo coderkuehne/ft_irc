@@ -233,7 +233,7 @@ int Server::quit(Client &client, std::string& quitMessage)
 int Server::cmdTopic(const std::string& _channel,const std::string& newTopic,const Client &client)
 {
 	std::string name = client.getNickname();
-
+	std::cout <<"this is "<< newTopic << std::endl;
 	if (_channel.empty())
 	{
 		sendToClient(":ft_irc 461" + name + " TOPIC " + ":Not enough parameters" + END, client);

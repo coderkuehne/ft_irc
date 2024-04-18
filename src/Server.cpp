@@ -134,10 +134,6 @@ int	Server::sendToClient(const std::string& message, const Client& client) const
 
 int Server::sendToChannel(std::string message, Channel &channel, Client &client)
 {
-	int target_clients = -1;
-	int target_op = -1;
-	int sender = client.getSocket();
-
 	if (message.empty())
 	{
 		std::cerr << RED << "Invalid command" << RESET << std::endl;
