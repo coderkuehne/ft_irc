@@ -170,7 +170,6 @@ int Server::joinChannel(std::string& channelName, std::string& key, Client &clie
 	}
 	Channel newChannel(channelName, key); //if no key is supplied, key is set to ""
 	newChannel.addOperator(client);
-
 	addChannel(newChannel);
 
 	std::cout << "hiello?" << std::endl;
@@ -225,7 +224,12 @@ int Server::quit(Client &client, std::string& quitMessage)
 
 int isClientConnectedToChannel(Client &client, Channel &channel)
 {
-	for (size_t j = 0; j < channel.getClients().size(); j++)
+	for (size_t j = 0; j < channel.getOps().size(); j++)
+    {
+        if (channel.getOps()[j].getNickname() == client.getNickname())
+            return (1);
+    }
+	for (size_t j = 0; j < channel.getClientsSize(); j++)
     {
         if (channel.getClients()[j].getNickname() == client.getNickname())
             return (1);
@@ -233,7 +237,7 @@ int isClientConnectedToChannel(Client &client, Channel &channel)
     return (0);
 }
 
-int Server::cmdTopic(Client &client, std::string& channel, std::string& newTopic)
+int Server::cmdTopic(std::string& channel, std::string& newTopic, Client &client)
 {	
 	if (channel.empty())
 	{
@@ -246,6 +250,7 @@ int Server::cmdTopic(Client &client, std::string& channel, std::string& newTopic
 		{
 			if (!isClientConnectedToChannel(client, _channels[i]))
 			{
+				
 				sendToClient(":ft_irc 442" + client.getNickname() + " " + _channels[i].getName() + " :You're not on that channel" + END, client);
 				return (1);
 			}
@@ -254,18 +259,23 @@ int Server::cmdTopic(Client &client, std::string& channel, std::string& newTopic
 				sendToClient(":ft_irc 332 " + client.getNickname() + " " + _channels[i].getName() + " " + _channels[i].getTopic() + END, client);
 				return (1);
 			}
-			else
+			else if (_channels[i].clientIsOp(client))
 			{
 				_channels[i].setTopic(newTopic);
 				std::time_t currTime = std::time(NULL);
 				std::stringstream ss;
     			ss << currTime;
 				std::string currTimestamp = ss.str();
-				for (size_t j = 0; j < _clients.size(); j++)
+				for (size_t j = 0; j < _channels[i].getClientsSize(); j++)
 				{
 					sendToChannel(":ft_irc 332 " + _clients[j].getNickname() + " " + _channels[i].getName() + " " + _channels[i].getTopic() + END, _channels[i], _clients[j]);
 					sendToChannel(":ft_irc 333 " + _clients[j].getNickname() + " " + _channels[i].getName() + " " + client.getNickname() + " " + currTimestamp + END, _channels[i], _clients[j]);
 				}
+			}
+			else if (!_channels[i].clientIsOp(client))
+			{
+				sendToClient(":ft_irc 482 " + client.getNickname() + " " + _channels[i].getName() + " :You're not channel operator" + END, client);
+				return (1);
 			}
 		}
 		else

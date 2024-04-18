@@ -30,8 +30,6 @@ class Channel
 		void	removeClient(Client client) { (void)client; return ; };
 
 
-
-
 		std::string	getClientList(void) {
 			std::string	list = "";
 			for (clientIt it = _operators.begin(); it != _operators.end(); ++it) {
@@ -63,6 +61,17 @@ class Channel
 			}
 			return ;
 		};
+		bool	clientIsOp(const Client client)
+		{
+			std::string name = client.getNickname();
+
+    		for (size_t i = 0; i < _operators.size(); ++i)
+			{
+        		if (_operators[i].getNickname() == name)
+            		return (true);
+			}
+    		return (false);
+    	}
 };
 
 #endif
