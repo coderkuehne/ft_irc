@@ -74,7 +74,7 @@ void	Server::registerClient(Client &client) const {
 	}
 }
 
-int Server::ChannelMessage(std::string& target, std::string& message, std::string& receivedString, Client &client)
+int Server::ChannelMessage(std::string& target, std::string& message, Client &client)
 {
 	if (target.empty() || message.empty())
 	{
@@ -90,11 +90,11 @@ int Server::ChannelMessage(std::string& target, std::string& message, std::strin
 		sendToClient(":ft_irc 401 * :No such channel" + END, client);
 		return (1);
 	}
-	sendToChannel(":" + client.getNickname() + " " + receivedString + END, *channel, client);
+	sendToChannel(":" + client.getNickname() + " " + message + END, *channel, client);
 	return (0);
 }
 
-int Server::sendMessage(std::string& target, std::string& message, std::string& receivedString, Client &client)
+int Server::sendMessage(std::string& target, std::string& message, Client &client)
 {
 	if (target.empty() || message.empty())
 	{
@@ -104,7 +104,7 @@ int Server::sendMessage(std::string& target, std::string& message, std::string& 
 	}
 
 	if (target[0] == '#') {
-		ChannelMessage(target, message, receivedString, client);
+		ChannelMessage(target, message, client);
 		return 1;
 	}
 
@@ -115,7 +115,8 @@ int Server::sendMessage(std::string& target, std::string& message, std::string& 
 		sendToClient(":ft_irc 401 * :No such user" + END, client);
 		return 1;
 	}
-	sendToClient(":" + client.getNickname() + " " + receivedString + END, *recipient);
+	std::cout << YELLOW << "Message is: " << message << RESET << std::endl;
+	sendToClient(buildReply(client.getNickname(), *recipient, PRIVMSG, message, 0), *recipient);
 	return 0;
 }
 

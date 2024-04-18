@@ -52,8 +52,8 @@ class Server
 		int		setUsername(std::string& user, Client &client);
 		void	registerClient(Client& client) const;
 
-		int		sendMessage(std::string&, std::string&, std::string&, Client &client);
-		int		ChannelMessage(std::string&, std::string&, std::string&, Client &client);
+		int		sendMessage(std::string&, std::string&, Client &client);
+		int		ChannelMessage(std::string&, std::string&, Client &client);
 		int		joinChannel(std::string&, std::string&, Client&);
 		int		cmd_leave(std::vector<std::string> args);
 		int		quit(Client &client, std::string& quitMessage);
