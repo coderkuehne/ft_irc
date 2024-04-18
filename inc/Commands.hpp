@@ -12,6 +12,7 @@
 # define NOTICE 110
 # define KICK 106
 # define PART 107
+# define INVITE 109
 # define TOPIC 77 //should it be random?
 # define QUIT 169
 # define MODE 108

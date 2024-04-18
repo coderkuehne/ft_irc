@@ -81,6 +81,10 @@ void	Server::parseCommand(const std::string& clientPackage, Client& client) {
 			case MODE: {
 				break;
 			}
+			case INVITE:{
+				inviteChannel(parameter, parameter2, client);
+				break;
+			}
 			default: {
 				break;
 			}
@@ -135,6 +139,9 @@ int	commandToMacro(const std::string& command) {
 	else if (command == "MODE") {
 		return MODE;
 	}
+	else if (command == "INVITE") {
+		return INVITE;
+	}
 	return 0;
 }
 
@@ -159,6 +166,9 @@ std::string	macroToCommand(int command) {
 	}
 	else if (command == WHO) {
 		return "WHO";
+	}
+	else if (command == INVITE) {
+		return "INVITE";
 	}
 	else if (command > 0) {
 		std::stringstream	ss;
