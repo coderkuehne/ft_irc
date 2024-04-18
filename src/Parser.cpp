@@ -17,6 +17,9 @@ void	Server::parseCommand(const std::string& clientPackage, Client& client) {
 		std::string	parameter2;
 		notSS >> parameter2;
 
+		std::string	parameter3;
+		notSS >> parameter3;
+
 		std::string	message;
 		size_t		colon = clientPackage.find(':', 1);
 		if (colon != std::string::npos)
@@ -79,6 +82,7 @@ void	Server::parseCommand(const std::string& clientPackage, Client& client) {
 				break;
 			}
 			case MODE: {
+				mode(parameter, parameter2, parameter3, client);
 				break;
 			}
 			default: {
@@ -159,6 +163,18 @@ std::string	macroToCommand(int command) {
 	}
 	else if (command == WHO) {
 		return "WHO";
+	}
+	else if (command == KICK) {
+		return "KICK";
+	}
+	else if (command == PART) {
+		return "PART";
+	}
+	else if (command == TOPIC) {
+		return "TOPIC";
+	}
+	else if (commmand == MODE) {
+		return "MODE";
 	}
 	else if (command > 0) {
 		std::stringstream	ss;

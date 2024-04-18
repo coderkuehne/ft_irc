@@ -3,6 +3,13 @@
 #include "Client.hpp"
 #include "Commands.hpp"
 
+int	Server::mode(const std::string& channelName, const std::string& modeString, const std::string& arg) {
+	if (mode.empty()) {
+		// mode reply with no args
+	}
+	return 0;
+}
+
 int	Server::authenticatePassword(Client& client, std::string& inputPassword) {
 	if (inputPassword.empty())
 			return sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "PASS"), client);
