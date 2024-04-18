@@ -129,7 +129,7 @@ int	Server::sendToClient(const std::string& message, const Client& client) const
 	}
 	else
 		if (DEBUG)
-			std::cout << GREEN << "Sent: " << message << " to socket " << client.getSocket() << RESET << std::endl;
+			std::cout << GREEN << "Sent: " << message << " to " << client.getNickname() << " socket " << client.getSocket() << RESET << std::endl;
 	return (0);
 }
 
@@ -139,15 +139,17 @@ int Server::sendToChannel(std::string message, Channel &channel, Client &client)
 	// 	sendToClient(message, channel.getClients()[i]);
 	for (size_t i = 0; i < channel.getOps().size(); ++i)
 	{
-		if (channel.getOps()[i].getSocket() != client.getSocket())
-			send(channel.getOps()[i].getSocket(), message.c_str(), message.length(), 0);
+		if (channel.getOps()[i] != client)
+//			send(channel.getOps()[i].getSocket(), message.c_str(), message.length(), 0);
+			sendToClient(message, channel.getOps()[i]);
 	}
 	for (size_t i = 0; i < channel.getClients().size(); i++)
 	{
 		// Client&	recipient = channel.getClients()[i];
 		// std::cout << "clients: " << channel.getClients()[i].getNickname() << std::endl;
-		if (channel.getClients()[i].getSocket() != client.getSocket())
-			send(channel.getClients()[i].getSocket(), message.c_str(), message.length(), 0);
+		if (channel.getClients()[i] != client)
+//			send(channel.getClients()[i].getSocket(), message.c_str(), message.length(), 0);
+			sendToClient(message, channel.getClients()[i]);
 	}
 	return (0);
 }
