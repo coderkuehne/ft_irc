@@ -168,7 +168,6 @@ int Server::joinChannel(std::string& channelName, std::string& key, Client &clie
 	}
 	Channel newChannel(channelName, key); //if no key is supplied, key is set to ""
 	newChannel.addOperator(client);
-	newChannel.addClient(client);
 	addChannel(newChannel);
 
 	std::cout << "hiello?" << std::endl;
@@ -223,6 +222,11 @@ int Server::quit(Client &client, std::string& quitMessage)
 
 int isClientConnectedToChannel(Client &client, Channel &channel)
 {
+	for (size_t j = 0; j < channel.getOps().size(); j++)
+    {
+        if (channel.getOps()[j].getNickname() == client.getNickname())
+            return (1);
+    }
 	for (size_t j = 0; j < channel.getClientsSize(); j++)
     {
         if (channel.getClients()[j].getNickname() == client.getNickname())
@@ -242,7 +246,6 @@ int Server::cmdTopic(std::string& channel, std::string& newTopic, Client &client
 	{
 		if (channel == _channels[i].getName())
 		{
-			//std::cout << channel << " is input and " << _channels[i].getName() << " is ours" << std::endl;
 			if (!isClientConnectedToChannel(client, _channels[i]))
 			{
 				
