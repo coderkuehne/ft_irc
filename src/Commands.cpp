@@ -5,13 +5,13 @@
 
 int	Server::authenticatePassword(Client& client, std::string& inputPassword) {
 	if (inputPassword.empty())
-			return sendToClient(buildReply(SERVER, client, 461, "", 0), client);
+			return sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "PASS"), client);
 	if (inputPassword == _password) {
 		client.beAuthenticated();
 		return 0;
 	}
 	else
-		return sendToClient(buildReply(SERVER, client, 464, "", 0), client);
+		return sendToClient(buildReply(SERVER, client.getNickname(), 464, "", 0), client);
 }
 
 int	Server::changeNickname(const std::string& nick, Client &client)
@@ -19,20 +19,20 @@ int	Server::changeNickname(const std::string& nick, Client &client)
 	if (nick.empty())
 	{
 		std::cerr << RED << "No nickname given" << RESET << std::endl;
-		return sendToClient(buildReply(SERVER, client, 431, "", 0), client);
+		return sendToClient(buildReply(SERVER, "*", 431, "", 0), client);
 	}
 	if (nick[0] == '#' || nick[0] == ':' || nick[0] == ' ')
 	{
 		std::cerr << RED << "Invalid nickname" << RESET << std::endl;
-		return sendToClient(buildReply(SERVER, client, 432, "", 1, nick.c_str()), client);
+		return sendToClient(buildReply(SERVER, "*", 432, "", 1, nick.c_str()), client);
 	}
 	if (findClient(nick)) {
 		std::cerr << RED << "Nickname already in use" << RESET << std::endl;
-		sendToClient(":ft_irc 433 * " + nick + " :Nickname is already in use" + END, client);
+		sendToClient(buildReply(SERVER, "*", 433, "", 1, nick.c_str()), client);
 		return (-1);
 	}
 	client.setNickname(nick);
-	sendToClient(":ft_irc NICK " + nick + END, client);
+	sendToClient(buildReply(SERVER, client.getNickname(), NICK, "", 1, nick.c_str()), client);
 	registerClient(client);
 	return (0);
 }
@@ -41,13 +41,13 @@ int	Server::setUsername(std::string& user, Client &client)
 {
 	if (client.isRegistered()) {
 		std::cerr << RED << "User already registered" << RESET << std::endl;
-		sendToClient(":ft_irc 462 :User is already registered" + END, client);
+		sendToClient(buildReply(SERVER, client.getNickname(), 462, "", 0), client);
 		return (-1);
 	}
 	if (user.empty())
 	{
 		std::cerr << RED << "No username given" << RESET << std::endl;
-		sendToClient(":ft_irc 431 " + (client.getNickname().empty() ? "*" : client.getUsername()) + " :No username given" + END, client);
+		sendToClient(buildReply(SERVER, "*", 431, "", 0), client);
 		return (-1);
 	}
 	for (size_t i = 0; i < _clients.size(); i++)
@@ -55,7 +55,7 @@ int	Server::setUsername(std::string& user, Client &client)
 		if (user == _clients[i].getUsername())
 		{
 			std::cerr << RED << "Username already in use" << RESET << std::endl;
-			sendToClient(":ft_irc NOTICE " + (client.getNickname().empty() ? "*" : client.getNickname()) + " :Username is taken, registering as guest" + END, client);
+			sendToClient(buildReply(SERVER, client.getNickname(), NOTICE, ":Username is taken, registering as guest", 1, client.getNickname().c_str()), client);
 			std::stringstream	ss;
 			ss << ++guestCount;
 			user = "Guest" + ss.str();
@@ -70,7 +70,7 @@ void	Server::registerClient(Client &client) const {
 	if (!client.isRegistered() && !client.getNickname().empty() && !client.getUsername().empty()) {
 		client.beRegistered();
 		std::cout << "New user registered: Nickname: " << client.getNickname() << " Username: " << client.getUsername() << std::endl;
-		sendToClient(buildReply(SERVER, client, 001, "", 1, client.getNickname().c_str()), client);
+		sendToClient(buildReply(SERVER, client.getNickname(), 001, "", 1, client.getNickname().c_str()), client);
 	}
 }
 
@@ -79,7 +79,7 @@ int Server::ChannelMessage(std::string& target, std::string& message, Client &cl
 	if (target.empty() || message.empty())
 	{
 		std::cerr << RED << "Invalid command" << RESET << std::endl;
-		sendToClient(":ft_irc 461 * :Not enough parameters" + END, client);
+		sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "PRIVMSG"), client);
 		return (1);
 	}
 
@@ -87,10 +87,11 @@ int Server::ChannelMessage(std::string& target, std::string& message, Client &cl
 	if (!channel)
 	{
 		std::cerr << RED << "Invalid target" << RESET << std::endl;
-		sendToClient(":ft_irc 401 * :No such channel" + END, client);
+		sendToClient(buildReply(SERVER, client.getNickname(), 403, "", 1, target.c_str()), client);
 		return (1);
 	}
-	sendToChannel(":" + client.getNickname() + " " + message + END, *channel, client);
+//	sendToChannel(":" + client.getNickname() + " " + message + END, *channel, client);
+	sendToChannel(buildReply(client.getNickname(), channel->getName(), PRIVMSG, message, 0), *channel, client);
 	return (0);
 }
 
@@ -99,7 +100,8 @@ int Server::sendMessage(std::string& target, std::string& message, Client &clien
 	if (target.empty() || message.empty())
 	{
 		std::cerr << RED << "Invalid command" << RESET << std::endl;
-		sendToClient(":ft_irc 461 * :Not enough parameters" + END, client);
+//		sendToClient(":ft_irc 461 * :Not enough parameters" + END, client);
+		sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "PRIVMSG"), client);
 		return 1;
 	}
 
@@ -112,17 +114,18 @@ int Server::sendMessage(std::string& target, std::string& message, Client &clien
 	if (!recipient)
 	{
 		std::cerr << RED << "Invalid target" << RESET << std::endl;
-		sendToClient(":ft_irc 401 * :No such user" + END, client);
+//		sendToClient(":ft_irc 401 * :No such user" + END, client);
+		sendToClient(buildReply(SERVER, client.getNickname(), 401, "", 1, target.c_str()), client);
 		return 1;
 	}
-	std::cout << YELLOW << "Message is: " << message << RESET << std::endl;
-	sendToClient(buildReply(client.getNickname(), *recipient, PRIVMSG, message, 0), *recipient);
+	sendToClient(buildReply(client.getNickname(), recipient->getNickname(), PRIVMSG, message, 0), *recipient);
 	return 0;
 }
 
 void Server::responseForClientJoiningChannel(Client &client, Channel &channel)
 {
-	sendToClient(":" + client.getNickname() + " JOIN " + channel.getName() + END, client);
+//	sendToClient(":" + client.getNickname() + " JOIN " + channel.getName() + END, client);
+	sendToClient(buildReply(client.getNickname(), channel.getName().c_str(), JOIN, "", 0), client);
 	sendToClient(":ft_irc 332 " + client.getNickname() + " " + channel.getName() + " :" + channel.getTopic() + END, client);
 }
 
@@ -131,12 +134,15 @@ void	Server::names(Client& client, std::string& channelName)
 	Channel	*channel = findChannel(channelName);
 	if (!channel)
 	{
-		sendToClient(":ft_irc 401 * :No such channel" + END, client);
+//		sendToClient(":ft_irc 401 * :No such channel" + END, client);
+		sendToClient(buildReply(SERVER, client.getNickname(), 403, "", 1, channelName.c_str()), client);
 		return;
 	}
-	std::string	list = channel->getClientList();
-	sendToClient(":ft_irc 353 " + client.getNickname() + " = " + channelName + " :" + channel->getClientList() + END, client);
-	sendToClient(":ft_irc 366 " + client.getNickname() + " " + channelName + " :End of /NAMES list" + END, client);
+//	std::string	list = channel->getClientList();
+//	sendToClient(":ft_irc 353 " + client.getNickname() + " = " + channelName + " :" + channel->getClientList() + END, client);
+	sendToClient(buildReply(SERVER, client.getNickname(), 353, "", 3, "=", channelName.c_str(), channel->getClientList().c_str()), client);
+//	sendToClient(":ft_irc 366 " + client.getNickname() + " " + channelName + " :End of /NAMES list" + END, client);
+	sendToClient(buildReply(SERVER, client.getNickname(), 366, "", 1, channelName.c_str()), client);
 //	sendToClient(":ft_irc 352 " + client.getNickname() + " " + channel->getName() + " " + list + END, client);
 //	sendToClient(":ft_irc 315 " + client.getNickname() + " " + channel->getName() + " :End of /WHO list" + END, client);
 }
@@ -146,7 +152,8 @@ int Server::joinChannel(std::string& channelName, std::string& key, Client &clie
 	//std::cout << "what is input " << client.getNickname() << " and " << args[1][0] << " ." << std::endl;
 	if (channelName.empty())
 	{
-		sendToClient(":ft_irc 461 *" + client.getNickname() + " " + "JOIN" + " :Not enough parameters" + END, client);
+//		sendToClient(":ft_irc 461 *" + client.getNickname() + " " + "JOIN" + " :Not enough parameters" + END, client);
+		sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "JOIN"), client);
 		return (1);
 	}
 	if (channelName[0] != '#')
@@ -160,7 +167,8 @@ int Server::joinChannel(std::string& channelName, std::string& key, Client &clie
 		{
 			_channels[i].addClient(client);
 			responseForClientJoiningChannel(client, _channels[i]);
-			sendToChannel(":" + client.getNickname() + " JOIN " + _channels[i].getName() + END, _channels[i], client);
+//			sendToChannel(":" + client.getNickname() + " JOIN " + _channels[i].getName() + END, _channels[i], client);
+			sendToChannel(buildReply(client.getNickname(), _channels[i].getName(), JOIN, "", 0), _channels[i], client);
 			return (0);
 		}
 	}
@@ -181,25 +189,25 @@ int Server::joinChannel(std::string& channelName, std::string& key, Client &clie
 	return (0);
 }
 
-std::string	buildReply(const std::string& sender, Client& recipient, int messageCode, const std::string& message, int paramCount, ...) {
+std::string	buildReply(const std::string& sender, const std::string& recipient, int messageCode, const std::string& message, int paramCount, ...) {
 	std::string	reply = ":" + sender + " ";
 	reply += macroToCommand(messageCode) + " ";
-	if (recipient.getNickname().empty())
+	if (recipient.empty())
 		reply +=  "* ";
 	else
-		reply += recipient.getNickname() + " ";
+		reply += recipient + " ";
 
 	va_list	args;
 	va_start(args, paramCount);
 	for (int i = 0; i < paramCount; ++i)
 		reply += std::string(va_arg(args, char *)) + " ";
 
-	if ((messageCode >= 1 && messageCode <= 5) || messageCode > 400 || messageCode == 366) // pre-defined: 1-5 are welcome, 400+ are errors
+	if ((messageCode >= 1 && messageCode <= 5) || messageCode > 400 || messageCode == 366) // pre-defined: 1-5 are welcome, 400+ are errors, 366 is end of NAMES list
 		reply += NUMERIC_REPLIES.at(messageCode);
 	else if (!message.empty())
 		reply += message;
 	if (messageCode == 001)
-		reply += recipient.getNickname();
+		reply += recipient;
 	reply += END;
 	return reply;
 }
@@ -220,7 +228,8 @@ int Server::quit(Client &client, std::string& quitMessage)
 		}
 	}
 	for (size_t i = 0; i < _clients.size(); ++i) {
-		sendToClient(":" + client.getNickname() + " QUIT :Quit " + quitMessage + END, _clients[i]);
+//		sendToClient(":" + client.getNickname() + " QUIT :Quit " + quitMessage + END, _clients[i]);
+		sendToClient(buildReply(client.getNickname(), ":Quit", QUIT, quitMessage, 0), _clients[i]);
 	}
 	return (0);
 }

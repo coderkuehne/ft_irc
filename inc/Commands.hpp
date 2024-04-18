@@ -9,8 +9,9 @@
 # define PRIVMSG 103
 # define JOIN 104
 # define WHO 105
+# define NOTICE 110
 # define QUIT 169
 
-std::string	buildReply(const std::string& sender, Client& recipient, int messageCode, const std::string& message, int paramCount ...);
+std::string	buildReply(const std::string& sender, const std::string& recipient, int messageCode, const std::string& message, int paramCount ...);
 
 #endif
