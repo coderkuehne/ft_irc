@@ -32,7 +32,7 @@ class Channel
 
 
 		std::string	getClientList(void) {
-			std::string	list = "";
+			std::string	list = ":";
 			for (clientIt it = _operators.begin(); it != _operators.end(); ++it) {
 				if (!list.empty())
 					list += " ";
