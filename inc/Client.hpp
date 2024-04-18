@@ -19,6 +19,10 @@ class Client {
 			return (this->_socket == other._socket && this->_username == other._username);
 		}
 
+		bool	operator!=(const Client& other) const {
+			return (this->_socket != other._socket || this->_username != other._username);
+		}
+
 		int			getSocket() const { return _socket; };
 
 		std::string	getNickname() const { return _nick; };
