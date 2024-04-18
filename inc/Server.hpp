@@ -65,7 +65,7 @@ class Server
 		void	responseForClientJoiningChannel(Client &client, Channel &channel);
 		void	names(Client& client, std::string& channelName);
 
-		int		cmdTopic(std::string& channel, std::string& newTopic, Client &client);
+		int		cmdTopic(const std::string& channel,const std::string& newTopic,const Client &client);
 		
 		int		kickClient(const std::string &channel, const std::string &target, Client &client);
 		int		inviteChannel(const std::string &_target, const std::string &_channel, const Client client);

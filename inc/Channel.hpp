@@ -76,13 +76,11 @@ class Channel
 			return ;
 		}
 
-		bool	clientIsOp(const Client client)
+		bool	clientIsOp(const std::string &name)
 		{
-			std::string name = client.getNickname();
-
-    		for (size_t i = 0; i < _operators.size(); ++i)
+    		for (size_t i = 0; i < _operators.size(); i++)
 			{
-        		if (_operators[i].getNickname() == name)
+        		if (name == _operators[i].getNickname())
             		return (true);
 			}
     		return (false);
@@ -90,10 +88,21 @@ class Channel
 
 		bool	clientIsInChannel(const std::string &name)
 		{
-			for (size_t i = 0; i < _clients.size(); i++)
+			if (!clientIsOp(name))
 			{
-				if (_clients[i].getNickname() == name)
-					return (true);
+				for (size_t i = 0; i < _clients.size(); i++)
+				{
+					if (name == _clients[i].getNickname())
+						return (true);
+				}
+			}
+			else
+			{
+				for (size_t i = 0; i < _operators.size(); i++)
+				{
+					if (name == _operators[i].getNickname())
+						return (true);
+				}
 			}
 			return (false);
 		}
