@@ -300,6 +300,11 @@ int Server::kickClient(const std::string &_channel,const std::string &_target, C
 {
 	Channel *channel = findChannel(_channel);
 
+	if (channel == NULL)
+	{
+		sendToClient(":ft_irc NOTICE " + client.getNickname() + ": No such channel" + END, client);
+		return (0);
+	}
 	if (!channel->clientIsOp(client))
 	{
 		sendToClient(":ft_irc 481 " + client.getNickname() + " " + channel->getName() + " :You`re not a channel operator" + END, client);
@@ -307,12 +312,7 @@ int Server::kickClient(const std::string &_channel,const std::string &_target, C
 	}
 	if (!channel->clientIsInChannel(_target))
 	{
-		sendToClient(":ft_irc 441 " + client.getNickname() + " " + _target + " " + _channel + " " + ":They aren`t on that Channel" + END, client);
-		return (0);
-	}
-	if (channel == NULL)
-	{
-		sendToClient(":ft_irc NOTICE " + client.getNickname() + ": No such channel" + END, client);
+		sendToClient(":ft_irc 441 " + client.getNickname() + " " + _target + " " + _channel + " " + ":User not on channel" + END, client);
 		return (0);
 	}
 	sendToClient(":" + client.getNickname() + " KICK " + _channel + " " + _target + END, client);

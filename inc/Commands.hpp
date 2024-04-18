@@ -13,6 +13,7 @@
 # define PART 107
 # define TOPIC 77 //should it be random?
 # define QUIT 169
+# define MODE 108
 
 std::string	buildReply(const std::string& sender, Client& recipient, int messageCode, const std::string& message, int paramCount ...);
 

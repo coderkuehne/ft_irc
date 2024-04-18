@@ -72,9 +72,13 @@ void	Server::parseCommand(const std::string& clientPackage, Client& client) {
 			}
 			case WHO: {
 				names(client, parameter);
+				break ;
 			}
 			case KICK: {
 				kickClient(parameter, parameter2, client);
+				break;
+			}
+			case MODE: {
 				break;
 			}
 			default: {
@@ -119,15 +123,17 @@ int	commandToMacro(const std::string& command) {
 	else if (command == "WHO") {
 		return WHO;
 	}
-	else if (command == "TOPIC") 
-	{
-		return TOPIC;
-	}
 	else if (command == "KICK") {
 		return KICK;
 	}
 	else if (command == "PART") {
 		return PART;
+	}
+	else if (command == "TOPIC") {
+		return TOPIC;
+	}
+	else if (command == "MODE") {
+		return MODE;
 	}
 	return 0;
 }
