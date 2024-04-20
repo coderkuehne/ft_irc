@@ -13,6 +13,7 @@ int	checkMode(Channel &channel, Client &client)
 	std::cout << "this works as expected! wow much empty" << std::endl;
 	return (0);
 }
+
 int	Server::mode(const std::string& channelName, const std::string& modeString, const std::string &arg,  Client &client)
 {
 	std::string name = client.getNickname();
@@ -58,7 +59,7 @@ int	Server::mode(const std::string& channelName, const std::string& modeString, 
 			if (!channel->clientIsOp(arg))
 			{
 				if (!findClient(arg))
-					return (sendToClient(buildReply(SERVER, client.getNickname(), 401, "", 1, arg.c_str()), client));
+					return (sendToClient(buildReply(SERVER, client.getNickname(), 401, "", 1, arg.c_str()), client)); //wrong error 
 				channel->addOperator(*findClient(arg));
 				channel->removeClient(arg);
 				sendToClient(buildReply(name, channelName.c_str(), MODE, "", 2, modeString.c_str(), arg.c_str()), client);
@@ -67,9 +68,35 @@ int	Server::mode(const std::string& channelName, const std::string& modeString, 
 		}
 		if (modeString == "-o")
 		{
-
-			sendToClient(buildReply(name, channelName.c_str(), MODE, "", 1, modeString.c_str()), client);
-			sendToChannel(buildReply(name, channelName.c_str(), MODE, "", 1, modeString.c_str()),*channel, client);
+			if (channel->clientIsOp(arg))
+			{
+				if (!channel->findOps(arg))
+					return (sendToClient(buildReply(SERVER, client.getNickname(), 401, "", 1, arg.c_str()), client)); //wrong error
+				channel->removeOperator(arg);
+				channel->addClient(*findClient(arg));
+				sendToClient(buildReply(name, channelName.c_str(), MODE, "", 2, modeString.c_str(), arg.c_str()), client);
+				sendToChannel(buildReply(name, channelName.c_str(), MODE, "", 2, modeString.c_str(), arg.c_str()),*channel, client);
+			}
+		}
+		if (modeString == "+l")
+		{
+			channel->setClientLimit(atoi(arg.c_str()));
+			sendToClient(buildReply(name, channelName.c_str(), MODE, "", 2, modeString.c_str(), arg.c_str()), client);
+		}
+		if (modeString == "-l")
+		{
+			channel->setClientLimit(0);
+			sendToClient(buildReply(name, channelName.c_str(), MODE, "", 2, modeString.c_str(), arg.c_str()), client);
+		}
+		if (modeString == "+k")
+		{
+			channel->setKey(arg);
+			sendToClient(buildReply(name, channelName.c_str(), MODE, "", 2, modeString.c_str(), arg.c_str()), client);
+		}
+		if (modeString == "-k")
+		{
+			channel->setKey("");
+			sendToClient(buildReply(name, channelName.c_str(), MODE, "", 2, modeString.c_str(), arg.c_str()), client);
 		}
 	}
 	return (0);
@@ -208,7 +235,6 @@ void	Server::names(Client& client, std::string& channelName)
 
 int Server::joinChannel(std::string& channelName, std::string& key, Client &client)
 {
-	std::cout << "what is input " << channelName << " ." << std::endl;
 	if (channelName.empty())
 	{
 		sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "JOIN"), client);
@@ -219,23 +245,32 @@ int Server::joinChannel(std::string& channelName, std::string& key, Client &clie
 		sendToClient(":ft_irc 476 " + channelName + " :Bad Channel Mask, Put '#' Before Channel Name" + END, client);
 		return (1);
 	}
-	for (size_t i = 0; i < _channels.size(); i++)
+	Channel *channel = findChannel(channelName);
+
+	//this segfaults
+	//if (!channel->getKey().empty() && key != channel->getKey())
+	//{
+	//	sendToClient(buildReply(SERVER, client.getNickname(), 475, "", 1, channelName.c_str()), client);
+	//	return (1);
+	//}
+	if (channel)
 	{
-		if (channelName == _channels[i].getName())
+		bool isInv = channel->getInviteOnly();
+		if (isInv && channel->clientIsInvited(client.getNickname()))
 		{
-			if (_channels[i].getIsInviteOnly() && _channels[i].clientIsInvited(client.getNickname()))
-			{
-				_channels[i].removeInvitedClient(client.getNickname());
-				_channels[i].addClient(client);
-				responseForClientJoiningChannel(client, _channels[i]);
-				return (sendToChannel(buildReply(client.getNickname(), _channels[i].getName(), JOIN, "", 0), _channels[i], client));
-			}
-			else if (_channels[i].getInviteOnly())
-				return (sendToClient(buildReply(SERVER, client.getNickname(), 473, "", 1, channelName.c_str()), client));
-			_channels[i].addClient(client);
-			responseForClientJoiningChannel(client, _channels[i]);
-			return (sendToChannel(buildReply(client.getNickname(), _channels[i].getName(), JOIN, "", 0), _channels[i], client));
+			channel->removeInvitedClient(client.getNickname());
+			if (channel->addClient(client))
+				return (sendToClient(buildReply(SERVER, client.getNickname(), 471, "", 1, channelName.c_str()), client));
+			responseForClientJoiningChannel(client, *channel);
+			return (sendToChannel(buildReply(client.getNickname(), channel->getName(), JOIN, "", 0), *channel, client));
 		}
+		else if (isInv)
+			return (sendToClient(buildReply(SERVER, client.getNickname(), 473, "", 1, channelName.c_str()), client));
+
+		if (channel->addClient(client))
+			return (sendToClient(buildReply(SERVER, client.getNickname(), 471, "", 1, channelName.c_str()), client));
+		responseForClientJoiningChannel(client, *channel);
+		return (sendToChannel(buildReply(client.getNickname(), channel->getName(), JOIN, "", 0), *channel, client));
 	}
 	Channel newChannel(channelName, key); //if no key key = ""
 
@@ -388,7 +423,7 @@ int Server::inviteChannel(const std::string &_target, const std::string &_channe
 		return (sendToClient(":ft_irc 441 " + name + " " + _channel + " :You`re not on that Channel" + END, client));
 	if (channel->clientIsInChannel(_target))
 		return (sendToClient(":ft_irc 443 " + name + " " + _target + " " + _channel + " :is already on that channel" + END, client));
-	if (!channel->clientIsOp(name) && channel->getIsInviteOnly())
+	if (!channel->clientIsOp(name) && channel->getInviteOnly())
 		return(sendToClient(buildReply(SERVER, client.getNickname(), 482, "", 1, _channel.c_str()), client));
 	channel->addInvitedClient(_target);
 	sendToClient(":ft_irc 341 " + name + " " + _target + " " +_channel + END, client); // confirmation message to sender

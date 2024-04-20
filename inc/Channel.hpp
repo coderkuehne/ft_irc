@@ -14,30 +14,50 @@ class Channel
 		std::vector<std::string> _invitedClients;
 		bool	_isInviteOnly;
 		bool	_restrictTopic;
+		int		_clientLimit;
 
 	public:
-		Channel(std::string name, std::string key): _name(name), _key(key), _isInviteOnly(false), _restrictTopic(false) {
-			_topic = "No topic yet";
-		};
-		~Channel() {};
+		Channel(std::string name, std::string key): _name(name), _topic("No topic yet"), _key(key), _isInviteOnly(false), _restrictTopic(false), _clientLimit(0){}
+		~Channel() {}
 
-		std::string	getName() { return _name; };
-		std::string getTopic() { return _topic;};
-		std::vector<Client>	getClients() { return _clients; };
-		std::vector<Client>	getOps() { return _operators; };
+		std::string	getName() { return _name; }
+		std::string getTopic() { return _topic;}
+		std::vector<Client>	getClients() { return _clients; }
+		std::vector<Client>	getOps() { return _operators; }
 		size_t	getClientsSize(){ return _clients.size(); }
 		size_t	getOpsSize(){ return _operators.size(); }
-		void	setTopic(const std::string& topic) { _topic = topic; };
-		void	setKey(const std::string& key) { _key = key; };
-		void 	setInviteOnly(bool isInviteOnly) {_isInviteOnly = isInviteOnly;};
-		bool	getInviteOnly(){return _isInviteOnly;};
-		void 	setrestrictTopic(bool restrictTopic) {_restrictTopic = restrictTopic;};
-		bool	getRestrictTopic(){return _restrictTopic;};
-		void	addClient(Client client) { _clients.push_back(client); };
-		void	addInvitedClient(const std::string &name) {_invitedClients.push_back(name);};
-		void	addOperator(Client client) { _operators.push_back(client); };
-		bool	getIsInviteOnly(){return (_isInviteOnly);};
+		void	setTopic(const std::string& topic) { _topic = topic; }
+		void	setKey(const std::string& key) { _key = key; }
+		std::string getKey() { return _key; }
+		void 	setInviteOnly(bool isInviteOnly) {_isInviteOnly = isInviteOnly;}
+		bool	getInviteOnly(){return _isInviteOnly;}
+		void 	setrestrictTopic(bool restrictTopic) {_restrictTopic = restrictTopic;}
+		bool	getRestrictTopic(){return _restrictTopic;}
+		void	setClientLimit(int limit) {_clientLimit = limit;}
+		int		getClientLimit() { return _clientLimit; }
+		void	addInvitedClient(const std::string &name) {_invitedClients.push_back(name);}
 
+		int		addOperator(Client client)
+		{
+			int total_clients = _clients.size() + _operators.size();
+			int limit = getClientLimit();
+
+			if (limit > 0 && total_clients > limit)
+				return (1);
+			_operators.push_back(client);
+			return (0); 
+		}
+
+		int	addClient(Client client)
+		{
+			int total_clients = _clients.size() + _operators.size();
+			int limit = getClientLimit();
+
+			if (limit > 0 && total_clients > limit)
+				return (1);
+			_clients.push_back(client);
+			return (0);
+		}
 
 		std::string	getClientList(void) {
 			std::string	list = ":";
@@ -67,7 +87,7 @@ class Channel
 				}
 			}
 			return ;
-		};
+		}
 
 		void	removeOperator(const std::string &name)
 		{
@@ -123,7 +143,7 @@ class Channel
 					return (&_operators[i]);
 			}
 			return(NULL);
-		};
+		}
 
 		void	removeInvitedClient(const std::string &name)
 		{
@@ -138,7 +158,7 @@ class Channel
 				}
 			}
 			return ;
-		};
+		}
 
 		bool	clientIsInvited(const std::string &name)
 		{
