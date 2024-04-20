@@ -82,19 +82,15 @@ int Server::ChannelMessage(std::string& target, std::string& message, Client &cl
 		sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "PRIVMSG"), client);
 		return (1);
 	}
-	
-//	Channel	*channel = getChannel(target);
-
 	Channel	*channel = findChannel(target);
+
 	if (!channel)
 	{
 		std::cerr << RED << "Invalid target" << RESET << std::endl;
 		sendToClient(buildReply(SERVER, client.getNickname(), 403, "", 1, target.c_str()), client);
 		return (1);
 	}
-//	sendToChannel(":" + client.getNickname() + " " + message + END, *channel, client);
-	sendToChannel(buildReply(client.getNickname(), channel->getName(), PRIVMSG, message, 0), *channel, client);
-	return (0);
+	return (sendToChannel(buildReply(client.getNickname(), channel->getName(), PRIVMSG, message, 0), *channel, client));
 }
 
 int Server::sendMessage(std::string& target, std::string& message, Client &client)
@@ -102,31 +98,26 @@ int Server::sendMessage(std::string& target, std::string& message, Client &clien
 	if (target.empty() || message.empty())
 	{
 		std::cerr << RED << "Invalid command" << RESET << std::endl;
-//		sendToClient(":ft_irc 461 * :Not enough parameters" + END, client);
 		sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "PRIVMSG"), client);
-		return 1;
+		return (1);
 	}
-
 	if (target[0] == '#') {
 		ChannelMessage(target, message, client);
 		return 1;
 	}
-
 	Client	*recipient = findClient(target);
+
 	if (!recipient)
 	{
 		std::cerr << RED << "Invalid target" << RESET << std::endl;
-//		sendToClient(":ft_irc 401 * :No such user" + END, client);
 		sendToClient(buildReply(SERVER, client.getNickname(), 401, "", 1, target.c_str()), client);
-		return 1;
+		return (1);
 	}
-	sendToClient(buildReply(client.getNickname(), recipient->getNickname(), PRIVMSG, message, 0), *recipient);
-	return 0;
+	return (sendToClient(buildReply(client.getNickname(), recipient->getNickname(), PRIVMSG, message, 0), *recipient));
 }
 
 void Server::responseForClientJoiningChannel(Client &client, Channel &channel)
 {
-//	sendToClient(":" + client.getNickname() + " JOIN " + channel.getName() + END, client);
 	sendToClient(buildReply(client.getNickname(), channel.getName().c_str(), JOIN, "", 0), client);
 	sendToClient(":ft_irc 332 " + client.getNickname() + " " + channel.getName() + " :" + channel.getTopic() + END, client);
 }
@@ -136,17 +127,11 @@ void	Server::names(Client& client, std::string& channelName)
 	Channel	*channel = findChannel(channelName);
 	if (!channel)
 	{
-//		sendToClient(":ft_irc 401 * :No such channel" + END, client);
 		sendToClient(buildReply(SERVER, client.getNickname(), 403, "", 1, channelName.c_str()), client);
 		return;
 	}
-//	std::string	list = channel->getClientList();
-//	sendToClient(":ft_irc 353 " + client.getNickname() + " = " + channelName + " :" + channel->getClientList() + END, client);
 	sendToClient(buildReply(SERVER, client.getNickname(), 353, "", 3, "=", channelName.c_str(), channel->getClientList().c_str()), client);
-//	sendToClient(":ft_irc 366 " + client.getNickname() + " " + channelName + " :End of /NAMES list" + END, client);
 	sendToClient(buildReply(SERVER, client.getNickname(), 366, "", 1, channelName.c_str()), client);
-//	sendToClient(":ft_irc 352 " + client.getNickname() + " " + channel->getName() + " " + list + END, client);
-//	sendToClient(":ft_irc 315 " + client.getNickname() + " " + channel->getName() + " :End of /WHO list" + END, client);
 }
 
 int Server::joinChannel(std::string& channelName, std::string& key, Client &client)
@@ -154,7 +139,6 @@ int Server::joinChannel(std::string& channelName, std::string& key, Client &clie
 	std::cout << "what is input " << channelName << " ." << std::endl;
 	if (channelName.empty())
 	{
-//		sendToClient(":ft_irc 461 *" + client.getNickname() + " " + "JOIN" + " :Not enough parameters" + END, client);
 		sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "JOIN"), client);
 		return (1);
 	}
@@ -163,25 +147,20 @@ int Server::joinChannel(std::string& channelName, std::string& key, Client &clie
 		sendToClient(":ft_irc 476 " + channelName + " :Bad Channel Mask, Put '#' Before Channel Name" + END, client);
 		return (1);
 	}
-
 	for (size_t i = 0; i < _channels.size(); i++)
 	{
 		if (channelName == _channels[i].getName())
 		{
 			_channels[i].addClient(client);
 			responseForClientJoiningChannel(client, _channels[i]);
-//			sendToChannel(":" + client.getNickname() + " JOIN " + _channels[i].getName() + END, _channels[i], client);
-			sendToChannel(buildReply(client.getNickname(), _channels[i].getName(), JOIN, "", 0), _channels[i], client);
-			return (0);
+			return (sendToChannel(buildReply(client.getNickname(), _channels[i].getName(), JOIN, "", 0), _channels[i], client));
 		}
 	}
-	Channel newChannel(channelName, key); //if no key is supplied, key is set to ""
+	Channel newChannel(channelName, key); //if no key key = ""
+
 	newChannel.addOperator(client);
 	addChannel(newChannel);
-
-	std::cout << "hiello?" << std::endl;
 	responseForClientJoiningChannel(client, newChannel);
-
 	return (0);
 }
 
@@ -192,12 +171,11 @@ std::string	buildReply(const std::string& sender, const std::string& recipient, 
 		reply +=  "* ";
 	else
 		reply += recipient + " ";
-
 	va_list	args;
 	va_start(args, paramCount);
+
 	for (int i = 0; i < paramCount; ++i)
 		reply += std::string(va_arg(args, char *)) + " ";
-
 	if ((messageCode >= 1 && messageCode <= 5) || messageCode > 400 || messageCode == 366) // pre-defined: 1-5 are welcome, 400+ are errors, 366 is end of NAMES list
 		reply += NUMERIC_REPLIES.at(messageCode);
 	else if (!message.empty())
@@ -215,7 +193,6 @@ int Server::quit(Client &client, std::string& quitMessage)
 		if (*it == client)
 		{
 			//part from all channels
-
 			close(client.getSocket());
 			_fds.erase(_fds.begin() + std::distance(_clients.begin(), it) + 1);
 			_clients.erase(it);
@@ -223,10 +200,8 @@ int Server::quit(Client &client, std::string& quitMessage)
 			break;
 		}
 	}
-	for (size_t i = 0; i < _clients.size(); ++i) {
-//		sendToClient(":" + client.getNickname() + " QUIT :Quit " + quitMessage + END, _clients[i]);
+	for (size_t i = 0; i < _clients.size(); ++i) 
 		sendToClient(buildReply(client.getNickname(), ":Quit", QUIT, quitMessage, 0), _clients[i]);
-	}
 	return (0);
 }
 
@@ -242,11 +217,10 @@ int Server::cmdTopic(const std::string& _channel,const std::string& newTopic,con
 		return(sendToClient(buildReply(SERVER, client.getNickname(), 403, "", 1, _channel.c_str()), client));
 	if (!channel->clientIsInChannel(name))
 		return(sendToClient(buildReply(SERVER, client.getNickname(), 442, "", 1, _channel.c_str()), client));
-	//sendToClient(":ft_irc 442" + name + " " + _channel + " :You're not on that channel" + END, client);
 	if (newTopic.empty())
 		return (sendToClient(buildReply(SERVER, client.getNickname(), 332, "", 2, _channel.c_str(), channel->getTopic().c_str()), client));
-	//sendToClient(":ft_irc 332 " + name + " " + _channel + " " + channel->getTopic() + END, client);
 	bool isOP = channel->clientIsOp(name);
+
 	if (isOP)
 	{
 		channel->setTopic(newTopic);
@@ -262,7 +236,6 @@ int Server::cmdTopic(const std::string& _channel,const std::string& newTopic,con
 	}
 	if (!isOP)
 		return(sendToClient(buildReply(SERVER, client.getNickname(), 482, "", 1, _channel.c_str()), client));
-	//sendToClient(":ft_irc 482 " + name + " " + _channel + " :You're not channel operator" + END, client);
 	return (0);
 }
 
