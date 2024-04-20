@@ -42,6 +42,7 @@ const	std::string	END = "\r\n";
 inline std::map<int, std::string> generateNumericReplies() {
 	std::map<int, std::string> map;
 	map[001] = ":Welcome to our ft_irc server, ";
+	map[324] = ":Welcome to our ft_irc server, ";
 	map[366] = ":End of /NAMES list";
 	map[401] = ":No such nick";
 	map[403] = ":No such channel";

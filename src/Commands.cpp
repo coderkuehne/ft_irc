@@ -3,12 +3,49 @@
 #include "Client.hpp"
 #include "Commands.hpp"
 
-// int	Server::mode(const std::string& channelName, const std::string& modeString, const std::string& arg) {
-// 	if (mode.empty()) {
-// 		// mode reply with no args
-// 	}
-// 	return 0;
-// }
+//user + MODE + channel + arg
+int	checkMode(Channel &channel, Client &client)
+{
+	(void)channel;
+	(void)client;
+	std::cout << "this works as expected! wow much empty" << std::endl;
+	return (0);
+}
+int	Server::mode(const std::string& channelName, const std::string& modeString, Client &client)
+{
+	std::cout << "channel? : " << channelName << std::endl << "Mode? dafaq : " << modeString << std::endl;
+	std::string name = client.getNickname();
+
+	if(channelName.empty())
+		return (sendToClient(buildReply(SERVER, name, 461, "", 1, "PRIVMSG"), client));
+	Channel *channel = findChannel(channelName);
+
+	if (channel == NULL)
+		return (sendToClient(buildReply(SERVER, name, 403, "", 1, channelName.c_str()), client));
+	if (modeString.empty())
+		return (checkMode(*channel, client));
+	if (modeString == "-i")
+	{
+		channel->setInviteOnly(false);
+		sendToChannel(buildReply(name, channelName.c_str(), MODE, "", 1, modeString.c_str()),*channel, client);
+	}
+	if (modeString == "+i")
+	{
+		channel->setInviteOnly(true);
+		sendToChannel(buildReply(name, channelName.c_str(), MODE, "", 1, modeString.c_str()),*channel, client);
+	}
+	if (modeString == "-t")
+	{
+		channel->setrestrictTopic(false);
+		sendToChannel(buildReply(name, channelName.c_str(), MODE, "", 1, modeString.c_str()),*channel, client);
+	}
+	if (modeString == "+t")
+	{
+		channel->setrestrictTopic(true);
+		sendToChannel(buildReply(name, channelName.c_str(), MODE, "", 1, modeString.c_str()),*channel, client);
+	}
+	return 0;
+}
 
 int	Server::authenticatePassword(Client& client, std::string& inputPassword) {
 	if (inputPassword.empty())
@@ -126,7 +163,7 @@ int Server::sendMessage(std::string& target, std::string& message, Client &clien
 void Server::responseForClientJoiningChannel(Client &client, Channel &channel)
 {
 	sendToClient(buildReply(client.getNickname(), channel.getName().c_str(), JOIN, "", 0), client);
-	sendToClient(":ft_irc 332 " + client.getNickname() + " " + channel.getName() + " :" + channel.getTopic() + END, client);
+	sendToClient(":ft_irc 332 " + client.getNickname() + " " + channel.getName() + " " + channel.getTopic() + END, client);
 }
 
 void	Server::names(Client& client, std::string& channelName)
@@ -228,26 +265,28 @@ int Server::cmdTopic(const std::string& _channel,const std::string& newTopic, Cl
 		return (sendToClient(buildReply(SERVER, client.getNickname(), 332, "", 2, _channel.c_str(), channel->getTopic().c_str()), client));
 	bool isOP = channel->clientIsOp(name);
 
-	if (isOP)
+	if (isOP || !channel->getRestrictTopic())
 	{
 		channel->setTopic(newTopic);
 		std::time_t currTime = std::time(NULL);
 		std::stringstream notSS;
     	notSS << currTime;
 		std::string currTimestamp = notSS.str();
-		for (size_t i = 0; i < channel->getOpsSize(); i++)
-		{
-			sendToChannel(buildReply(SERVER, channel->getOps()[i].getNickname(), 332, "", 2, channel->getName().c_str(), channel->getTopic().c_str()), *channel, channel->getOps()[i]);
-			sendToChannel(buildReply(SERVER, channel->getOps()[i].getNickname(), 333, "", 3, channel->getName().c_str(), name.c_str(), currTimestamp.c_str()), *channel, channel->getOps()[i]);
+		// for (size_t i = 0; i < channel->getOpsSize(); i++)
+		// {
+			sendToClient(buildReply(SERVER, name, 332, "", 2, channel->getName().c_str(), channel->getTopic().c_str()), client);
+			sendToClient(buildReply(SERVER, name, 333, "", 3, channel->getName().c_str(), name.c_str(), currTimestamp.c_str()), client);
+			sendToChannel(buildReply(SERVER, name, 332, "", 2, channel->getName().c_str(), channel->getTopic().c_str()), *channel, client);
+			sendToChannel(buildReply(SERVER, name, 333, "", 3, channel->getName().c_str(), name.c_str(), currTimestamp.c_str()), *channel, client);
 
-		}
-		for (size_t i = 0; i < channel->getClientsSize(); i++)
-		{
-			sendToChannel(buildReply(SERVER, channel->getClients()[i].getNickname(), 332, "", 2, channel->getName().c_str(), channel->getTopic().c_str()), *channel, channel->getClients()[i]);
-			sendToChannel(buildReply(SERVER, channel->getClients()[i].getNickname(), 333, "", 3, channel->getName().c_str(), name.c_str(), currTimestamp.c_str()), *channel, channel->getClients()[i]);
-		}
+		// }
+		// for (size_t i = 0; i < channel->getClientsSize(); i++)
+		// {
+			//sendToChannel(buildReply(SERVER, channel->getClients()[i].getNickname(), 332, "", 2, channel->getName().c_str(), channel->getTopic().c_str()), *channel, channel->getClients()[i]);
+			//sendToChannel(buildReply(SERVER, channel->getClients()[i].getNickname(), 333, "", 3, channel->getName().c_str(), name.c_str(), currTimestamp.c_str()), *channel, channel->getClients()[i]);
+		//}
 	}
-	if (!isOP)
+	if (!isOP && channel->getRestrictTopic())
 		return(sendToClient(buildReply(SERVER, client.getNickname(), 482, "", 1, _channel.c_str()), client));
 	return (0);
 }

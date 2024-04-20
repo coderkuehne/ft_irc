@@ -143,8 +143,8 @@ int Server::sendToChannel(std::string message, Channel &channel, Client &client)
 	for (size_t i = 0; i < channel.getOps().size(); ++i)
 	{
 		if (channel.getOps()[i] != client)
-//			send(channel.getOps()[i].getSocket(), message.c_str(), message.length(), 0);
 			sendToClient(message, channel.getOps()[i]);
+//			send(channel.getOps()[i].getSocket(), message.c_str(), message.length(), 0);
 	}
 	for (size_t i = 0; i < channel.getClients().size(); i++)
 	{

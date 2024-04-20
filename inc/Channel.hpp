@@ -12,9 +12,10 @@ class Channel
 		std::vector<Client>	_operators;
 		std::vector<Client>	_clients;
 		bool	_isInviteOnly;
+		bool	_restrictTopic;
 
 	public:
-		Channel(std::string name, std::string key): _name(name), _key(key), _isInviteOnly(false) {
+		Channel(std::string name, std::string key): _name(name), _key(key), _isInviteOnly(false), _restrictTopic(false) {
 			_topic = "No topic yet";
 		};
 		~Channel() {};
@@ -27,6 +28,10 @@ class Channel
 		size_t	getOpsSize(){ return _operators.size(); }
 		void	setTopic(const std::string& topic) { _topic = topic; };
 		void	setKey(const std::string& key) { _key = key; };
+		void 	setInviteOnly(bool isInviteOnly) {_isInviteOnly = isInviteOnly;}
+		bool	getInviteOnly(){return _isInviteOnly;};
+		void 	setrestrictTopic(bool restrictTopic) {_restrictTopic = restrictTopic;}
+		bool	getRestrictTopic(){return _restrictTopic;};
 		void	addClient(Client client) { _clients.push_back(client); };
 		void	addOperator(Client client) { _operators.push_back(client); };
 		bool	getIsInviteOnly(){return (_isInviteOnly);};
