@@ -235,29 +235,18 @@ int Server::cmdTopic(const std::string& _channel,const std::string& newTopic,con
 	std::string name = client.getNickname();
 	std::cout <<"this is "<< newTopic << std::endl;
 	if (_channel.empty())
-	{
-		sendToClient(":ft_irc 461" + name + " TOPIC " + ":Not enough parameters" + END, client);
-		return (1);
-	}
+		return (sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "PRIVMSG"), client));
 	Channel *channel = findChannel(_channel);
 
 	if (channel == NULL)
-	{
-		sendToClient(":ft_irc 403" + name + " " + _channel + " :No such channel" + END, client);
-		return (1);
-	}
+		return(sendToClient(buildReply(SERVER, client.getNickname(), 403, "", 1, _channel.c_str()), client));
 	if (!channel->clientIsInChannel(name))
-	{
-		sendToClient(":ft_irc 442" + name + " " + _channel + " :You're not on that channel" + END, client);
-		return (1);
-	}
-	bool isOP = channel->clientIsOp(name);
-
+		return(sendToClient(buildReply(SERVER, client.getNickname(), 442, "", 1, _channel.c_str()), client));
+	//sendToClient(":ft_irc 442" + name + " " + _channel + " :You're not on that channel" + END, client);
 	if (newTopic.empty())
-	{
-		sendToClient(":ft_irc 332 " + name + " " + _channel + " " + channel->getTopic() + END, client);
-		return (1);
-	}
+		return (sendToClient(buildReply(SERVER, client.getNickname(), 332, "", 2, _channel.c_str(), channel->getTopic().c_str()), client));
+	//sendToClient(":ft_irc 332 " + name + " " + _channel + " " + channel->getTopic() + END, client);
+	bool isOP = channel->clientIsOp(name);
 	if (isOP)
 	{
 		channel->setTopic(newTopic);
@@ -272,10 +261,8 @@ int Server::cmdTopic(const std::string& _channel,const std::string& newTopic,con
 		}
 	}
 	if (!isOP)
-	{
-		sendToClient(":ft_irc 482 " + name + " " + _channel + " :You're not channel operator" + END, client);
-		return (1);
-	}
+		return(sendToClient(buildReply(SERVER, client.getNickname(), 482, "", 1, _channel.c_str()), client));
+	//sendToClient(":ft_irc 482 " + name + " " + _channel + " :You're not channel operator" + END, client);
 	return (0);
 }
 
@@ -332,7 +319,7 @@ int Server::inviteChannel(const std::string &_target, const std::string &_channe
 	if (_target.empty() || _channel.empty())
 		return (sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "PRIVMSG"), client));
 	if (channel == NULL)
-		return (sendToClient(":ft_irc 403 " + name + " " + _channel + " :No such channel" + END, client));
+		return(sendToClient(buildReply(SERVER, client.getNickname(), 442, "", 1, _channel.c_str()), client));
 	if (!findClient(_target))
 		return (sendToClient(buildReply(SERVER, name, 401, "", 1, _target.c_str()), client));
 	if (!channel->clientIsInChannel(name))
