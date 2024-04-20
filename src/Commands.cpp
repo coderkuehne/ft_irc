@@ -13,9 +13,8 @@ int	checkMode(Channel &channel, Client &client)
 	std::cout << "this works as expected! wow much empty" << std::endl;
 	return (0);
 }
-int	Server::mode(const std::string& channelName, const std::string& modeString, Client &client)
+int	Server::mode(const std::string& channelName, const std::string& modeString, const std::string &arg,  Client &client)
 {
-	std::cout << "channel? : " << channelName << std::endl << "Mode? dafaq : " << modeString << std::endl;
 	std::string name = client.getNickname();
 
 	if(channelName.empty())
@@ -24,29 +23,56 @@ int	Server::mode(const std::string& channelName, const std::string& modeString, 
 
 	if (channel == NULL)
 		return (sendToClient(buildReply(SERVER, name, 403, "", 1, channelName.c_str()), client));
+	if (!channel->clientIsOp(name))
+		return(sendToClient(buildReply(SERVER, client.getNickname(), 482, "", 1, channelName.c_str()), client));
 	if (modeString.empty())
 		return (checkMode(*channel, client));
 	if (modeString == "-i")
 	{
 		channel->setInviteOnly(false);
+		sendToClient(buildReply(name, channelName.c_str(), MODE, "", 1, modeString.c_str()), client);
 		sendToChannel(buildReply(name, channelName.c_str(), MODE, "", 1, modeString.c_str()),*channel, client);
 	}
 	if (modeString == "+i")
 	{
 		channel->setInviteOnly(true);
+		sendToClient(buildReply(name, channelName.c_str(), MODE, "", 1, modeString.c_str()), client);
 		sendToChannel(buildReply(name, channelName.c_str(), MODE, "", 1, modeString.c_str()),*channel, client);
 	}
 	if (modeString == "-t")
 	{
 		channel->setrestrictTopic(false);
+		sendToClient(buildReply(name, channelName.c_str(), MODE, "", 1, modeString.c_str()), client);
 		sendToChannel(buildReply(name, channelName.c_str(), MODE, "", 1, modeString.c_str()),*channel, client);
 	}
 	if (modeString == "+t")
 	{
 		channel->setrestrictTopic(true);
+		sendToClient(buildReply(name, channelName.c_str(), MODE, "", 1, modeString.c_str()), client);
 		sendToChannel(buildReply(name, channelName.c_str(), MODE, "", 1, modeString.c_str()),*channel, client);
 	}
-	return 0;
+	if (!arg.empty())
+	{
+		if (modeString == "+o")
+		{
+			if (!channel->clientIsOp(arg))
+			{
+				if (!findClient(arg))
+					return (sendToClient(buildReply(SERVER, client.getNickname(), 401, "", 1, arg.c_str()), client));
+				channel->addOperator(*findClient(arg));
+				channel->removeClient(arg);
+				sendToClient(buildReply(name, channelName.c_str(), MODE, "", 2, modeString.c_str(), arg.c_str()), client);
+				sendToChannel(buildReply(name, channelName.c_str(), MODE, "", 2, modeString.c_str(), arg.c_str()),*channel, client);
+			}
+		}
+		if (modeString == "-o")
+		{
+
+			sendToClient(buildReply(name, channelName.c_str(), MODE, "", 1, modeString.c_str()), client);
+			sendToChannel(buildReply(name, channelName.c_str(), MODE, "", 1, modeString.c_str()),*channel, client);
+		}
+	}
+	return (0);
 }
 
 int	Server::authenticatePassword(Client& client, std::string& inputPassword) {
@@ -321,7 +347,7 @@ int Server::kickClient(const std::string &_channel,const std::string &_target, C
 	if (channel == NULL)
 		return (sendToClient(":ft_irc NOTICE " + name + ": No such channel" + END, client));
 	if (!channel->clientIsOp(name))
-		return (sendToClient(":ft_irc 481 " + name + " " + _channel + " :You`re not a channel operator" + END, client));
+		return(sendToClient(buildReply(SERVER, client.getNickname(), 482, "", 1, _channel.c_str()), client));
 	if (!channel->clientIsInChannel(_target))
 		return (sendToClient(":ft_irc 441 " + name + " " + _target + " " + _channel + ":User not on channel" + END, client));
 	sendToClient(":" + name + " KICK " + _channel + " " + _target + END, client);
@@ -363,7 +389,7 @@ int Server::inviteChannel(const std::string &_target, const std::string &_channe
 	if (channel->clientIsInChannel(_target))
 		return (sendToClient(":ft_irc 443 " + name + " " + _target + " " + _channel + " :is already on that channel" + END, client));
 	if (!channel->clientIsOp(name) && channel->getIsInviteOnly())
-		return (sendToClient(":ft_irc 481 " + name + " " + _channel + " :You`re not a channel operator" + END, client));
+		return(sendToClient(buildReply(SERVER, client.getNickname(), 482, "", 1, _channel.c_str()), client));
 	channel->addInvitedClient(_target);
 	sendToClient(":ft_irc 341 " + name + " " + _target + " " +_channel + END, client); // confirmation message to sender
 	sendToClient(":" + name + " INVITE "+ _target + " " + _channel + END, *findClient(_target)); // invite to target user

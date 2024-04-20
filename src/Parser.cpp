@@ -86,7 +86,7 @@ void	Server::parseCommand(const std::string& clientPackage, Client& client) {
 				break;
 			}
 			case MODE: {
-				mode(parameter, parameter2, client);
+				mode(parameter, parameter2, parameter3 ,client);
 			break;
 			}
 			default: {

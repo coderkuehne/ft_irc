@@ -44,7 +44,7 @@ inline std::map<int, std::string> generateNumericReplies() {
 	map[001] = ":Welcome to our ft_irc server, ";
 	map[324] = ":Welcome to our ft_irc server, ";
 	map[366] = ":End of /NAMES list";
-	map[401] = ":No such nick";
+	map[401] = ":No such nick/channel";
 	map[403] = ":No such channel";
 	map[404] = ":Cannot send to channel";
 	map[431] = ":Not enough parameters";
