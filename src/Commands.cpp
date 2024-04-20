@@ -4,10 +4,12 @@
 #include "Commands.hpp"
 
 //user + MODE + channel + arg
+//MODE RPL_CREATIONTIME (329)
 int	checkMode(Channel &channel, Client &client)
 {
 	(void)channel;
 	(void)client;
+	//RPL_CHANNELMODEIS (324)
 	std::cout << "this works as expected! wow much empty" << std::endl;
 	return (0);
 }
@@ -195,6 +197,15 @@ int Server::joinChannel(std::string& channelName, std::string& key, Client &clie
 	{
 		if (channelName == _channels[i].getName())
 		{
+			if (_channels[i].getIsInviteOnly() && _channels[i].clientIsInvited(client.getNickname()))
+			{
+				_channels[i].removeInvitedClient(client.getNickname());
+				_channels[i].addClient(client);
+				responseForClientJoiningChannel(client, _channels[i]);
+				return (sendToChannel(buildReply(client.getNickname(), _channels[i].getName(), JOIN, "", 0), _channels[i], client));
+			}
+			else if (_channels[i].getInviteOnly())
+				return (sendToClient(buildReply(SERVER, client.getNickname(), 473, "", 1, channelName.c_str()), client));
 			_channels[i].addClient(client);
 			responseForClientJoiningChannel(client, _channels[i]);
 			return (sendToChannel(buildReply(client.getNickname(), _channels[i].getName(), JOIN, "", 0), _channels[i], client));
@@ -353,6 +364,7 @@ int Server::inviteChannel(const std::string &_target, const std::string &_channe
 		return (sendToClient(":ft_irc 443 " + name + " " + _target + " " + _channel + " :is already on that channel" + END, client));
 	if (!channel->clientIsOp(name) && channel->getIsInviteOnly())
 		return (sendToClient(":ft_irc 481 " + name + " " + _channel + " :You`re not a channel operator" + END, client));
+	channel->addInvitedClient(_target);
 	sendToClient(":ft_irc 341 " + name + " " + _target + " " +_channel + END, client); // confirmation message to sender
 	sendToClient(":" + name + " INVITE "+ _target + " " + _channel + END, *findClient(_target)); // invite to target user
 	return (1);

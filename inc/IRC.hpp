@@ -54,11 +54,11 @@ inline std::map<int, std::string> generateNumericReplies() {
 	map[461] = ":Not enough parameters";
 	map[462] = ":User is already registered";
 	map[464] = ":Password is incorrect";
+	map[473] = ":You're not invited, get out! ";
 	map[476] = ":Bad channel mask";
 	map[482] = ":You're not channel operator";
 	return map;
 }
-
 const std::map<int, std::string> NUMERIC_REPLIES = generateNumericReplies();
 
 class Client;

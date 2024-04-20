@@ -11,6 +11,7 @@ class Channel
 		std::string _key;
 		std::vector<Client>	_operators;
 		std::vector<Client>	_clients;
+		std::vector<std::string> _invitedClients;
 		bool	_isInviteOnly;
 		bool	_restrictTopic;
 
@@ -28,11 +29,12 @@ class Channel
 		size_t	getOpsSize(){ return _operators.size(); }
 		void	setTopic(const std::string& topic) { _topic = topic; };
 		void	setKey(const std::string& key) { _key = key; };
-		void 	setInviteOnly(bool isInviteOnly) {_isInviteOnly = isInviteOnly;}
+		void 	setInviteOnly(bool isInviteOnly) {_isInviteOnly = isInviteOnly;};
 		bool	getInviteOnly(){return _isInviteOnly;};
-		void 	setrestrictTopic(bool restrictTopic) {_restrictTopic = restrictTopic;}
+		void 	setrestrictTopic(bool restrictTopic) {_restrictTopic = restrictTopic;};
 		bool	getRestrictTopic(){return _restrictTopic;};
 		void	addClient(Client client) { _clients.push_back(client); };
+		void	addInvitedClient(const std::string &name) {_invitedClients.push_back(name);};
 		void	addOperator(Client client) { _operators.push_back(client); };
 		bool	getIsInviteOnly(){return (_isInviteOnly);};
 
@@ -121,7 +123,32 @@ class Channel
 					return (&_operators[i]);
 			}
 			return(NULL);
-		}
+		};
+
+		void	removeInvitedClient(const std::string &name)
+		{
+			for (size_t i = 0; i < _invitedClients.size(); i++)
+			{
+				if (name == _invitedClients[i])
+				{
+					_invitedClients.erase(_invitedClients.begin() + i);
+					if (DEBUG)
+						std::cout << "removed " << _invitedClients[i] << " from " << _name << std::endl;
+					return ;
+				}
+			}
+			return ;
+		};
+
+		bool	clientIsInvited(const std::string &name)
+		{
+    		for (size_t i = 0; i < _invitedClients.size(); i++)
+			{
+        		if (name == _invitedClients[i])
+            		return (true);
+			}
+    		return (false);
+    	}
 };	
 
 #endif
