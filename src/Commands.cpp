@@ -247,12 +247,11 @@ int Server::joinChannel(std::string& channelName, std::string& key, Client &clie
 	}
 	Channel *channel = findChannel(channelName);
 
-	//this segfaults
-	//if (!channel->getKey().empty() && key != channel->getKey())
-	//{
-	//	sendToClient(buildReply(SERVER, client.getNickname(), 475, "", 1, channelName.c_str()), client);
-	//	return (1);
-	//}
+	if (channel && !channel->getKey().empty() && key != channel->getKey())
+	{
+		sendToClient(buildReply(SERVER, client.getNickname(), 475, "", 1, channelName.c_str()), client);
+		return (1);
+	}
 	if (channel)
 	{
 		bool isInv = channel->getInviteOnly();
