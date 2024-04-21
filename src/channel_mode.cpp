@@ -3,7 +3,7 @@
 #include "Commands.hpp"
 
 
-int	Channel::mode_get(Client &client)
+static int	mode_get(Client &client)
 {
 	std::string	modeString = "";
 	std::string	modeArgs = "";
@@ -29,7 +29,7 @@ int	Channel::mode_get(Client &client)
 	return (0);
 }
 
-int mode_invite(const std::string& channelName, const std::string& modeString, const std::string &arg,  Client &client)
+static int mode_invite(const std::string& channelName, const std::string& modeString, const std::string &arg,  Client &client)
 {
     if (modeString == "-i")
 	{
@@ -48,7 +48,7 @@ int mode_invite(const std::string& channelName, const std::string& modeString, c
     return (0);
 }
 
-int mode_topic(const std::string& channelName, const std::string& modeString, const std::string &arg,  Client &client)
+static int mode_topic(const std::string& channelName, const std::string& modeString, const std::string &arg,  Client &client)
 {
     if (modeString == "-t")
 	{
@@ -67,7 +67,7 @@ int mode_topic(const std::string& channelName, const std::string& modeString, co
     return (0);
 }
 
-int mode_key(const std::string& channelName, const std::string& modeString, const std::string &arg,  Client &client)
+static int mode_key(const std::string& channelName, const std::string& modeString, const std::string &arg,  Client &client)
 {
     if (modeString == "-k")
     {
@@ -86,7 +86,7 @@ int mode_key(const std::string& channelName, const std::string& modeString, cons
     return (0);
 }
 
-int mode_op(const std::string& channelName, const std::string& modeString, const std::string& arg, Client &client)
+static int mode_op(const std::string& channelName, const std::string& modeString, const std::string& arg, Client &client)
 {
     if (modeString == "+o")
     {
@@ -119,7 +119,7 @@ int mode_op(const std::string& channelName, const std::string& modeString, const
     return (0);
 }
 
-int mode_limit(const std::string& channelName, const std::string& modeString, const std::string &arg,  Client &client)
+static int mode_limit(const std::string& channelName, const std::string& modeString, const std::string &arg,  Client &client)
 {
     if (arg.empty())
         return (0);
@@ -147,11 +147,12 @@ int	Channel::mode(const std::string& channelName, const std::string& modeString,
 	Channel *channel = findChannel(channelName);
 
     if (modeString.empty())
-        return (get_Mode())
+        return (get_Mode(client));
 	if (channel == NULL)
 		return (sendToClient(buildReply(SERVER, name, 403, "", 1, channelName.c_str()), client));
 	if (!channel->clientIsOp(name))
 		return(sendToClient(buildReply(SERVER, client.getNickname(), 482, "", 1, channelName.c_str()), client));
+
 	if (modeString.empty())
 		return (channel->checkMode(client));
 	if ((modeString == "-i" || modeString == "+i") && mode_invite(channelName, modeString, arg, client))
