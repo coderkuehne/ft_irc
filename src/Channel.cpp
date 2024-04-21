@@ -37,11 +37,6 @@ int	Channel::checkMode(Client &client)
 
 int	Channel::clientMessage(std::string message, Client &sender)
 {
-	if (message.empty()) {
-		std::cerr << RED << "Invalid command" << RESET << std::endl;
-		_server->sendToClient(":ft_irc 461 * :Not enough parameters", sender);
-		return (1);
-	}
 	for (clientIt it = _operators.begin(); it != _operators.end(); ++it) {
 		if (*it != sender)
 			_server->sendToClient(message, *it);
@@ -50,6 +45,15 @@ int	Channel::clientMessage(std::string message, Client &sender)
 		if (*it != sender)
 			_server->sendToClient(message, *it);
 	}
+	return (0);
+}
+
+int	Channel::channelMessage(std::string message)
+{
+	for (clientIt it = _operators.begin(); it != _operators.end(); ++it)
+		_server->sendToClient(message, *it);
+	for (clientIt it = _clients.begin(); it != _clients.end(); ++it)
+		_server->sendToClient(message, *it);
 	return (0);
 }
 

@@ -78,7 +78,7 @@ int	Server::mode(const std::string& channelName, const std::string& modeString, 
 		if (modeString == "+l")
 		{
 			channel->setClientLimit(atoi(arg.c_str()));
-			sendToClient(buildReply(name, channelName.c_str(), MODE, "", 2, modeString.c_str(), arg.c_str()), client);
+			channel->channelMessage(buildReply(name, channelName.c_str(), MODE, "", 2, modeString.c_str(), arg.c_str()));
 		}
 		if (modeString == "-l")
 		{
@@ -213,6 +213,7 @@ void Server::responseForClientJoiningChannel(Client &client, Channel &channel)
 {
 	sendToClient(buildReply(client.getNickname(), channel.getName().c_str(), JOIN, "", 0), client);
 	sendToClient(":ft_irc 332 " + client.getNickname() + " " + channel.getName() + " " + channel.getTopic() + END, client);
+	channel.checkMode(client);
 }
 
 void	Server::names(Client& client, std::string& channelName)

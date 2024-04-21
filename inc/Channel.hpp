@@ -41,6 +41,8 @@ class Channel
 		void	addInvitedClient(const std::string &name) {_invitedClients.push_back(name);}
 
 		int		clientMessage(std::string message, Client &sender);
+		int		channelMessage(std::string message);
+
 		int		checkMode(Client &client);
 		int		addOperator(Client client);
 
