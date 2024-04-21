@@ -5,14 +5,6 @@
 
 //user + MODE + channel + arg
 //MODE RPL_CREATIONTIME (329)
-int	checkMode(Channel &channel, Client &client)
-{
-	(void)channel;
-	(void)client;
-	//RPL_CHANNELMODEIS (324)
-	std::cout << "this works as expected! wow much empty" << std::endl;
-	return (0);
-}
 
 int	Server::mode(const std::string& channelName, const std::string& modeString, const std::string &arg,  Client &client)
 {
@@ -27,7 +19,7 @@ int	Server::mode(const std::string& channelName, const std::string& modeString, 
 	if (!channel->clientIsOp(name))
 		return(sendToClient(buildReply(SERVER, client.getNickname(), 482, "", 1, channelName.c_str()), client));
 	if (modeString.empty())
-		return (checkMode(*channel, client));
+		return (channel->checkMode(client));
 	if (modeString == "-i")
 	{
 		channel->setInviteOnly(false);
