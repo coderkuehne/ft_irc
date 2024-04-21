@@ -16,10 +16,10 @@ int	Server::mode(const std::string& channelName, const std::string& modeString, 
 
 	if (channel == NULL)
 		return (sendToClient(buildReply(SERVER, name, 403, "", 1, channelName.c_str()), client));
-	if (!channel->clientIsOp(name))
-		return(sendToClient(buildReply(SERVER, client.getNickname(), 482, "", 1, channelName.c_str()), client));
 	if (modeString.empty())
 		return (channel->checkMode(client));
+	if (!channel->clientIsOp(name))
+		return(sendToClient(buildReply(SERVER, client.getNickname(), 482, "", 1, channelName.c_str()), client));
 	if (modeString == "-i")
 	{
 		channel->setInviteOnly(false);
