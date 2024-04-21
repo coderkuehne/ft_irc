@@ -209,13 +209,6 @@ int Server::sendMessage(std::string& target, std::string& message, Client &clien
 	return (sendToClient(buildReply(client.getNickname(), recipient->getNickname(), PRIVMSG, message, 0), *recipient));
 }
 
-void Server::responseForClientJoiningChannel(Client &client, Channel &channel)
-{
-	sendToClient(buildReply(client.getNickname(), channel.getName().c_str(), JOIN, "", 0), client);
-	sendToClient(":ft_irc 332 " + client.getNickname() + " " + channel.getName() + " " + channel.getTopic() + END, client);
-	channel.checkMode(client);
-}
-
 void	Server::names(Client& client, std::string& channelName)
 {
 	Channel	*channel = findChannel(channelName);
@@ -242,31 +235,6 @@ int Server::joinChannel(std::string& channelName, std::string& key, Client &clie
 	}
 	else
 		channel->join(client, key);
-	return 0;
-	if (channel && !channel->getKey().empty() && key != channel->getKey())
-	{
-		sendToClient(buildReply(SERVER, client.getNickname(), 475, "", 1, channelName.c_str()), client);
-		return (1);
-	}
-	if (channel)
-	{
-		bool isInv = channel->getInviteOnly();
-		if (isInv && channel->clientIsInvited(client.getNickname()))
-		{
-			channel->removeInvitedClient(client.getNickname());
-			if (channel->addClient(client))
-				return (sendToClient(buildReply(SERVER, client.getNickname(), 471, "", 1, channelName.c_str()), client));
-			responseForClientJoiningChannel(client, *channel);
-			return (sendToChannel(buildReply(client.getNickname(), channel->getName(), JOIN, "", 0), *channel, client));
-		}
-		else if (isInv)
-			return (sendToClient(buildReply(SERVER, client.getNickname(), 473, "", 1, channelName.c_str()), client));
-
-		if (channel->addClient(client))
-			return (sendToClient(buildReply(SERVER, client.getNickname(), 471, "", 1, channelName.c_str()), client));
-		responseForClientJoiningChannel(client, *channel);
-		return (sendToChannel(buildReply(client.getNickname(), channel->getName(), JOIN, "", 0), *channel, client));
-	}
 	return 0;
 }
 
@@ -295,6 +263,10 @@ std::string	buildReply(const std::string& sender, const std::string& recipient, 
 int Server::quit(Client &client, std::string& quitMessage)
 {
 	std::string	nickname = client.getNickname();
+	for (channelIt it = _channels.begin(); it != _channels.end(); ++it) {
+		if ((*it).clientIsInChannel(nickname))
+			(*it).part(client, "QUITTER");
+	}
 	for (clientIt it = _clients.begin(); it != _clients.end(); ++it)
 	{
 		if (*it == client)
@@ -302,13 +274,9 @@ int Server::quit(Client &client, std::string& quitMessage)
 			close(client.getSocket());
 			_fds.erase(_fds.begin() + std::distance(_clients.begin(), it) + 1);
 			_clients.erase(it);
-			std::cout << "Successful quit" << std::endl;
+			std::cout << nickname << " has quit" << std::endl;
 			break;
 		}
-	}
-	for (channelIt it = _channels.begin(); it != _channels.end(); ++it) {
-		if ((*it).clientIsInChannel(nickname))
-			(*it).part(client, "QUITTER");
 	}
 	for (size_t i = 0; i < _clients.size(); ++i)
 		sendToClient(buildReply(nickname, ":Quit", QUIT, quitMessage, 0), _clients[i]);

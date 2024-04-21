@@ -61,8 +61,6 @@ class Server
 		void	addChannel(Channel channel){ _channels.push_back(channel); };
 		void	printClients(void);
 
-		void	notifyOfOtherClientJoiningChannel(Client &client, Channel &channel);
-		void	responseForClientJoiningChannel(Client &client, Channel &channel);
 		void	names(Client& client, std::string& channelName);
 
 		int		mode(const std::string&, const std::string&, const std::string& ,Client &client);
