@@ -42,6 +42,11 @@ class Channel
 		int		mode(const std::string& channelName, const std::string& modeString, const std::string &arg,  Client &client);
 		int		addOperator(Client client);	
 		int		addClient(Client client)
+
+		int		clientMessage(std::string message, Client &sender);
+		int		channelMessage(std::string message);
+
+		int	addClient(Client client)
 		{
 			int total_clients = _clients.size() + _operators.size();
 			int limit = getClientLimit();

@@ -6,6 +6,96 @@
 //user + MODE + channel + arg
 //MODE RPL_CREATIONTIME (329)
 
+<<<<<<< HEAD
+=======
+int	Server::mode(const std::string& channelName, const std::string& modeString, const std::string &arg,  Client &client)
+{
+	std::string name = client.getNickname();
+
+	if(channelName.empty())
+		return (sendToClient(buildReply(SERVER, name, 461, "", 1, "PRIVMSG"), client));
+	Channel *channel = findChannel(channelName);
+
+	if (channel == NULL)
+		return (sendToClient(buildReply(SERVER, name, 403, "", 1, channelName.c_str()), client));
+	if (modeString.empty())
+		return (channel->checkMode(client));
+	if (!channel->clientIsOp(name))
+		return(sendToClient(buildReply(SERVER, client.getNickname(), 482, "", 1, channelName.c_str()), client));
+	if (modeString == "-i")
+	{
+		channel->setInviteOnly(false);
+		sendToClient(buildReply(name, channelName.c_str(), MODE, "", 1, modeString.c_str()), client);
+		sendToChannel(buildReply(name, channelName.c_str(), MODE, "", 1, modeString.c_str()),*channel, client);
+	}
+	if (modeString == "+i")
+	{
+		channel->setInviteOnly(true);
+		sendToClient(buildReply(name, channelName.c_str(), MODE, "", 1, modeString.c_str()), client);
+		sendToChannel(buildReply(name, channelName.c_str(), MODE, "", 1, modeString.c_str()),*channel, client);
+	}
+	if (modeString == "-t")
+	{
+		channel->setrestrictTopic(false);
+		sendToClient(buildReply(name, channelName.c_str(), MODE, "", 1, modeString.c_str()), client);
+		sendToChannel(buildReply(name, channelName.c_str(), MODE, "", 1, modeString.c_str()),*channel, client);
+	}
+	if (modeString == "+t")
+	{
+		channel->setrestrictTopic(true);
+		sendToClient(buildReply(name, channelName.c_str(), MODE, "", 1, modeString.c_str()), client);
+		sendToChannel(buildReply(name, channelName.c_str(), MODE, "", 1, modeString.c_str()),*channel, client);
+	}
+	if (modeString == "-k")
+	{
+		channel->setKey("");
+		sendToClient(buildReply(name, channelName.c_str(), MODE, "", 1, modeString.c_str()), client);
+	}
+	if (!arg.empty())
+	{
+		if (modeString == "+o")
+		{
+			if (!channel->clientIsOp(arg))
+			{
+				if (!findClient(arg))
+					return (sendToClient(buildReply(SERVER, client.getNickname(), 401, "", 1, arg.c_str()), client)); //wrong error 
+				channel->addOperator(*findClient(arg));
+				channel->removeClient(arg);
+				sendToClient(buildReply(name, channelName.c_str(), MODE, "", 2, modeString.c_str(), arg.c_str()), client);
+				sendToChannel(buildReply(name, channelName.c_str(), MODE, "", 2, modeString.c_str(), arg.c_str()),*channel, client);
+			}
+		}
+		if (modeString == "-o")
+		{
+			if (channel->clientIsOp(arg))
+			{
+				if (!channel->findOps(arg))
+					return (sendToClient(buildReply(SERVER, client.getNickname(), 401, "", 1, arg.c_str()), client)); //wrong error
+				channel->removeOperator(arg);
+				channel->addClient(*findClient(arg));
+				sendToClient(buildReply(name, channelName.c_str(), MODE, "", 2, modeString.c_str(), arg.c_str()), client);
+				sendToChannel(buildReply(name, channelName.c_str(), MODE, "", 2, modeString.c_str(), arg.c_str()),*channel, client);
+			}
+		}
+		if (modeString == "+l")
+		{
+			channel->setClientLimit(atoi(arg.c_str()));
+			channel->channelMessage(buildReply(name, channelName.c_str(), MODE, "", 2, modeString.c_str(), arg.c_str()));
+		}
+		if (modeString == "-l")
+		{
+			channel->setClientLimit(0);
+			sendToClient(buildReply(name, channelName.c_str(), MODE, "", 2, modeString.c_str(), arg.c_str()), client);
+		}
+		if (modeString == "+k")
+		{
+			channel->setKey(arg);
+			sendToClient(buildReply(name, channelName.c_str(), MODE, "", 2, modeString.c_str(), arg.c_str()), client);
+		}
+	}
+	return (0);
+}
+>>>>>>> channel_migration
 
 int	Server::authenticatePassword(Client& client, std::string& inputPassword) {
 	if (inputPassword.empty())
@@ -80,12 +170,13 @@ void	Server::registerClient(Client &client) const {
 
 int Server::ChannelMessage(std::string& target, std::string& message, Client &client)
 {
-	if (target.empty() || message.empty())
-	{
-		std::cerr << RED << "Invalid command" << RESET << std::endl;
-		sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "PRIVMSG"), client);
-		return (1);
-	}
+//	if (target.empty() || message.empty())
+//	{
+//		std::cerr << RED << "Invalid command" << RESET << std::endl;
+//		sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "PRIVMSG"), client);
+//		return (1);
+//	}
+	//^ already checked in calling function
 	Channel	*channel = findChannel(target);
 
 	if (!channel)
@@ -94,7 +185,8 @@ int Server::ChannelMessage(std::string& target, std::string& message, Client &cl
 		sendToClient(buildReply(SERVER, client.getNickname(), 403, "", 1, target.c_str()), client);
 		return (1);
 	}
-	return (sendToChannel(buildReply(client.getNickname(), channel->getName(), PRIVMSG, message, 0), *channel, client));
+//	return (sendToChannel(buildReply(client.getNickname(), channel->getName(), PRIVMSG, message, 0), *channel, client));
+	return (channel->clientMessage(buildReply(client.getNickname(), channel->getName(), PRIVMSG, message, 0), client));
 }
 
 int Server::sendMessage(std::string& target, std::string& message, Client &client)
@@ -124,6 +216,7 @@ void Server::responseForClientJoiningChannel(Client &client, Channel &channel)
 {
 	sendToClient(buildReply(client.getNickname(), channel.getName().c_str(), JOIN, "", 0), client);
 	sendToClient(":ft_irc 332 " + client.getNickname() + " " + channel.getName() + " " + channel.getTopic() + END, client);
+	channel.checkMode(client);
 }
 
 void	Server::names(Client& client, std::string& channelName)
