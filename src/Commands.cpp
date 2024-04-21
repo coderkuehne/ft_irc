@@ -5,14 +5,6 @@
 
 //user + MODE + channel + arg
 //MODE RPL_CREATIONTIME (329)
-int	checkMode(Channel &channel, Client &client)
-{
-	(void)channel;
-	(void)client;
-	//RPL_CHANNELMODEIS (324)
-	std::cout << "this works as expected! wow much empty" << std::endl;
-	return (0);
-}
 
 int	Server::mode(const std::string& channelName, const std::string& modeString, const std::string &arg,  Client &client)
 {
@@ -27,7 +19,7 @@ int	Server::mode(const std::string& channelName, const std::string& modeString, 
 	if (!channel->clientIsOp(name))
 		return(sendToClient(buildReply(SERVER, client.getNickname(), 482, "", 1, channelName.c_str()), client));
 	if (modeString.empty())
-		return (checkMode(*channel, client));
+		return (channel->checkMode(client));
 	if (modeString == "-i")
 	{
 		channel->setInviteOnly(false);
@@ -271,7 +263,7 @@ int Server::joinChannel(std::string& channelName, std::string& key, Client &clie
 		responseForClientJoiningChannel(client, *channel);
 		return (sendToChannel(buildReply(client.getNickname(), channel->getName(), JOIN, "", 0), *channel, client));
 	}
-	Channel newChannel(channelName, key); //if no key key = ""
+	Channel newChannel(channelName, key, this); //if no key key = ""
 
 	newChannel.addOperator(client);
 	addChannel(newChannel);
