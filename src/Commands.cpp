@@ -167,12 +167,13 @@ void	Server::registerClient(Client &client) const {
 
 int Server::ChannelMessage(std::string& target, std::string& message, Client &client)
 {
-	if (target.empty() || message.empty())
-	{
-		std::cerr << RED << "Invalid command" << RESET << std::endl;
-		sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "PRIVMSG"), client);
-		return (1);
-	}
+//	if (target.empty() || message.empty())
+//	{
+//		std::cerr << RED << "Invalid command" << RESET << std::endl;
+//		sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "PRIVMSG"), client);
+//		return (1);
+//	}
+	//^ already checked in calling function
 	Channel	*channel = findChannel(target);
 
 	if (!channel)
@@ -181,7 +182,8 @@ int Server::ChannelMessage(std::string& target, std::string& message, Client &cl
 		sendToClient(buildReply(SERVER, client.getNickname(), 403, "", 1, target.c_str()), client);
 		return (1);
 	}
-	return (sendToChannel(buildReply(client.getNickname(), channel->getName(), PRIVMSG, message, 0), *channel, client));
+//	return (sendToChannel(buildReply(client.getNickname(), channel->getName(), PRIVMSG, message, 0), *channel, client));
+	return (channel->clientMessage(buildReply(client.getNickname(), channel->getName(), PRIVMSG, message, 0), client));
 }
 
 int Server::sendMessage(std::string& target, std::string& message, Client &client)
