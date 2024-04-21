@@ -52,6 +52,11 @@ int	Server::mode(const std::string& channelName, const std::string& modeString, 
 		sendToClient(buildReply(name, channelName.c_str(), MODE, "", 1, modeString.c_str()), client);
 		sendToChannel(buildReply(name, channelName.c_str(), MODE, "", 1, modeString.c_str()),*channel, client);
 	}
+	if (modeString == "-k")
+	{
+		channel->setKey("");
+		sendToClient(buildReply(name, channelName.c_str(), MODE, "", 1, modeString.c_str()), client);
+	}
 	if (!arg.empty())
 	{
 		if (modeString == "+o")
@@ -91,11 +96,6 @@ int	Server::mode(const std::string& channelName, const std::string& modeString, 
 		if (modeString == "+k")
 		{
 			channel->setKey(arg);
-			sendToClient(buildReply(name, channelName.c_str(), MODE, "", 2, modeString.c_str(), arg.c_str()), client);
-		}
-		if (modeString == "-k")
-		{
-			channel->setKey("");
 			sendToClient(buildReply(name, channelName.c_str(), MODE, "", 2, modeString.c_str(), arg.c_str()), client);
 		}
 	}
