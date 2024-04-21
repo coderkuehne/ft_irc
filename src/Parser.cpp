@@ -186,6 +186,9 @@ std::string	macroToCommand(int command) {
 	else if (command == MODE) {
 		return "MODE";
 	}
+	else if (command == NOTICE) {
+		return "NOTICE";
+	}
 	else if (command > 0) {
 		std::stringstream	ss;
 		ss << std::setw(3) << std::setfill('0') << command;

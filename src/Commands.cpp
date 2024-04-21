@@ -271,7 +271,7 @@ int Server::joinChannel(std::string& channelName, std::string& key, Client &clie
 		responseForClientJoiningChannel(client, *channel);
 		return (sendToChannel(buildReply(client.getNickname(), channel->getName(), JOIN, "", 0), *channel, client));
 	}
-	Channel newChannel(channelName, key); //if no key key = ""
+	Channel newChannel(channelName, key, this); //if no key key = ""
 
 	newChannel.addOperator(client);
 	addChannel(newChannel);

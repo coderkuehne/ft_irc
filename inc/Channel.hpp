@@ -3,9 +3,12 @@
 
 # include "Client.hpp"
 
+class Server;
+
 class Channel
 {
 	private:
+		Server*		_server;
 		std::string	_name;
 		std::string	_topic;
 		std::string _key;
@@ -17,7 +20,7 @@ class Channel
 		int		_clientLimit;
 
 	public:
-		Channel(std::string name, std::string key): _name(name), _topic("No topic yet"), _key(key), _isInviteOnly(false), _restrictTopic(false), _clientLimit(0){}
+		Channel(const std::string& name, const std::string& key, Server* server): _server(server), _name(name), _topic("No topic yet"), _key(key), _isInviteOnly(false), _restrictTopic(false), _clientLimit(0){}
 		~Channel() {}
 
 		std::string	getName() { return _name; }
@@ -37,16 +40,7 @@ class Channel
 		int		getClientLimit() { return _clientLimit; }
 		void	addInvitedClient(const std::string &name) {_invitedClients.push_back(name);}
 
-		int		addOperator(Client client)
-		{
-			int total_clients = _clients.size() + _operators.size();
-			int limit = getClientLimit();
-
-			if (limit > 0 && total_clients > limit)
-				return (1);
-			_operators.push_back(client);
-			return (0); 
-		}
+		int		addOperator(Client client);
 
 		int	addClient(Client client)
 		{
