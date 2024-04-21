@@ -107,6 +107,8 @@ int	Server::authenticatePassword(Client& client, std::string& inputPassword) {
 
 int	Server::changeNickname(const std::string& nick, Client &client)
 {
+	if (!client.getNickname().empty())
+		return (0);
 	if (nick.empty())
 	{
 		std::cerr << RED << "No nickname given" << RESET << std::endl;
@@ -122,8 +124,8 @@ int	Server::changeNickname(const std::string& nick, Client &client)
 		sendToClient(buildReply(SERVER, "*", 433, "", 1, nick.c_str()), client);
 		return (-1);
 	}
+	sendToClient(buildReply(client.getNickname(), nick, NICK, "", 0), client);
 	client.setNickname(nick);
-	sendToClient(buildReply(SERVER, client.getNickname(), NICK, "", 1, nick.c_str()), client);
 	registerClient(client);
 	return (0);
 }
@@ -161,7 +163,7 @@ void	Server::registerClient(Client &client) const {
 	if (!client.isRegistered() && !client.getNickname().empty() && !client.getUsername().empty()) {
 		client.beRegistered();
 		std::cout << "New user registered: Nickname: " << client.getNickname() << " Username: " << client.getUsername() << std::endl;
-		sendToClient(buildReply(SERVER, client.getNickname(), 001, "", 1, client.getNickname().c_str()), client);
+		sendToClient(buildReply(SERVER, client.getNickname(), 001, "", 0), client);
 	}
 }
 
