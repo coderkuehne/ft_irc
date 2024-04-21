@@ -39,10 +39,11 @@ class Channel
 		void	setClientLimit(int limit) {_clientLimit = limit;}
 		int		getClientLimit() { return _clientLimit; }
 		void	addInvitedClient(const std::string &name) {_invitedClients.push_back(name);}
-
+		int		mode(const std::string& channelName, const std::string& modeString, const std::string &arg,  Client &client);
+{
 		int		checkMode(Client &client);
 		int		addOperator(Client client);
-
+		int		
 		int	addClient(Client client)
 		{
 			int total_clients = _clients.size() + _operators.size();
