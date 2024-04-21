@@ -62,8 +62,11 @@ inline std::map<int, std::string> generateNumericReplies() {
 	return map;
 }
 const std::map<int, std::string> NUMERIC_REPLIES = generateNumericReplies();
+
 class Client;
+class Channel;
 typedef std::vector<std::string>::iterator	stringIt;
 typedef std::vector<Client>::iterator		clientIt;
+typedef std::vector<Channel>::iterator		channelIt;
 
 #endif

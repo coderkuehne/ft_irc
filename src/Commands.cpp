@@ -294,11 +294,11 @@ std::string	buildReply(const std::string& sender, const std::string& recipient, 
 
 int Server::quit(Client &client, std::string& quitMessage)
 {
+	std::string	nickname = client.getNickname();
 	for (clientIt it = _clients.begin(); it != _clients.end(); ++it)
 	{
 		if (*it == client)
 		{
-			//part from all channels
 			close(client.getSocket());
 			_fds.erase(_fds.begin() + std::distance(_clients.begin(), it) + 1);
 			_clients.erase(it);
@@ -306,8 +306,12 @@ int Server::quit(Client &client, std::string& quitMessage)
 			break;
 		}
 	}
-	for (size_t i = 0; i < _clients.size(); ++i) 
-		sendToClient(buildReply(client.getNickname(), ":Quit", QUIT, quitMessage, 0), _clients[i]);
+	for (channelIt it = _channels.begin(); it != _channels.end(); ++it) {
+		if ((*it).clientIsInChannel(nickname))
+			(*it).part(client, "QUITTER");
+	}
+	for (size_t i = 0; i < _clients.size(); ++i)
+		sendToClient(buildReply(nickname, ":Quit", QUIT, quitMessage, 0), _clients[i]);
 	return (0);
 }
 
@@ -383,19 +387,13 @@ int Server::kickClient(const std::string &_channel,const std::string &_target, C
 	return (1);
 }
 
-int Server::partChannel(const std::string &_channel, const std::string &_reason, Client &client)
+int Server::partChannel(const std::string &channelName, const std::string &reason, Client &client)
 {
-	Channel *channel = findChannel(_channel);
-	std::string name = client.getNickname();
+	Channel *channel = findChannel(channelName);
 
-	if (channel == NULL)
-		return (sendToClient(":ft_irc NOTICE " + name + " " + _channel + " :No such channel" + END, client));
-	sendToClient(":" + name + " PART " + _channel + " " +_reason + END, client);
-	sendToChannel(":" + name + " PART " + _channel + " " + _reason + END, *channel , client);
-	channel->removeClient(name);
-	if (channel->clientIsOp(name))
-		channel->removeOperator(name);
-	return (1);
+	if (!channel)
+		return (sendToClient(buildReply(SERVER, client.getNickname(), 403, "", 0), client));
+	return (channel->part(client, reason));
 }
 
 int Server::inviteChannel(const std::string &_target, const std::string &_channel, const Client client)

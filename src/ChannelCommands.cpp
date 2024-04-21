@@ -20,3 +20,18 @@ int	Channel::join(Client& client, const std::string& key) {
 	checkMode(client);
 	return 0;
 }
+
+int	Channel::part(Client &client, const std::string &reason)
+{
+	std::string	name = client.getNickname();
+
+	if (!clientIsInChannel(name))
+		return _server->sendToClient(buildReply(SERVER, client.getNickname(), 442, "", 0), client);
+	if (reason != "QUITTER")
+		channelMessage(buildReply(client.getNickname(), _name, PART, reason, 0));
+	if (clientIsOp(name))
+		removeOperator(name);
+	else
+		removeClient(name);
+	return 0;
+}
