@@ -45,6 +45,8 @@ class Channel
 
 		int		checkMode(Client &client);
 		int		addOperator(Client client);
+		int		join(Client& client, const std::string& key);
+
 
 		int	addClient(Client client)
 		{

@@ -231,17 +231,18 @@ void	Server::names(Client& client, std::string& channelName)
 int Server::joinChannel(std::string& channelName, std::string& key, Client &client)
 {
 	if (channelName.empty())
-	{
-		sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "JOIN"), client);
-		return (1);
-	}
+		return sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "JOIN"), client);
 	if (channelName[0] != '#')
-	{
-		sendToClient(":ft_irc 476 " + channelName + " :Bad Channel Mask, Put '#' Before Channel Name" + END, client);
-		return (1);
-	}
+		return sendToClient(buildReply(SERVER, client.getNickname(), 476, "", 0), client);
 	Channel *channel = findChannel(channelName);
-
+	if (!channel) {
+		Channel newChannel(channelName, key, this);
+		newChannel.join(client, key);
+		addChannel(newChannel);
+	}
+	else
+		channel->join(client, key);
+	return 0;
 	if (channel && !channel->getKey().empty() && key != channel->getKey())
 	{
 		sendToClient(buildReply(SERVER, client.getNickname(), 475, "", 1, channelName.c_str()), client);
@@ -266,12 +267,7 @@ int Server::joinChannel(std::string& channelName, std::string& key, Client &clie
 		responseForClientJoiningChannel(client, *channel);
 		return (sendToChannel(buildReply(client.getNickname(), channel->getName(), JOIN, "", 0), *channel, client));
 	}
-	Channel newChannel(channelName, key, this); //if no key key = ""
-
-	newChannel.addOperator(client);
-	addChannel(newChannel);
-	responseForClientJoiningChannel(client, newChannel);
-	return (0);
+	return 0;
 }
 
 std::string	buildReply(const std::string& sender, const std::string& recipient, int messageCode, const std::string& message, int paramCount, ...) {
