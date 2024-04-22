@@ -16,7 +16,7 @@ Server::~Server()
 	std::cout << "Shutting down" << std::endl;
 }
 
-void Server::start()
+void	Server::start()
 {
 	std::cout << GREEN << "Server starting" << RESET << std::endl;
 	createSocket();
@@ -57,7 +57,7 @@ void Server::start()
 //fds.events = POLLIN = data can be read
 //fds.revents = 0 = no r resent events
 //_fd.push_back(fds) = adds the fds struct to the vector
-int Server::createSocket()
+int	Server::createSocket()
 {
 	int					i = 1;
 	struct pollfd		fds;
@@ -132,7 +132,7 @@ int	Server::sendToClient(const std::string& message, const Client& client) const
 	return (0);
 }
 
-int Server::sendToChannel(std::string message, Channel& channel, Client& client)
+int	Server::sendToChannel(std::string message, Channel& channel, Client& client)
 {
 	if (message.empty())
 	{
@@ -144,7 +144,7 @@ int Server::sendToChannel(std::string message, Channel& channel, Client& client)
 	return (0);
 }
 
-int Server::receiveFromClient(Client& sender)
+int	Server::receiveFromClient(Client& sender)
 {
 	char	buffer[BUFFER_SIZE];
 	bzero(buffer, BUFFER_SIZE);
@@ -185,7 +185,7 @@ Client*	Server::findClient(const std::string& nick)
 	return (NULL);
 }
 
-Channel* Server::findChannel(const std::string& name)
+Channel*	Server::findChannel(const std::string& name)
 {
 	for (size_t i = 0; i < _channels.size(); i++)
 	{
@@ -204,7 +204,7 @@ Client*	Server::usernameIsRegistered(const std::string& username)
 	return NULL;
 }
 
-void Server::closeSockets()
+void	Server::closeSockets()
 {
 	for (size_t i = 0; i < _clients.size(); i++)
 	{
@@ -220,8 +220,8 @@ void Server::closeSockets()
 	}
 }
 
-bool Server::_running = false;
-void Server::signalHandler(int signum)
+bool	Server::_running = false;
+void	Server::signalHandler(int signum)
 {
 	std::cout << YELLOW <<"Signal received" << signum << RESET << std::endl;
 	_running = false;

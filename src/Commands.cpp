@@ -5,11 +5,11 @@
 
 int	Server::mode(const std::string& channelName, const std::string& modeString, const std::string& arg,  Client& client)
 {
-	std::string name = client.getNickname();
+	std::string	name = client.getNickname();
 
 	if(channelName.empty())
 		return (sendToClient(buildReply(SERVER, name, 461, "", 1, "PRIVMSG"), client));
-	Channel* channel = findChannel(channelName);
+	Channel*	channel = findChannel(channelName);
 
 	if (channel == NULL)
 		return (sendToClient(buildReply(SERVER, name, 403, "", 1, channelName.c_str()), client));
@@ -160,7 +160,7 @@ void	Server::registerClient(Client& client) const {
 	}
 }
 
-int Server::ChannelMessage(std::string& target, std::string& message, Client& client)
+int	Server::ChannelMessage(std::string& target, std::string& message, Client& client)
 {
 	Channel	*channel = findChannel(target);
 
@@ -173,7 +173,7 @@ int Server::ChannelMessage(std::string& target, std::string& message, Client& cl
 	return (channel->clientMessage(buildReply(client.getNickname(), channel->getName(), PRIVMSG, message, 0), client));
 }
 
-int Server::sendMessage(std::string& target, std::string& message, Client& client)
+int	Server::sendMessage(std::string& target, std::string& message, Client& client)
 {
 	if (target.empty() || message.empty())
 	{
@@ -214,7 +214,7 @@ int	Server::joinChannel(std::string& channelName, std::string& key, Client& clie
 		return (sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "JOIN"), client));
 	if (channelName[0] != '#')
 		return (sendToClient(buildReply(SERVER, client.getNickname(), 476, "", 0), client));
-	Channel* channel = findChannel(channelName);
+	Channel*	channel = findChannel(channelName);
 	if (!channel) {
 		Channel newChannel(channelName, key, this);
 		newChannel.join(client, key);
@@ -322,7 +322,7 @@ int	Server::removeChannel(Channel& channel)
 	return (0);
 }
 
-int Server::inviteChannel(const std::string& _target, const std::string& _channel, const Client client)
+int	Server::inviteChannel(const std::string& _target, const std::string& _channel, const Client client)
 {
 	Channel		*channel = findChannel(_channel);
 	std::string	name = client.getNickname();
