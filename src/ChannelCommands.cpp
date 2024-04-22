@@ -21,7 +21,7 @@ int	Channel::join(Client& client, const std::string& key) {
 	return 0;
 }
 
-int	Channel::part(Client &client, const std::string &reason)
+int	Channel::part(Client &client, const std::string& reason)
 {
 	std::string	name = client.getNickname();
 
@@ -33,5 +33,21 @@ int	Channel::part(Client &client, const std::string &reason)
 		removeOperator(name);
 	else
 		removeClient(name);
+	if (_clients.empty() && _operators.empty())
+		return 2;
+	return 0;
+}
+
+int	Channel::kick(Client &kicker, const std::string& user, const std::string& reason) {
+	if (!clientIsOp(kicker.getNickname()))
+		return(_server->sendToClient(buildReply(SERVER, kicker.getNickname(), 482, "", 1, _name.c_str()), kicker));
+	if (!clientIsInChannel(user))
+		return (_server->sendToClient(buildReply(SERVER, kicker.getNickname(), 441, "", 2, user.c_str(), _name.c_str()), kicker));
+	channelMessage(buildReply(SERVER, _name, KICK, reason, 1, user.c_str()));
+	if (clientIsOp(user))
+		removeOperator(user);
+	removeClient(user);
+	if (_clients.empty() && _operators.empty())
+		return 2;
 	return 0;
 }

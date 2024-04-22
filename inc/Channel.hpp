@@ -23,6 +23,8 @@ class Channel
 		Channel(const std::string& name, const std::string& key, Server* server): _server(server), _name(name), _topic("No topic yet"), _key(key), _isInviteOnly(false), _restrictTopic(false), _clientLimit(0){}
 		~Channel() {}
 
+		bool	operator==(Channel& channel) { return _name == channel._name; }
+
 		std::string	getName() { return _name; }
 		std::string getTopic() { return _topic;}
 		std::vector<Client>	getClients() { return _clients; }
@@ -47,7 +49,7 @@ class Channel
 		int		addOperator(Client client);
 		int		join(Client& client, const std::string& key);
 		int		part(Client &client, const std::string &reason);
-
+		int		kick(Client &kicker, const std::string& user, const std::string& reason);
 
 		int	addClient(Client client)
 		{

@@ -256,6 +256,8 @@ std::string	buildReply(const std::string& sender, const std::string& recipient, 
 		reply += NUMERIC_REPLIES.at(messageCode);
 	else if (!message.empty())
 		reply += message;
+	else if (messageCode == KICK)
+		reply += "You have been kicked";
 	if (messageCode == 001)
 		reply += recipient;
 	reply += END;
@@ -266,8 +268,10 @@ int Server::quit(Client &client, std::string& quitMessage)
 {
 	std::string	nickname = client.getNickname();
 	for (channelIt it = _channels.begin(); it != _channels.end(); ++it) {
-		if ((*it).clientIsInChannel(nickname))
-			(*it).part(client, "QUITTER");
+		if ((*it).clientIsInChannel(nickname)) {
+			if ((*it).part(client, "QUITTER") == 2)
+				_channels.erase(it);
+		}
 	}
 	for (clientIt it = _clients.begin(); it != _clients.end(); ++it)
 	{
@@ -280,8 +284,8 @@ int Server::quit(Client &client, std::string& quitMessage)
 			break;
 		}
 	}
-	for (size_t i = 0; i < _clients.size(); ++i)
-		sendToClient(buildReply(nickname, ":Quit", QUIT, quitMessage, 0), _clients[i]);
+	for (clientIt it = _clients.begin(); it != _clients.end(); ++it)
+		sendToClient(buildReply(nickname, ":Quit", QUIT, quitMessage, 0), *it);
 	return (0);
 }
 
@@ -293,8 +297,8 @@ int Server::cmdTopic(const std::string& _channel,const std::string& newTopic, Cl
 		return (sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "PRIVMSG"), client));
 	Channel *channel = findChannel(_channel);
 
-	if (channel == NULL)
-		return(sendToClient(buildReply(SERVER, client.getNickname(), 403, "", 1, _channel.c_str()), client));
+	if (!channel)
+		return(sendToClient(buildReply(SERVER, client.getNickname(), 403, "", 0), client));
 	if (!channel->clientIsInChannel(name))
 		return(sendToClient(buildReply(SERVER, client.getNickname(), 442, "", 1, _channel.c_str()), client));
 	if (newTopic.empty())
@@ -336,34 +340,38 @@ void Server::printClients(void)
 	}
 }
 
-int Server::kickClient(const std::string &_channel,const std::string &_target, Client &client)
+int	Server::kickClient(const std::string& channelName,const std::string& target, const std::string& reason, Client& client)
 {
-	Channel *channel = findChannel(_channel);
+	Channel *channel = findChannel(channelName);
 	std::string name = client.getNickname();
 
-	if (_target.empty() || _channel.empty())
-		return (sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "PRIVMSG"), client));
-	if (channel == NULL)
-		return (sendToClient(":ft_irc NOTICE " + name + ": No such channel" + END, client));
-	if (!channel->clientIsOp(name))
-		return(sendToClient(buildReply(SERVER, client.getNickname(), 482, "", 1, _channel.c_str()), client));
-	if (!channel->clientIsInChannel(_target))
-		return (sendToClient(":ft_irc 441 " + name + " " + _target + " " + _channel + ":User not on channel" + END, client));
-	sendToClient(":" + name + " KICK " + _channel + " " + _target + END, client);
-	sendToChannel(":" + name + " KICK " + _channel + " " + _target + END, *channel , client);
-	if (channel->clientIsOp(_target))
-		channel->removeOperator(_target);
-	channel->removeClient(_target);
+	if (target.empty() || channelName.empty())
+		return (sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 0), client));
+	if (!channel)
+		return (sendToClient(buildReply(SERVER, client.getNickname(), 403, "", 0), client));
+	if (channel->kick(client, target, reason) == 2)
+		removeChannel(*channel);
 	return (1);
 }
 
-int Server::partChannel(const std::string &channelName, const std::string &reason, Client &client)
+int	Server::partChannel(const std::string &channelName, const std::string &reason, Client &client)
 {
 	Channel *channel = findChannel(channelName);
 
 	if (!channel)
 		return (sendToClient(buildReply(SERVER, client.getNickname(), 403, "", 0), client));
-	return (channel->part(client, reason));
+	if (channel->part(client, reason) == 2)
+		removeChannel(*channel);
+	return 0;
+}
+
+int	Server::removeChannel(Channel& channel)
+{
+	for (channelIt it = _channels.begin(); it != _channels.end(); ++it) {
+		if (*it == channel)
+			_channels.erase(it);
+	}
+	return 0;
 }
 
 int Server::inviteChannel(const std::string &_target, const std::string &_channel, const Client client)

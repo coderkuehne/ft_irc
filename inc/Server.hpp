@@ -45,6 +45,7 @@ class Server
 
 		Client*		findClient(const std::string&);
 		Channel*	findChannel(const std::string&);
+		int			removeChannel(Channel& channel);
 
 		static void	signalHandler(int signum);
 
@@ -67,7 +68,7 @@ class Server
 
 		int		cmdTopic(const std::string& channel,const std::string& newTopic, Client &client);
 		
-		int		kickClient(const std::string &channel, const std::string &target, Client &client);
+		int		kickClient(const std::string &channelName, const std::string &target, const std::string& reason, Client &client);
 		int		inviteChannel(const std::string &_target, const std::string &_channel, const Client client);
 };
 
