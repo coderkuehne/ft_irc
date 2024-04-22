@@ -3,7 +3,7 @@
 #include "Client.hpp"
 #include "Commands.hpp"
 
-int	Server::mode(const std::string& channelName, const std::string& modeString, const std::string arg,  Client& client)
+int	Server::mode(const std::string& channelName, const std::string& modeString, const std::string& arg,  Client& client)
 {
 	std::string name = client.getNickname();
 
@@ -302,7 +302,7 @@ int	Server::kickClient(const std::string& channelName,const std::string& target,
 	return (1);
 }
 
-int	Server::partChannel(const std::string channelName, const std::string reason, Client& client)
+int	Server::partChannel(const std::string& channelName, const std::string& reason, Client& client)
 {
 	Channel	*channel = findChannel(channelName);
 
@@ -322,7 +322,7 @@ int	Server::removeChannel(Channel& channel)
 	return (0);
 }
 
-int Server::inviteChannel(const std::string _target, const std::string _channel, const Client client)
+int Server::inviteChannel(const std::string& _target, const std::string& _channel, const Client client)
 {
 	Channel		*channel = findChannel(_channel);
 	std::string	name = client.getNickname();
