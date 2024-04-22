@@ -60,7 +60,6 @@ class Server
 		int		cmd_leave(std::vector<std::string> args);
 		int		quit(Client &client, std::string& quitMessage);
 		void	addChannel(Channel channel){ _channels.push_back(channel); };
-		void	printClients(void);
 
 		void	names(Client& client, std::string& channelName);
 

@@ -3,9 +3,6 @@
 #include "Client.hpp"
 #include "Commands.hpp"
 
-//user + MODE + channel + arg
-//MODE RPL_CREATIONTIME (329)
-
 int	Server::mode(const std::string& channelName, const std::string& modeString, const std::string &arg,  Client &client)
 {
 	std::string name = client.getNickname();
@@ -279,31 +276,22 @@ int	Server::quit(Client &client, std::string& quitMessage)
 
 int	Server::channelTopic(const std::string& channelName,const std::string& newTopic, Client& client)
 {
-	std::string name = client.getNickname();
+	std::string	name = client.getNickname();
 	std::cout <<"this is "<< newTopic << std::endl;
 	if (channelName.empty())
 		return (sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "PRIVMSG"), client));
 
-	Channel *channel = findChannel(channelName);
+	Channel	*channel = findChannel(channelName);
 	if (!channel)
 		return(sendToClient(buildReply(SERVER, client.getNickname(), 403, "", 0), client));
 	channel->topic(newTopic, client);
 	return (0);
 }
 
-void Server::printClients(void)
-{
-	std::cout << "Total Clients:" << _clients.size() << std::endl;
-	for (size_t i = 0; i < _clients.size(); i++)
-	{
-		std::cout << "\tClient " << i << ": " << _clients[i].getNickname() << " Username : " << _clients[i].getUsername() << "on Socket :" << _clients[i].getSocket() << std::endl;
-	}
-}
-
 int	Server::kickClient(const std::string& channelName,const std::string& target, const std::string& reason, Client& client)
 {
-	Channel *channel = findChannel(channelName);
-	std::string name = client.getNickname();
+	Channel		*channel = findChannel(channelName);
+	std::string	name = client.getNickname();
 
 	if (target.empty() || channelName.empty())
 		return (sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 0), client));
@@ -316,7 +304,7 @@ int	Server::kickClient(const std::string& channelName,const std::string& target,
 
 int	Server::partChannel(const std::string &channelName, const std::string &reason, Client &client)
 {
-	Channel *channel = findChannel(channelName);
+	Channel	*channel = findChannel(channelName);
 
 	if (!channel)
 		return (sendToClient(buildReply(SERVER, client.getNickname(), 403, "", 0), client));
@@ -336,12 +324,12 @@ int	Server::removeChannel(Channel& channel)
 
 int Server::inviteChannel(const std::string &_target, const std::string &_channel, const Client client)
 {
-	Channel *channel = findChannel(_channel);
-	std::string name = client.getNickname();
+	Channel		*channel = findChannel(_channel);
+	std::string	name = client.getNickname();
 
 	if (_target.empty() || _channel.empty())
 		return (sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "PRIVMSG"), client));
-	if (channel == NULL)
+	if (!channel)
 		return(sendToClient(buildReply(SERVER, client.getNickname(), 442, "", 1, _channel.c_str()), client));
 	if (!findClient(_target))
 		return (sendToClient(buildReply(SERVER, name, 401, "", 1, _target.c_str()), client));
