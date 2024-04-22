@@ -74,3 +74,29 @@ int	Channel::topic(const std::string& newTopic, Client& client)
 		return (_server->sendToClient(buildReply(SERVER, client.getNickname(), 482, "", 1, _name.c_str()), client));
 	return (0);
 }
+
+int	Channel::checkMode(Client& client)
+{
+	std::string	modeString = "";
+	std::string	modeArgs = "";
+	if (_isInviteOnly)
+		modeString += "i";
+	if (_restrictTopic)
+		modeString += "t";
+	if (_clientLimit > 0) {
+		modeString += "l";
+		std::stringstream ss;
+		ss << _clientLimit;
+		modeArgs += " " + ss.str();
+	}
+	if (!_key.empty()) {
+		modeString += "k";
+		modeArgs += " " + _key;
+	}
+	if (!modeString.empty())
+		modeString = "+" + modeString;
+
+	std::string	message = modeString + modeArgs;
+	_server->sendToClient(buildReply(_name, client.getNickname(), 324, message, 1, _name.c_str()), client);
+	return (0);
+}

@@ -44,23 +44,15 @@ class Channel
 		int		clientMessage(const std::string& message, Client& sender);
 		int		channelMessage(const std::string& message);
 
-		int		checkMode(Client& client);
-		int		addOperator(Client& client);
 		int		join(Client& client, const std::string& key);
 		int		part(Client& client, const std::string& reason);
 		int		kick(Client& kicker, const std::string& user, const std::string& reason);
+
+		int		checkMode(Client& client);
 		int		topic(const std::string& newTopic, Client& client);
 
-		int	addClient(Client client)
-		{
-			int total_clients = _clients.size() + _operators.size();
-			int limit = getClientLimit();
-
-			if (limit > 0 && total_clients > limit)
-				return (1);
-			_clients.push_back(client);
-			return (0);
-		}
+		int		addOperator(Client& client);
+		int		addClient(Client& client);
 
 		std::string	getClientList(void) {
 			std::string	list = ":";
