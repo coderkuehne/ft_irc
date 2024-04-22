@@ -6,17 +6,14 @@
 void	Server::parseCommand(const std::string& clientPackage, Client& client) {
 	std::vector <std::string> commands = splitStringByEND(clientPackage);
 
-	for (std::vector<std::string>::iterator it = commands.begin(); it != commands.end(); ++it) {
+	for (stringIt it = commands.begin(); it != commands.end(); ++it) {
 		std::string			command;
 		std::istringstream	notSS(*it);
 		notSS >> command;
-
 		std::string	parameter;
-		notSS >> parameter; //this should always be the first argument after command
-
+		notSS >> parameter;
 		std::string	parameter2;
 		notSS >> parameter2;
-
 		std::string	parameter3;
 		notSS >> parameter3;
 
@@ -66,7 +63,7 @@ void	Server::parseCommand(const std::string& clientPackage, Client& client) {
 				break;
 			}
 			case TOPIC: {
-				cmdTopic(parameter, message, client);
+				channelTopic(parameter, message, client);
 				break;
 			}
 			case PRIVMSG: {
@@ -78,7 +75,7 @@ void	Server::parseCommand(const std::string& clientPackage, Client& client) {
 				break ;
 			}
 			case KICK: {
-				kickClient(parameter, parameter2, client);
+				kickClient(parameter, parameter2, message, client);
 				break;
 			}
 			case INVITE:{
@@ -146,7 +143,7 @@ int	commandToMacro(const std::string& command) {
 	else if (command == "MODE") {
 		return MODE;
 	}
-	return 0;
+	return (0);
 }
 
 std::string	macroToCommand(int command) {

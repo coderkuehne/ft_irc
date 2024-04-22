@@ -6,11 +6,11 @@ int main (int ac, char** av)
 {
 	if (ac != 3) {
 		std::cerr << RED << "Usage: ./ircserv [port] [password]" << RESET << std::endl;
-		return 1;
+		return (1);
 	}
 	if (!isValidPort(av[1])) {
 		std::cerr << RED << "Error: invalid port" << RESET << std::endl;
-		return 1;
+		return (1);
 	}
 
 	Server	server(av[1], av[2]);

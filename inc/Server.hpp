@@ -35,7 +35,7 @@ class Server
 		int		receiveFromClient(Client&);
 		void	closeSockets(void);
 
-		Client*	checkClientRegistered(const std::string&);
+		Client*	usernameIsRegistered(const std::string&);
 
 		void	parseCommand(const std::string&, Client&);
 
@@ -45,6 +45,7 @@ class Server
 
 		Client*		findClient(const std::string&);
 		Channel*	findChannel(const std::string&);
+		int			removeChannel(Channel& channel);
 
 		static void	signalHandler(int signum);
 
@@ -59,17 +60,14 @@ class Server
 		int		cmd_leave(std::vector<std::string> args);
 		int		quit(Client &client, std::string& quitMessage);
 		void	addChannel(Channel channel){ _channels.push_back(channel); };
-		void	printClients(void);
 
-		void	notifyOfOtherClientJoiningChannel(Client &client, Channel &channel);
-		void	responseForClientJoiningChannel(Client &client, Channel &channel);
 		void	names(Client& client, std::string& channelName);
 
 		int		mode(const std::string&, const std::string&, const std::string& ,Client &client);
 
-		int		cmdTopic(const std::string& channel,const std::string& newTopic, Client &client);
-		
-		int		kickClient(const std::string &channel, const std::string &target, Client &client);
+		int		channelTopic(const std::string& channel,const std::string& newTopic, Client &client);
+
+		int		kickClient(const std::string &channelName, const std::string &target, const std::string& reason, Client &client);
 		int		inviteChannel(const std::string &_target, const std::string &_channel, const Client client);
 };
 
