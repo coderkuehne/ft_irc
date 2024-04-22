@@ -132,7 +132,7 @@ int	Server::sendToClient(const std::string& message, const Client& client) const
 	return (0);
 }
 
-int Server::sendToChannel(std::string message, Channel &channel, Client &client)
+int Server::sendToChannel(std::string message, Channel& channel, Client& client)
 {
 	if (message.empty())
 	{
@@ -185,7 +185,7 @@ Client*	Server::findClient(const std::string& nick)
 	return (NULL);
 }
 
-Channel *Server::findChannel(const std::string& name)
+Channel* Server::findChannel(const std::string& name)
 {
 	for (size_t i = 0; i < _channels.size(); i++)
 	{

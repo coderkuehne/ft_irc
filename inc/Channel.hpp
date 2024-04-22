@@ -40,17 +40,17 @@ class Channel
 		bool	getRestrictTopic(){return _restrictTopic;}
 		void	setClientLimit(int limit) {_clientLimit = limit;}
 		int		getClientLimit() { return _clientLimit; }
-		void	addInvitedClient(const std::string &name) {_invitedClients.push_back(name);}
+		void	addInvitedClient(const std::string name) {_invitedClients.push_back(name);}
 
-		int		clientMessage(const std::string& message, Client &sender);
+		int		clientMessage(const std::string& message, Client& sender);
 		int		channelMessage(const std::string& message);
 
-		int		checkMode(Client &client);
+		int		checkMode(Client& client);
 		int		addOperator(Client& client);
 		int		join(Client& client, const std::string& key);
-		int		part(Client &client, const std::string &reason);
-		int		kick(Client &kicker, const std::string& user, const std::string& reason);
-		int		topic(const std::string& newTopic, Client &client);
+		int		part(Client& client, const std::string reason);
+		int		kick(Client& kicker, const std::string& user, const std::string& reason);
+		int		topic(const std::string& newTopic, Client& client);
 
 		int	addClient(Client client)
 		{
@@ -78,7 +78,7 @@ class Channel
 			return list;
 		}
 
-		void	removeClient(const std::string &name)
+		void	removeClient(const std::string name)
 		{
 			for (size_t i = 0; i < _clients.size(); i++)
 			{
@@ -93,7 +93,7 @@ class Channel
 			return ;
 		}
 
-		void	removeOperator(const std::string &name)
+		void	removeOperator(const std::string name)
 		{
 			for (size_t i = 0; i < _operators.size(); i++)
 			{
@@ -108,7 +108,7 @@ class Channel
 			return ;
 		}
 
-		bool	clientIsOp(const std::string &name)
+		bool	clientIsOp(const std::string name)
 		{
     		for (size_t i = 0; i < _operators.size(); i++)
 			{
@@ -118,7 +118,7 @@ class Channel
     		return (false);
     	}
 
-		bool	clientIsInChannel(const std::string &name)
+		bool	clientIsInChannel(const std::string name)
 		{
 			if (!clientIsOp(name))
 			{
@@ -139,7 +139,7 @@ class Channel
 			return (false);
 		}
 
-		Client	*findOps(const std::string &name)
+		Client	*findOps(const std::string name)
 		{
 			for (size_t i = 0; i < _operators.size(); i++)
 			{
@@ -149,7 +149,7 @@ class Channel
 			return(NULL);
 		}
 
-		void	removeInvitedClient(const std::string &name)
+		void	removeInvitedClient(const std::string name)
 		{
 			for (size_t i = 0; i < _invitedClients.size(); i++)
 			{
@@ -164,7 +164,7 @@ class Channel
 			return ;
 		}
 
-		bool	clientIsInvited(const std::string &name)
+		bool	clientIsInvited(const std::string name)
 		{
     		for (size_t i = 0; i < _invitedClients.size(); i++)
 			{

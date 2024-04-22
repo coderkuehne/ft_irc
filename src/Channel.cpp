@@ -1,7 +1,7 @@
 #include "IRC.hpp"
 #include "Commands.hpp"
 
-int	Channel::checkMode(Client &client)
+int	Channel::checkMode(Client& client)
 {
 	std::string	modeString = "";
 	std::string	modeArgs = "";
@@ -27,7 +27,7 @@ int	Channel::checkMode(Client &client)
 	return (0);
 }
 
-int	Channel::clientMessage(const std::string& message, Client &sender)
+int	Channel::clientMessage(const std::string& message, Client& sender)
 {
 	for (clientIt it = _operators.begin(); it != _operators.end(); ++it) {
 		if (*it != sender)

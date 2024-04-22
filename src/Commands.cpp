@@ -3,13 +3,13 @@
 #include "Client.hpp"
 #include "Commands.hpp"
 
-int	Server::mode(const std::string& channelName, const std::string& modeString, const std::string &arg,  Client &client)
+int	Server::mode(const std::string& channelName, const std::string& modeString, const std::string arg,  Client& client)
 {
 	std::string name = client.getNickname();
 
 	if(channelName.empty())
 		return (sendToClient(buildReply(SERVER, name, 461, "", 1, "PRIVMSG"), client));
-	Channel *channel = findChannel(channelName);
+	Channel* channel = findChannel(channelName);
 
 	if (channel == NULL)
 		return (sendToClient(buildReply(SERVER, name, 403, "", 1, channelName.c_str()), client));
@@ -102,7 +102,7 @@ int	Server::authenticatePassword(Client& client, std::string& inputPassword) {
 		return sendToClient(buildReply(SERVER, client.getNickname(), 464, "", 0), client);
 }
 
-int	Server::changeNickname(const std::string& nick, Client &client)
+int	Server::changeNickname(const std::string& nick, Client& client)
 {
 	if (!client.getNickname().empty())
 		return (0);
@@ -127,7 +127,7 @@ int	Server::changeNickname(const std::string& nick, Client &client)
 	return (0);
 }
 
-int	Server::setUsername(std::string& user, Client &client)
+int	Server::setUsername(std::string& user, Client& client)
 {
 	if (client.isRegistered()) {
 		std::cerr << RED << "User already registered" << RESET << std::endl;
@@ -152,7 +152,7 @@ int	Server::setUsername(std::string& user, Client &client)
 	return (0);
 }
 
-void	Server::registerClient(Client &client) const {
+void	Server::registerClient(Client& client) const {
 	if (!client.isRegistered() && !client.getNickname().empty() && !client.getUsername().empty()) {
 		client.beRegistered();
 		std::cout << "New user registered: Nickname: " << client.getNickname() << " Username: " << client.getUsername() << std::endl;
@@ -160,7 +160,7 @@ void	Server::registerClient(Client &client) const {
 	}
 }
 
-int Server::ChannelMessage(std::string& target, std::string& message, Client &client)
+int Server::ChannelMessage(std::string& target, std::string& message, Client& client)
 {
 	Channel	*channel = findChannel(target);
 
@@ -173,7 +173,7 @@ int Server::ChannelMessage(std::string& target, std::string& message, Client &cl
 	return (channel->clientMessage(buildReply(client.getNickname(), channel->getName(), PRIVMSG, message, 0), client));
 }
 
-int Server::sendMessage(std::string& target, std::string& message, Client &client)
+int Server::sendMessage(std::string& target, std::string& message, Client& client)
 {
 	if (target.empty() || message.empty())
 	{
@@ -208,13 +208,13 @@ void	Server::names(Client& client, std::string& channelName)
 	sendToClient(buildReply(SERVER, client.getNickname(), 366, "", 1, channelName.c_str()), client);
 }
 
-int	Server::joinChannel(std::string& channelName, std::string& key, Client &client)
+int	Server::joinChannel(std::string& channelName, std::string& key, Client& client)
 {
 	if (channelName.empty())
 		return sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "JOIN"), client);
 	if (channelName[0] != '#')
 		return sendToClient(buildReply(SERVER, client.getNickname(), 476, "", 0), client);
-	Channel *channel = findChannel(channelName);
+	Channel* channel = findChannel(channelName);
 	if (!channel) {
 		Channel newChannel(channelName, key, this);
 		newChannel.join(client, key);
@@ -249,7 +249,7 @@ std::string	buildReply(const std::string& sender, const std::string& recipient, 
 	return reply;
 }
 
-int	Server::quit(Client &client, std::string& quitMessage)
+int	Server::quit(Client& client, std::string& quitMessage)
 {
 	std::string	nickname = client.getNickname();
 	for (channelIt it = _channels.begin(); it != _channels.end(); ++it) {
@@ -302,7 +302,7 @@ int	Server::kickClient(const std::string& channelName,const std::string& target,
 	return (1);
 }
 
-int	Server::partChannel(const std::string &channelName, const std::string &reason, Client &client)
+int	Server::partChannel(const std::string channelName, const std::string reason, Client& client)
 {
 	Channel	*channel = findChannel(channelName);
 
@@ -322,7 +322,7 @@ int	Server::removeChannel(Channel& channel)
 	return (0);
 }
 
-int Server::inviteChannel(const std::string &_target, const std::string &_channel, const Client client)
+int Server::inviteChannel(const std::string _target, const std::string _channel, const Client client)
 {
 	Channel		*channel = findChannel(_channel);
 	std::string	name = client.getNickname();
