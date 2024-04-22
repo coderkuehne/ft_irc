@@ -18,7 +18,7 @@ int	Channel::join(Client& client, const std::string& key) {
 	channelMessage(buildReply(client.getNickname(), _name, JOIN, "", 0));
 	_server->sendToClient(buildReply(SERVER, client.getNickname(), 332, _topic, 1, _name.c_str()), client);
 	checkMode(client);
-	return 0;
+	return (0);
 }
 
 int	Channel::part(Client &client, const std::string& reason)
@@ -34,8 +34,8 @@ int	Channel::part(Client &client, const std::string& reason)
 	else
 		removeClient(name);
 	if (_clients.empty() && _operators.empty())
-		return 2;
-	return 0;
+		return (2);
+	return (0);
 }
 
 int	Channel::kick(Client &kicker, const std::string& user, const std::string& reason) {
@@ -48,8 +48,8 @@ int	Channel::kick(Client &kicker, const std::string& user, const std::string& re
 		removeOperator(user);
 	removeClient(user);
 	if (_clients.empty() && _operators.empty())
-		return 2;
-	return 0;
+		return (2);
+	return (0);
 }
 
 int	Channel::topic(const std::string& newTopic, Client &client)

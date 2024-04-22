@@ -96,7 +96,7 @@ int	Server::authenticatePassword(Client& client, std::string& inputPassword) {
 			return sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "PASS"), client);
 	if (inputPassword == _password) {
 		client.beAuthenticated();
-		return 0;
+		return (0);
 	}
 	else
 		return sendToClient(buildReply(SERVER, client.getNickname(), 464, "", 0), client);
@@ -183,7 +183,7 @@ int Server::sendMessage(std::string& target, std::string& message, Client &clien
 	}
 	if (target[0] == '#') {
 		ChannelMessage(target, message, client);
-		return 1;
+		return (1);
 	}
 	Client	*recipient = findClient(target);
 
@@ -222,7 +222,7 @@ int	Server::joinChannel(std::string& channelName, std::string& key, Client &clie
 	}
 	else
 		channel->join(client, key);
-	return 0;
+	return (0);
 }
 
 std::string	buildReply(const std::string& sender, const std::string& recipient, int messageCode, const std::string& message, int paramCount, ...) {
@@ -310,7 +310,7 @@ int	Server::partChannel(const std::string &channelName, const std::string &reaso
 		return (sendToClient(buildReply(SERVER, client.getNickname(), 403, "", 0), client));
 	if (channel->part(client, reason) == 2)
 		removeChannel(*channel);
-	return 0;
+	return (0);
 }
 
 int	Server::removeChannel(Channel& channel)
@@ -319,7 +319,7 @@ int	Server::removeChannel(Channel& channel)
 		if (*it == channel)
 			_channels.erase(it);
 	}
-	return 0;
+	return (0);
 }
 
 int Server::inviteChannel(const std::string &_target, const std::string &_channel, const Client client)

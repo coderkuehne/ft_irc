@@ -143,7 +143,7 @@ int	commandToMacro(const std::string& command) {
 	else if (command == "MODE") {
 		return MODE;
 	}
-	return 0;
+	return (0);
 }
 
 std::string	macroToCommand(int command) {
