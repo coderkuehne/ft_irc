@@ -56,100 +56,17 @@ class Channel
 
 		std::string	getClientList();
 
-		void	removeClient(const std::string& name)
-		{
-			for (size_t i = 0; i < _clients.size(); i++)
-			{
-				if (name == _clients[i].getNickname())
-				{
-					_clients.erase(_clients.begin() + i);
-					if (DEBUG)
-						std::cout << "removed " << _clients[i].getNickname() << " from " << _name << std::endl;
-					return ;
-				}
-			}
-		}
+		void	removeClient(const std::string& name);
+		void	removeOperator(const std::string& name);
 
-		void	removeOperator(const std::string& name)
-		{
-			for (size_t i = 0; i < _operators.size(); i++)
-			{
-				if (name == _operators[i].getNickname())
-				{
-					_operators.erase(_operators.begin() + i);
-					if (DEBUG)
-						std::cout << "removed " << _operators[i].getNickname() << " from " << _name << std::endl;
-					return ;
-				}
-			}
-			return ;
-		}
+		bool	clientIsOp(const std::string& name);
+		Client*	findOps(const std::string& name);
+		bool	clientIsInChannel(const std::string& name);
 
-		bool	clientIsOp(const std::string& name)
-		{
-    		for (size_t i = 0; i < _operators.size(); i++)
-			{
-        		if (name == _operators[i].getNickname())
-            		return (true);
-			}
-    		return (false);
-    	}
 
-		bool	clientIsInChannel(const std::string& name)
-		{
-			if (!clientIsOp(name))
-			{
-				for (size_t i = 0; i < _clients.size(); i++)
-				{
-					if (name == _clients[i].getNickname())
-						return (true);
-				}
-			}
-			else
-			{
-				for (size_t i = 0; i < _operators.size(); i++)
-				{
-					if (name == _operators[i].getNickname())
-						return (true);
-				}
-			}
-			return (false);
-		}
+		bool	clientIsInvited(const std::string& name);
+		void	removeInvitedClient(const std::string& name);
 
-		Client	*findOps(const std::string& name)
-		{
-			for (size_t i = 0; i < _operators.size(); i++)
-			{
-				if (_operators[i].getNickname() == name)
-					return (&_operators[i]);
-			}
-			return(NULL);
-		}
-
-		void	removeInvitedClient(const std::string& name)
-		{
-			for (size_t i = 0; i < _invitedClients.size(); i++)
-			{
-				if (name == _invitedClients[i])
-				{
-					_invitedClients.erase(_invitedClients.begin() + i);
-					if (DEBUG)
-						std::cout << "removed " << _invitedClients[i] << " from " << _name << std::endl;
-					return ;
-				}
-			}
-			return ;
-		}
-
-		bool	clientIsInvited(const std::string& name)
-		{
-    		for (size_t i = 0; i < _invitedClients.size(); i++)
-			{
-        		if (name == _invitedClients[i])
-            		return (true);
-			}
-    		return (false);
-    	}
-};	
+};
 
 #endif
