@@ -67,7 +67,7 @@ class Server
 
 		int		cmdTopic(const std::string& channel,const std::string& newTopic, Client &client);
 		
-		int		kickClient(const std::string &channel, const std::string &target, Client &client);
+		int		kickClient(const std::string &channel, const std::string &target, std::string &message, Client &client);
 		int		inviteChannel(const std::string &_target, const std::string &_channel, const Client client);
 };
 

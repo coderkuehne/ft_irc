@@ -137,23 +137,26 @@ int Server::sendToChannel(std::string message, Channel &channel, Client &client)
 	if (message.empty())
 	{
 		std::cerr << RED << "Invalid command" << RESET << std::endl;
-		sendToClient(":ft_irc 461 * :Not enough parameters", client);
+		//sendToClient(":ft_irc 461 * :Not enough parameters", client);
+		sendToClient(buildReply(SERVER, "*", 461, "", 0), client);
 		return (1);
 	}
-	for (size_t i = 0; i < channel.getOps().size(); ++i)
-	{
-		if (channel.getOps()[i] != client)
-			sendToClient(message, channel.getOps()[i]);
-//			send(channel.getOps()[i].getSocket(), message.c_str(), message.length(), 0);
-	}
-	for (size_t i = 0; i < channel.getClients().size(); i++)
-	{
-		// Client&	recipient = channel.getClients()[i];
-		// std::cout << "clients: " << channel.getClients()[i].getNickname() << std::endl;
-		if (channel.getClients()[i] != client)
-//			send(channel.getClients()[i].getSocket(), message.c_str(), message.length(), 0);
-			sendToClient(message, channel.getClients()[i]);
-	}
+	channel.clientMessage(message, client);
+// 	for (size_t i = 0; i < channel.getOps().size(); ++i)
+// 	{
+// 		if (channel.getOps()[i] != client)
+// //			channel.channelMessage(message);
+// 			channel.clientMessage(message, channel.getOps()[i]);
+// //			send(channel.getOps()[i].getSocket(), message.c_str(), message.length(), 0);
+// 	}
+// 	for (size_t i = 0; i < channel.getClients().size(); i++)
+// 	{
+// 		// Client&	recipient = channel.getClients()[i];
+// 		// std::cout << "clients: " << channel.getClients()[i].getNickname() << std::endl;
+// 		if (channel.getClients()[i] != client)
+// //			send(channel.getClients()[i].getSocket(), message.c_str(), message.length(), 0);
+// 			channel.channelMessage(message);
+// 	}
 	return (0);
 }
 

@@ -50,7 +50,9 @@ inline std::map<int, std::string> generateNumericReplies() {
 	map[431] = ":Not enough parameters";
 	map[432] = ":Erroneous nickname";
 	map[433] = ":Nickname already in use";
+	map[441] = ":They aren't on that channel";
 	map[442] = ":You're not on that channel";
+	map[443] = ":is already on channel";
 	map[461] = ":Not enough parameters";
 	map[462] = ":User is already registered";
 	map[464] = ":Password is incorrect";

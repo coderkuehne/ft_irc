@@ -308,19 +308,10 @@ int Server::cmdTopic(const std::string& _channel,const std::string& newTopic, Cl
 		std::stringstream notSS;
     	notSS << currTime;
 		std::string currTimestamp = notSS.str();
-		// for (size_t i = 0; i < channel->getOpsSize(); i++)
-		// {
-			sendToClient(buildReply(SERVER, name, 332, "", 2, channel->getName().c_str(), channel->getTopic().c_str()), client);
-			sendToClient(buildReply(SERVER, name, 333, "", 3, channel->getName().c_str(), name.c_str(), currTimestamp.c_str()), client);
-			sendToChannel(buildReply(SERVER, name, 332, "", 2, channel->getName().c_str(), channel->getTopic().c_str()), *channel, client);
-			sendToChannel(buildReply(SERVER, name, 333, "", 3, channel->getName().c_str(), name.c_str(), currTimestamp.c_str()), *channel, client);
-
-		// }
-		// for (size_t i = 0; i < channel->getClientsSize(); i++)
-		// {
-			//sendToChannel(buildReply(SERVER, channel->getClients()[i].getNickname(), 332, "", 2, channel->getName().c_str(), channel->getTopic().c_str()), *channel, channel->getClients()[i]);
-			//sendToChannel(buildReply(SERVER, channel->getClients()[i].getNickname(), 333, "", 3, channel->getName().c_str(), name.c_str(), currTimestamp.c_str()), *channel, channel->getClients()[i]);
-		//}
+		sendToClient(buildReply(SERVER, name, 332, "", 2, channel->getName().c_str(), channel->getTopic().c_str()), client);
+		sendToClient(buildReply(SERVER, name, 333, "", 3, channel->getName().c_str(), name.c_str(), currTimestamp.c_str()), client);
+		sendToChannel(buildReply(SERVER, name, 332, "", 2, channel->getName().c_str(), channel->getTopic().c_str()), *channel, client);
+		sendToChannel(buildReply(SERVER, name, 333, "", 3, channel->getName().c_str(), name.c_str(), currTimestamp.c_str()), *channel, client);
 	}
 	if (!isOP && channel->getRestrictTopic())
 		return(sendToClient(buildReply(SERVER, client.getNickname(), 482, "", 1, _channel.c_str()), client));
@@ -336,7 +327,7 @@ void Server::printClients(void)
 	}
 }
 
-int Server::kickClient(const std::string &_channel,const std::string &_target, Client &client)
+int Server::kickClient(const std::string &_channel,const std::string &_target, std::string &message, Client &client)
 {
 	Channel *channel = findChannel(_channel);
 	std::string name = client.getNickname();
@@ -344,13 +335,21 @@ int Server::kickClient(const std::string &_channel,const std::string &_target, C
 	if (_target.empty() || _channel.empty())
 		return (sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "PRIVMSG"), client));
 	if (channel == NULL)
-		return (sendToClient(":ft_irc NOTICE " + name + ": No such channel" + END, client));
+		return(sendToClient(buildReply(SERVER, client.getNickname(), 403, "", 1, _channel.c_str()), client));
 	if (!channel->clientIsOp(name))
 		return(sendToClient(buildReply(SERVER, client.getNickname(), 482, "", 1, _channel.c_str()), client));
 	if (!channel->clientIsInChannel(_target))
-		return (sendToClient(":ft_irc 441 " + name + " " + _target + " " + _channel + ":User not on channel" + END, client));
-	sendToClient(":" + name + " KICK " + _channel + " " + _target + END, client);
-	sendToChannel(":" + name + " KICK " + _channel + " " + _target + END, *channel , client);
+		return(sendToClient(buildReply(SERVER, client.getNickname(), 441, "", 1, _target.c_str()), client));
+	if (message.empty())
+	{
+		sendToClient(buildReply(name, _channel, KICK, "", 2, _target.c_str(), _channel.c_str()), client);
+		sendToChannel(buildReply(name, _channel, KICK, "", 2, _target.c_str(), _channel.c_str()), *channel, client);
+	}
+	else
+	{
+		sendToClient(buildReply(name, _channel, KICK, "", 3, message.c_str(),  _target.c_str(), _channel.c_str()), client);
+		sendToChannel(buildReply(name, _channel, KICK, "", 3, message.c_str(), _target.c_str(), _channel.c_str()), *channel, client);
+	}
 	if (channel->clientIsOp(_target))
 		channel->removeOperator(_target);
 	channel->removeClient(_target);
@@ -378,13 +377,13 @@ int Server::inviteChannel(const std::string &_target, const std::string &_channe
 	if (!findClient(_target))
 		return (sendToClient(buildReply(SERVER, name, 401, "", 1, _target.c_str()), client));
 	if (!channel->clientIsInChannel(name))
-		return (sendToClient(":ft_irc 441 " + name + " " + _channel + " :You`re not on that Channel" + END, client));
+		return(sendToClient(buildReply(SERVER, client.getNickname(), 441, "", 1, _target.c_str()), client));
 	if (channel->clientIsInChannel(_target))
-		return (sendToClient(":ft_irc 443 " + name + " " + _target + " " + _channel + " :is already on that channel" + END, client));
+		return(sendToClient(buildReply(SERVER, client.getNickname(), 443, "", 2, _target.c_str(), _channel.c_str()), client));
 	if (!channel->clientIsOp(name) && channel->getInviteOnly())
 		return(sendToClient(buildReply(SERVER, client.getNickname(), 482, "", 1, _channel.c_str()), client));
 	channel->addInvitedClient(_target);
-	sendToClient(":ft_irc 341 " + name + " " + _target + " " +_channel + END, client); // confirmation message to sender
-	sendToClient(":" + name + " INVITE "+ _target + " " + _channel + END, *findClient(_target)); // invite to target user
+	sendToClient(buildReply(SERVER, client.getNickname(), 341, "", 2, _target.c_str(), _channel.c_str()), client);
+	sendToClient(buildReply(SERVER, client.getNickname(), INVITE, "", 2, _target.c_str(), _channel.c_str()), *findClient(_target));
 	return (1);
 }

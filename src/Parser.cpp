@@ -78,7 +78,7 @@ void	Server::parseCommand(const std::string& clientPackage, Client& client) {
 				break ;
 			}
 			case KICK: {
-				kickClient(parameter, parameter2, client);
+				kickClient(parameter, parameter2, message, client);
 				break;
 			}
 			case INVITE:{
