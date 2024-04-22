@@ -137,23 +137,10 @@ int Server::sendToChannel(std::string message, Channel &channel, Client &client)
 	if (message.empty())
 	{
 		std::cerr << RED << "Invalid command" << RESET << std::endl;
-		sendToClient(":ft_irc 461 * :Not enough parameters", client);
+		sendToClient(buildReply(SERVER, "*", 461, "", 0), client);
 		return (1);
 	}
-	for (size_t i = 0; i < channel.getOps().size(); ++i)
-	{
-		if (channel.getOps()[i] != client)
-			sendToClient(message, channel.getOps()[i]);
-//			send(channel.getOps()[i].getSocket(), message.c_str(), message.length(), 0);
-	}
-	for (size_t i = 0; i < channel.getClients().size(); i++)
-	{
-		// Client&	recipient = channel.getClients()[i];
-		// std::cout << "clients: " << channel.getClients()[i].getNickname() << std::endl;
-		if (channel.getClients()[i] != client)
-//			send(channel.getClients()[i].getSocket(), message.c_str(), message.length(), 0);
-			sendToClient(message, channel.getClients()[i]);
-	}
+	channel.clientMessage(message, client);
 	return (0);
 }
 
@@ -170,9 +157,6 @@ int Server::receiveFromClient(Client& sender)
 		if (DEBUG)
 			std::cout << GREEN << "Received: " << bufferStr << " from " << sender.getNickname() << " socket " << sender.getSocket() << RESET << std::endl;
 
-//		//TEMP DEBUG
-//		if ()
-//		sender.setNickname("42karo");
 		parseCommand(bufferStr, sender);
 		return (bytes);
 	}
@@ -211,7 +195,7 @@ Channel *Server::findChannel(const std::string& name)
 	return (NULL);
 }
 
-Client*	Server::checkClientRegistered(const std::string& username)
+Client*	Server::usernameIsRegistered(const std::string& username)
 {
 	for (clientIt it = _clients.begin(); it != _clients.end(); ++it) {
 		if (username == it->getUsername())

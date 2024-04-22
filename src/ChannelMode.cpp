@@ -1,6 +1,4 @@
-#include "Channel.hpp"
-#include "Server.hpp"
-#include "Commands.hpp"
+#include "IRC.hpp"
 
 
 int	Channel::mode_get(Client &client)
@@ -29,7 +27,7 @@ int	Channel::mode_get(Client &client)
 	return (0);
 }
 
-int Channel::mode_invite(const std::string& modeString, const std::string &arg,  Client &client)
+int Channel::mode_invite(const std::string& modeString)
 {
     if (modeString == "-i")
 	{
@@ -46,7 +44,7 @@ int Channel::mode_invite(const std::string& modeString, const std::string &arg, 
     return (0);
 }
 
-int Channel::mode_topic(const std::string& modeString, const std::string &arg,  Client &client)
+int Channel::mode_topic(const std::string& modeString)
 {
     if (modeString == "-t")
 	{
@@ -63,7 +61,7 @@ int Channel::mode_topic(const std::string& modeString, const std::string &arg,  
     return (0);
 }
 
-int Channel::mode_key(const std::string& modeString, const std::string &arg,  Client &client)
+int Channel::mode_key(const std::string& modeString, const std::string &arg)
 {
     if (modeString == "-k")
     {
@@ -113,7 +111,7 @@ int Channel::mode_op(const std::string& modeString, const std::string& arg, Clie
     return (0);
 }
 
-int Channel::mode_limit(const std::string& modeString, const std::string &arg,  Client &client)
+int Channel::mode_limit(const std::string& modeString, const std::string &arg)
 {
     if (arg.empty())
         return (0);
@@ -141,23 +139,23 @@ int	Channel::mode(const std::string& modeString, const std::string &arg,  Client
 	if (!clientIsOp(clientName))
 		return(_server->sendToClient(buildReply(SERVER, clientName, 482, "", 1, _name.c_str()), client));
 
-	if ((modeString == "-i" || modeString == "+i") && mode_invite(modeString, arg, client))
+	if ((modeString == "-i" || modeString == "+i") && mode_invite(modeString))
         return (0);
     else
         return (1); //failure
-	if ((modeString == "-t" || modeString == "+t") && mode_topic(modeString, arg, client))
+	if ((modeString == "-t" || modeString == "+t") && mode_topic(modeString))
         return (0);
     else
         return (1); //failure
-	if ((modeString == "-k" || modeString == "+k") && mode_key(modeString, arg, client))
+	if ((modeString == "-k" || modeString == "+k") && mode_key(modeString, arg))
         return (0);
     else
         return (1); //failure
-	if (modeString == "+o" || modeString == "-o" && mode_op(modeString, arg, client))
+	if ((modeString == "+o" || modeString == "-o") && mode_op(modeString, arg, client))
 		return (0);
     else
         return (1); //failure
-	if ((modeString == "+l" || modeString == "-l") && mode_limit(modeString, arg, client))
+	if ((modeString == "+l" || modeString == "-l") && mode_limit(modeString, arg))
         return (0);
     else
         return (1); //failure

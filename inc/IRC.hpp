@@ -22,6 +22,16 @@
 # include <sstream>
 # include <iomanip>
 # include <cstdarg>
+# include "Client.hpp"
+# include "Channel.hpp"
+# include "Server.hpp"
+# include "Parser.hpp"
+# include "Commands.hpp"
+
+	typedef std::vector<std::string>::iterator	stringIt;
+	typedef std::vector<Client>::iterator		clientIt;
+	typedef std::vector<Channel>::iterator		channelIt;
+
 
 # define RED "\033[31m"
 # define GREEN "\033[32m"
@@ -50,7 +60,9 @@ inline std::map<int, std::string> generateNumericReplies() {
 	map[431] = ":Not enough parameters";
 	map[432] = ":Erroneous nickname";
 	map[433] = ":Nickname already in use";
+	map[441] = ":User is not on that channel";
 	map[442] = ":You're not on that channel";
+	map[443] = ":is already on channel";
 	map[461] = ":Not enough parameters";
 	map[462] = ":User is already registered";
 	map[464] = ":Password is incorrect";
@@ -62,8 +74,6 @@ inline std::map<int, std::string> generateNumericReplies() {
 	return map;
 }
 const std::map<int, std::string> NUMERIC_REPLIES = generateNumericReplies();
-class Client;
-typedef std::vector<std::string>::iterator	stringIt;
-typedef std::vector<Client>::iterator		clientIt;
+
 
 #endif
