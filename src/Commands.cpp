@@ -93,13 +93,13 @@ int	Server::mode(const std::string& channelName, const std::string& modeString, 
 
 int	Server::authenticatePassword(Client& client, std::string& inputPassword) {
 	if (inputPassword.empty())
-			return sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "PASS"), client);
+			return (sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "PASS"), client));
 	if (inputPassword == _password) {
 		client.beAuthenticated();
 		return (0);
 	}
 	else
-		return sendToClient(buildReply(SERVER, client.getNickname(), 464, "", 0), client);
+		return (sendToClient(buildReply(SERVER, client.getNickname(), 464, "", 0), client));
 }
 
 int	Server::changeNickname(const std::string& nick, Client& client)
@@ -109,12 +109,12 @@ int	Server::changeNickname(const std::string& nick, Client& client)
 	if (nick.empty())
 	{
 		std::cerr << RED << "No nickname given" << RESET << std::endl;
-		return sendToClient(buildReply(SERVER, "*", 431, "", 0), client);
+		return (sendToClient(buildReply(SERVER, "*", 431, "", 0), client));
 	}
 	if (nick[0] == '#' || nick[0] == ':' || nick[0] == ' ')
 	{
 		std::cerr << RED << "Invalid nickname" << RESET << std::endl;
-		return sendToClient(buildReply(SERVER, "*", 432, "", 1, nick.c_str()), client);
+		return (sendToClient(buildReply(SERVER, "*", 432, "", 1, nick.c_str()), client));
 	}
 	if (findClient(nick)) {
 		std::cerr << RED << "Nickname already in use" << RESET << std::endl;
@@ -211,9 +211,9 @@ void	Server::names(Client& client, std::string& channelName)
 int	Server::joinChannel(std::string& channelName, std::string& key, Client& client)
 {
 	if (channelName.empty())
-		return sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "JOIN"), client);
+		return (sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "JOIN"), client));
 	if (channelName[0] != '#')
-		return sendToClient(buildReply(SERVER, client.getNickname(), 476, "", 0), client);
+		return (sendToClient(buildReply(SERVER, client.getNickname(), 476, "", 0), client));
 	Channel* channel = findChannel(channelName);
 	if (!channel) {
 		Channel newChannel(channelName, key, this);

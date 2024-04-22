@@ -180,7 +180,7 @@ Client*	Server::findClient(const std::string& nick)
 		if (DEBUG)
 			std::cout << "clients[i].getNickname(): " << _clients[i].getNickname() << std::endl;
 		if (nick == _clients[i].getNickname())
-			return &_clients[i];
+			return (&_clients[i]);
 	}
 	return (NULL);
 }

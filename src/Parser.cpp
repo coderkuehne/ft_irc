@@ -108,88 +108,88 @@ std::vector<std::string>	splitStringByEND(const std::string& str) {
 
 int	commandToMacro(const std::string& command) {
 	if (command == "QUIT") {
-		return QUIT;
+		return (QUIT);
 	}
 	else if (command == "PASS") {
-		return PASS;
+		return (PASS);
 	}
 	else if (command == "NICK") {
-		return NICK;
+		return (NICK);
 	}
 	else if (command == "USER") {
-		return USER;
+		return (USER);
 	}
 	else if (command == "PRIVMSG") {
-		return PRIVMSG;
+		return (PRIVMSG);
 	}
 	else if (command == "JOIN") {
-		return JOIN;
+		return (JOIN);
 	}
 	else if (command == "WHO") {
-		return WHO;
+		return (WHO);
 	}
 	else if (command == "KICK") {
-		return KICK;
+		return (KICK);
 	}
 	else if (command == "PART") {
-		return PART;
+		return (PART);
 	}
 	else if (command == "TOPIC") {
-		return TOPIC;
+		return (TOPIC);
 	}
 	else if (command == "INVITE") {
-		return INVITE;
+		return (INVITE);
 	}
 	else if (command == "MODE") {
-		return MODE;
+		return (MODE);
 	}
 	return (0);
 }
 
 std::string	macroToCommand(int command) {
 	if (command == QUIT) {
-		return "QUIT";
+		return ("QUIT");
 	}
 	else if (command == PASS) {
-		return "PASS";
+		return ("PASS");
 	}
 	else if (command == NICK) {
-		return "NICK";
+		return ("NICK");
 	}
 	else if (command == USER) {
-		return "USER";
+		return ("USER");
 	}
 	else if (command == PRIVMSG) {
-		return "PRIVMSG";
+		return ("PRIVMSG");
 	}
 	else if (command == JOIN) {
-		return "JOIN";
+		return ("JOIN");
 	}
 	else if (command == WHO) {
-		return "WHO";
+		return ("WHO");
 	}
 	else if (command == INVITE) {
-		return "INVITE";
+		return ("INVITE");
 	}
 	else if (command == KICK) {
-		return "KICK";
+		return ("KICK");
 	}
 	else if (command == PART) {
-		return "PART";
+		return ("PART");
 	}
 	else if (command == TOPIC) {
-		return "TOPIC";
+		return ("TOPIC");
 	}
 	else if (command == MODE) {
-		return "MODE";
+		return ("MODE");
 	}
 	else if (command == NOTICE) {
-		return "NOTICE";
+		return ("NOTICE");
 	}
 	else if (command > 0) {
 		std::stringstream	ss;
 		ss << std::setw(3) << std::setfill('0') << command;
 		return ss.str();
 	}
-	return "";
+	return ("");
 }

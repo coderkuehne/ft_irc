@@ -85,7 +85,7 @@ std::string	Channel::getClientList()
 			list += " ";
 		list += it->getNickname();
 	}
-	return list;
+	return (list);
 }
 
 bool	Channel::clientIsOp(const std::string& name)
