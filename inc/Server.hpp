@@ -26,6 +26,8 @@ class Server
 		Server(const std::string& port = "7779", const std::string& password = "123");
 		~Server();
 
+		static void	signalHandler(int signum);
+
 		void	start();
 		void	setHints();
 		int		createSocket();
@@ -35,40 +37,30 @@ class Server
 		int		receiveFromClient(Client&);
 		void	closeSockets();
 
+		int		authenticatePassword(Client&, std::string&);
 		Client*	usernameIsRegistered(const std::string&);
-
-		void	parseCommand(const std::string&, Client&);
-
-		int	authenticatePassword(Client&, std::string&);
-//		bool	registerClientNames(Client&, std::string&);
-//		void	authenticateClient(Client&, std::string&);
-
-		Client*		findClient(const std::string&);
-		Channel*	findChannel(const std::string&);
-		int			removeChannel(Channel& channel);
-
-		static void	signalHandler(int signum);
-
 		int		changeNickname(const std::string& nick, Client& client);
 		int		setUsername(std::string& user, Client& client);
 		void	registerClient(Client& client) const;
 
+		void	parseCommand(const std::string&, Client&);
+
+		Client*		findClient(const std::string&);
+		Channel*	findChannel(const std::string&);
+		void		addChannel(Channel& channel){ _channels.push_back(channel); };
+		int			removeChannel(Channel& channel);
+
+		int		joinChannel(std::string&, std::string&, Client&);
+		void	names(Client& client, std::string& channelName);
+		int		mode(const std::string&, const std::string&, const std::string& ,Client& client);
+		int		channelTopic(const std::string& channel,const std::string& newTopic, Client& client);
+		int		kickClient(const std::string& channelName, const std::string& target, const std::string& reason, Client& client);
+		int		inviteChannel(const std::string& _target, const std::string& _channel, const Client client);		int		partChannel(const std::string&, const std::string&, Client&);
+		int		quit(Client& client, std::string& quitMessage);
+
 		int		sendMessage(std::string&, std::string&, Client& client);
 		int		ChannelMessage(std::string&, std::string&, Client& client);
-		int		joinChannel(std::string&, std::string&, Client&);
-		int		partChannel(const std::string&, const std::string&, Client&);
-		int		cmd_leave(std::vector<std::string> args);
-		int		quit(Client& client, std::string& quitMessage);
-		void	addChannel(Channel channel){ _channels.push_back(channel); };
 
-		void	names(Client& client, std::string& channelName);
-
-		int		mode(const std::string&, const std::string&, const std::string& ,Client& client);
-
-		int		channelTopic(const std::string& channel,const std::string& newTopic, Client& client);
-
-		int		kickClient(const std::string& channelName, const std::string& target, const std::string& reason, Client& client);
-		int		inviteChannel(const std::string& _target, const std::string& _channel, const Client client);
 };
 
 #endif
