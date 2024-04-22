@@ -35,7 +35,7 @@ class Server
 		int		receiveFromClient(Client&);
 		void	closeSockets(void);
 
-		Client*	checkClientRegistered(const std::string&);
+		Client*	usernameIsRegistered(const std::string&);
 
 		void	parseCommand(const std::string&, Client&);
 

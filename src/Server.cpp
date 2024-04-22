@@ -214,7 +214,7 @@ Channel *Server::findChannel(const std::string& name)
 	return (NULL);
 }
 
-Client*	Server::checkClientRegistered(const std::string& username)
+Client*	Server::usernameIsRegistered(const std::string& username)
 {
 	for (clientIt it = _clients.begin(); it != _clients.end(); ++it) {
 		if (username == it->getUsername())

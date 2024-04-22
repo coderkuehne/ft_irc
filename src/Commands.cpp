@@ -143,16 +143,12 @@ int	Server::setUsername(std::string& user, Client &client)
 		sendToClient(buildReply(SERVER, "*", 431, "", 0), client);
 		return (-1);
 	}
-	for (size_t i = 0; i < _clients.size(); i++)
-	{
-		if (user == _clients[i].getUsername())
-		{
-			std::cerr << RED << "Username already in use" << RESET << std::endl;
-			sendToClient(buildReply(SERVER, client.getNickname(), NOTICE, ":Username is taken, registering as guest", 1, client.getNickname().c_str()), client);
-			std::stringstream	ss;
-			ss << ++guestCount;
-			user = "Guest" + ss.str();
-		}
+	if (usernameIsRegistered(user)) {
+		std::cerr << RED << "Username already in use" << RESET << std::endl;
+		sendToClient(buildReply(SERVER, client.getNickname(), NOTICE, ":Username is taken, registering as guest", 1, client.getNickname().c_str()), client);
+		std::stringstream	ss;
+		ss << ++guestCount;
+		user = "Guest" + ss.str();
 	}
 	client.setUsername(user);
 	registerClient(client);
