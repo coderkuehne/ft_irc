@@ -6,7 +6,7 @@
 void	Server::parseCommand(const std::string& clientPackage, Client& client) {
 	std::vector <std::string> commands = splitStringByEND(clientPackage);
 
-	for (std::vector<std::string>::iterator it = commands.begin(); it != commands.end(); ++it) {
+	for (stringIt it = commands.begin(); it != commands.end(); ++it) {
 		std::string			command;
 		std::istringstream	notSS(*it);
 		notSS >> command;
