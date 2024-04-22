@@ -42,11 +42,11 @@ class Channel
 		int		getClientLimit() { return _clientLimit; }
 		void	addInvitedClient(const std::string &name) {_invitedClients.push_back(name);}
 
-		int		clientMessage(std::string message, Client &sender);
-		int		channelMessage(std::string message);
+		int		clientMessage(const std::string& message, Client &sender);
+		int		channelMessage(const std::string& message);
 
 		int		checkMode(Client &client);
-		int		addOperator(Client client);
+		int		addOperator(Client& client);
 		int		join(Client& client, const std::string& key);
 		int		part(Client &client, const std::string &reason);
 		int		kick(Client &kicker, const std::string& user, const std::string& reason);
