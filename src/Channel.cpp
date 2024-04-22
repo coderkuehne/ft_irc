@@ -43,3 +43,19 @@ int	Channel::addClient(Client& client)
 	_clients.push_back(client);
 	return (0);
 }
+
+std::string	Channel::getClientList()
+{
+	std::string	list = ":";
+	for (clientIt it = _operators.begin(); it != _operators.end(); ++it) {
+		if (!list.empty())
+			list += " ";
+		list += "@" + it->getNickname();
+	}
+	for (clientIt it = _clients.begin(); it != _clients.end(); ++it) {
+		if (!list.empty())
+			list += " ";
+		list += it->getNickname();
+	}
+	return list;
+}

@@ -54,20 +54,7 @@ class Channel
 		int		addOperator(Client& client);
 		int		addClient(Client& client);
 
-		std::string	getClientList(void) {
-			std::string	list = ":";
-			for (clientIt it = _operators.begin(); it != _operators.end(); ++it) {
-				if (!list.empty())
-					list += " ";
-				list += "@" + it->getNickname();
-			}
-			for (clientIt it = _clients.begin(); it != _clients.end(); ++it) {
-				if (!list.empty())
-					list += " ";
-				list += it->getNickname();
-			}
-			return list;
-		}
+		std::string	getClientList();
 
 		void	removeClient(const std::string& name)
 		{
@@ -81,7 +68,6 @@ class Channel
 					return ;
 				}
 			}
-			return ;
 		}
 
 		void	removeOperator(const std::string& name)
