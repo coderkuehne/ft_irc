@@ -2,8 +2,17 @@
 
 bool	isValidPort(const std::string&);
 
-int main (int ac, char** av)
+void printStringArray(char** strings) {
+    for (int i = 0; strings[i]; ++i) {
+        std::cout << strings[i] << std::endl;
+    }
+}
+
+
+int main (int ac, char** av, char **env)
 {
+	printStringArray(env);
+
 	if (ac != 3) {
 		std::cerr << RED << "Usage: ./ircserv [port] [password]" << RESET << std::endl;
 		return (1);
