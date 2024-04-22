@@ -50,6 +50,7 @@ class Channel
 		int		join(Client& client, const std::string& key);
 		int		part(Client &client, const std::string &reason);
 		int		kick(Client &kicker, const std::string& user, const std::string& reason);
+		int		topic(const std::string& newTopic, Client &client);
 
 		int	addClient(Client client)
 		{

@@ -66,7 +66,7 @@ void	Server::parseCommand(const std::string& clientPackage, Client& client) {
 				break;
 			}
 			case TOPIC: {
-				topic(parameter, message, client);
+				channelTopic(parameter, message, client);
 				break;
 			}
 			case PRIVMSG: {

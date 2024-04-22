@@ -51,3 +51,26 @@ int	Channel::kick(Client &kicker, const std::string& user, const std::string& re
 		return 2;
 	return 0;
 }
+
+int	Channel::topic(const std::string& newTopic, Client &client)
+{
+	std::string	name = client.getNickname();
+	if (!clientIsInChannel(name))
+		return (_server->sendToClient(buildReply(SERVER, client.getNickname(), 442, "", 1, _name.c_str()), client));
+	if (newTopic.empty())
+		return (_server->sendToClient(buildReply(SERVER, client.getNickname(), 332, "", 2, _name.c_str(), getTopic().c_str()), client));
+
+	if (clientIsOp(name) || !_restrictTopic)
+	{
+		setTopic(newTopic);
+		std::time_t currTime = std::time(NULL);
+		std::stringstream notSS;
+		notSS << currTime;
+		std::string currTimestamp = notSS.str();
+		channelMessage(buildReply(SERVER, name, 332, "", 2, _name.c_str(), _topic.c_str()));
+		channelMessage(buildReply(SERVER, name, 333, "", 3, _name.c_str(), name.c_str(), currTimestamp.c_str()));
+	}
+	else
+		return (_server->sendToClient(buildReply(SERVER, client.getNickname(), 482, "", 1, _name.c_str()), client));
+	return (0);
+}

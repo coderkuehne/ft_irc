@@ -223,7 +223,7 @@ void	Server::names(Client& client, std::string& channelName)
 	sendToClient(buildReply(SERVER, client.getNickname(), 366, "", 1, channelName.c_str()), client);
 }
 
-int Server::joinChannel(std::string& channelName, std::string& key, Client &client)
+int	Server::joinChannel(std::string& channelName, std::string& key, Client &client)
 {
 	if (channelName.empty())
 		return sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "JOIN"), client);
@@ -264,7 +264,7 @@ std::string	buildReply(const std::string& sender, const std::string& recipient, 
 	return reply;
 }
 
-int Server::quit(Client &client, std::string& quitMessage)
+int	Server::quit(Client &client, std::string& quitMessage)
 {
 	std::string	nickname = client.getNickname();
 	for (channelIt it = _channels.begin(); it != _channels.end(); ++it) {
@@ -289,36 +289,17 @@ int Server::quit(Client &client, std::string& quitMessage)
 	return (0);
 }
 
-int Server::topic(const std::string& _channel,const std::string& newTopic, Client &client)
+int	Server::channelTopic(const std::string& channelName,const std::string& newTopic, Client& client)
 {
 	std::string name = client.getNickname();
 	std::cout <<"this is "<< newTopic << std::endl;
-	if (_channel.empty())
+	if (channelName.empty())
 		return (sendToClient(buildReply(SERVER, client.getNickname(), 461, "", 1, "PRIVMSG"), client));
-	Channel *channel = findChannel(_channel);
 
+	Channel *channel = findChannel(channelName);
 	if (!channel)
 		return(sendToClient(buildReply(SERVER, client.getNickname(), 403, "", 0), client));
-	if (!channel->clientIsInChannel(name))
-		return(sendToClient(buildReply(SERVER, client.getNickname(), 442, "", 1, _channel.c_str()), client));
-	if (newTopic.empty())
-		return (sendToClient(buildReply(SERVER, client.getNickname(), 332, "", 2, _channel.c_str(), channel->getTopic().c_str()), client));
-	bool isOP = channel->clientIsOp(name);
-
-	if (isOP || !channel->getRestrictTopic())
-	{
-		channel->setTopic(newTopic);
-		std::time_t currTime = std::time(NULL);
-		std::stringstream notSS;
-		notSS << currTime;
-		std::string currTimestamp = notSS.str();
-		sendToClient(buildReply(SERVER, name, 332, "", 2, channel->getName().c_str(), channel->getTopic().c_str()), client);
-		sendToClient(buildReply(SERVER, name, 333, "", 3, channel->getName().c_str(), name.c_str(), currTimestamp.c_str()), client);
-		sendToChannel(buildReply(SERVER, name, 332, "", 2, channel->getName().c_str(), channel->getTopic().c_str()), *channel, client);
-		sendToChannel(buildReply(SERVER, name, 333, "", 3, channel->getName().c_str(), name.c_str(), currTimestamp.c_str()), *channel, client);
-	}
-	if (!isOP && channel->getRestrictTopic())
-		return(sendToClient(buildReply(SERVER, client.getNickname(), 482, "", 1, _channel.c_str()), client));
+	channel->topic(newTopic, client);
 	return (0);
 }
 
