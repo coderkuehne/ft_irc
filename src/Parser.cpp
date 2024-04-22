@@ -10,13 +10,10 @@ void	Server::parseCommand(const std::string& clientPackage, Client& client) {
 		std::string			command;
 		std::istringstream	notSS(*it);
 		notSS >> command;
-
 		std::string	parameter;
-		notSS >> parameter; //this should always be the first argument after command
-
+		notSS >> parameter;
 		std::string	parameter2;
 		notSS >> parameter2;
-
 		std::string	parameter3;
 		notSS >> parameter3;
 
