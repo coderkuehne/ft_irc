@@ -289,7 +289,7 @@ int Server::quit(Client &client, std::string& quitMessage)
 	return (0);
 }
 
-int Server::cmdTopic(const std::string& _channel,const std::string& newTopic, Client &client)
+int Server::topic(const std::string& _channel,const std::string& newTopic, Client &client)
 {
 	std::string name = client.getNickname();
 	std::cout <<"this is "<< newTopic << std::endl;
