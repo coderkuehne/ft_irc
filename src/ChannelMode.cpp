@@ -135,29 +135,28 @@ int	Channel::mode(const std::string& modeString, const std::string &arg,  Client
 	std::string clientName = client.getNickname();
 
     if (modeString.empty())
-        return (mode_get(client));
+		return (mode_get(client));
 	if (!clientIsOp(clientName))
 		return(_server->sendToClient(buildReply(SERVER, clientName, 482, "", 1, _name.c_str()), client));
-
 	if ((modeString == "-i" || modeString == "+i") && mode_invite(modeString))
-        return (0);
+		return (0);
     else
-        return (1); //failure
+		return (1); //failure
 	if ((modeString == "-t" || modeString == "+t") && mode_topic(modeString))
         return (0);
     else
-        return (1); //failure
+		return (1); //failure
 	if ((modeString == "-k" || modeString == "+k") && mode_key(modeString, arg))
         return (0);
     else
-        return (1); //failure
+		return (1); //failure
 	if ((modeString == "+o" || modeString == "-o") && mode_op(modeString, arg, client))
 		return (0);
     else
-        return (1); //failure
+		return (1); //failure
 	if ((modeString == "+l" || modeString == "-l") && mode_limit(modeString, arg))
-        return (0);
+		return (0);
     else
-        return (1); //failure
+		return (1); //failure
 	return (0);
 }
