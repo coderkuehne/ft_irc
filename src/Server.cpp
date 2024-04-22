@@ -81,7 +81,7 @@ int Server::createSocket()
 	return (0);
 }
 
-void	Server::setHints(void)
+void	Server::setHints()
 {
 	_hints.ai_family = AF_INET;							// Ipv4
 	_hints.ai_socktype = SOCK_STREAM;					// Use TCP stream sockets

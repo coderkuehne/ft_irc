@@ -24,16 +24,16 @@ class Server
 
 	public:
 		Server(const std::string& port = "7779", const std::string& password = "123");
-		~Server(void);
+		~Server();
 
-		void	start(void);
-		void	setHints(void);
-		int		createSocket(void);
-		int		acceptSocket(void);
+		void	start();
+		void	setHints();
+		int		createSocket();
+		int		acceptSocket();
 		int		sendToClient(const std::string&, const Client&) const;
 		int		sendToChannel(std::string, Channel& channel, Client& client);
 		int		receiveFromClient(Client&);
-		void	closeSockets(void);
+		void	closeSockets();
 
 		Client*	usernameIsRegistered(const std::string&);
 
