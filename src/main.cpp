@@ -34,12 +34,12 @@ int main (int ac, char** av, char **env)
 
 bool	isValidPort(const std::string& port) {
 	if (port.length() > 5)
-		return false;
+		return (false);
 	for (std::string::const_iterator it = port.begin(); it != port.end(); ++it) {
 		if (!isdigit(*it))
-			return false;
+			return (false);
 	}
 	if (std::atoi(port.c_str()) > 65535)
-		return false;
-	return true;
+		return (false);
+	return (true);
 }

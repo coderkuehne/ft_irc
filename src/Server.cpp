@@ -16,7 +16,7 @@ Server::~Server()
 	std::cout << "Shutting down" << std::endl;
 }
 
-void Server::start()
+void	Server::start()
 {
 	std::cout << GREEN << "Server starting" << RESET << std::endl;
 	createSocket();
@@ -46,18 +46,7 @@ void Server::start()
 	}
 }
 
-//creates a socket
-// setsockopt is used to set the socket options, in this case we set the socket to reuse the address
-//fcntl is used to set the socket to non-blocking, calls like recv() will suspend the program until data is received, non-blocking will return immediately if no data is available
-//binds the socket to the address and port
-//listens to the socket
-//SOMAXCONN = maximum number of connections(128)
-//fds = pollfd struct that will store the socket and events
-//fds.fd = socket
-//fds.events = POLLIN = data can be read
-//fds.revents = 0 = no r resent events
-//_fd.push_back(fds) = adds the fds struct to the vector
-int Server::createSocket()
+int	Server::createSocket()
 {
 	int					i = 1;
 	struct pollfd		fds;
@@ -81,7 +70,7 @@ int Server::createSocket()
 	return (0);
 }
 
-void	Server::setHints(void)
+void	Server::setHints()
 {
 	_hints.ai_family = AF_INET;							// Ipv4
 	_hints.ai_socktype = SOCK_STREAM;					// Use TCP stream sockets
@@ -118,7 +107,6 @@ int Server::acceptSocket()
 	return (0);
 }
 
-//sends a message to the client
 int	Server::sendToClient(const std::string& message, const Client& client) const
 {
 	if (send(client.getSocket(), message.c_str(), message.length(), 0) < 0)
@@ -132,19 +120,7 @@ int	Server::sendToClient(const std::string& message, const Client& client) const
 	return (0);
 }
 
-int Server::sendToChannel(std::string message, Channel &channel, Client &client)
-{
-	if (message.empty())
-	{
-		std::cerr << RED << "Invalid command" << RESET << std::endl;
-		sendToClient(buildReply(SERVER, "*", 461, "", 0), client);
-		return (1);
-	}
-	channel.clientMessage(message, client);
-	return (0);
-}
-
-int Server::receiveFromClient(Client& sender)
+int	Server::receiveFromClient(Client& sender)
 {
 	char	buffer[BUFFER_SIZE];
 	bzero(buffer, BUFFER_SIZE);
@@ -180,12 +156,12 @@ Client*	Server::findClient(const std::string& nick)
 		if (DEBUG)
 			std::cout << "clients[i].getNickname(): " << _clients[i].getNickname() << std::endl;
 		if (nick == _clients[i].getNickname())
-			return &_clients[i];
+			return (&_clients[i]);
 	}
 	return (NULL);
 }
 
-Channel *Server::findChannel(const std::string& name)
+Channel*	Server::findChannel(const std::string& name)
 {
 	for (size_t i = 0; i < _channels.size(); i++)
 	{
@@ -204,7 +180,7 @@ Client*	Server::usernameIsRegistered(const std::string& username)
 	return NULL;
 }
 
-void Server::closeSockets()
+void	Server::closeSockets()
 {
 	for (size_t i = 0; i < _clients.size(); i++)
 	{
@@ -220,8 +196,8 @@ void Server::closeSockets()
 	}
 }
 
-bool Server::_running = false;
-void Server::signalHandler(int signum)
+bool	Server::_running = false;
+void	Server::signalHandler(int signum)
 {
 	std::cout << YELLOW <<"Signal received" << signum << RESET << std::endl;
 	_running = false;

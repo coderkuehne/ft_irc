@@ -3,7 +3,7 @@ CXX_FLAGS = -Wall -Wextra -Werror -std=c++98 -pedantic -g -I./inc \
 
 SRC_DIR = src
 SRC =		main.cpp Server.cpp Parser.cpp Commands.cpp \
-			Channel.cpp ChannelCommands.cpp
+			Channel.cpp ChannelCommands.cpp ChannelMode.cpp \
 
 OBJ_DIR = obj
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.cpp=.o))

@@ -2,8 +2,6 @@
 # define SERVER_HPP
 
 # include "IRC.hpp"
-# include "Channel.hpp"
-# include "Client.hpp"
 
 class Server
 {
@@ -24,51 +22,42 @@ class Server
 
 	public:
 		Server(const std::string& port = "7779", const std::string& password = "123");
-		~Server(void);
-
-		void	start(void);
-		void	setHints(void);
-		int		createSocket(void);
-		int		acceptSocket(void);
-		int		sendToClient(const std::string&, const Client&) const;
-		int		sendToChannel(std::string, Channel &channel, Client &client);
-		int		receiveFromClient(Client&);
-		void	closeSockets(void);
-
-		Client*	usernameIsRegistered(const std::string&);
-
-		void	parseCommand(const std::string&, Client&);
-
-		int	authenticatePassword(Client&, std::string&);
-//		bool	registerClientNames(Client&, std::string&);
-//		void	authenticateClient(Client&, std::string&);
-
-		Client*		findClient(const std::string&);
-		Channel*	findChannel(const std::string&);
-		int			removeChannel(Channel& channel);
+		~Server();
 
 		static void	signalHandler(int signum);
 
-		int		changeNickname(const std::string& nick, Client &client);
-		int		setUsername(std::string& user, Client &client);
+		void	start();
+		void	setHints();
+		int		createSocket();
+		int		acceptSocket();
+		int		sendToClient(const std::string&, const Client&) const;
+		int		receiveFromClient(Client&);
+		void	closeSockets();
+
+		int		authenticatePassword(Client&, std::string&);
+		Client*	usernameIsRegistered(const std::string&);
+		int		changeNickname(const std::string& nick, Client& client);
+		int		setUsername(std::string& user, Client& client);
 		void	registerClient(Client& client) const;
 
-		int		sendMessage(std::string&, std::string&, Client &client);
-		int		ChannelMessage(std::string&, std::string&, Client &client);
+		void	parseCommand(const std::string&, Client&);
+
+		Client*		findClient(const std::string&);
+		Channel*	findChannel(const std::string&);
+		void		addChannel(Channel& channel){ _channels.push_back(channel); };
+		int			removeChannel(Channel& channel);
+
 		int		joinChannel(std::string&, std::string&, Client&);
-		int		partChannel(const std::string&, const std::string&, Client&);
-		int		cmd_leave(std::vector<std::string> args);
-		int		quit(Client &client, std::string& quitMessage);
-		void	addChannel(Channel channel){ _channels.push_back(channel); };
-
 		void	names(Client& client, std::string& channelName);
+		int		channelTopic(const std::string& channel,const std::string& newTopic, Client& client);
+		int		kickClient(const std::string& channelName, const std::string& target, const std::string& reason, Client& client);
+		int		inviteChannel(const std::string& _target, const std::string& _channel, const Client& client);
+		int		partChannel(const std::string&, const std::string&, Client&);
+		int		quit(Client& client, std::string& quitMessage);
 
-		int		mode(const std::string&, const std::string&, const std::string& ,Client &client);
+		int		sendMessage(std::string&, std::string&, Client& client);
+		int		ChannelMessage(std::string&, std::string&, Client& client);
 
-		int		channelTopic(const std::string& channel,const std::string& newTopic, Client &client);
-
-		int		kickClient(const std::string &channelName, const std::string &target, const std::string& reason, Client &client);
-		int		inviteChannel(const std::string &_target, const std::string &_channel, const Client client);
 };
 
 #endif

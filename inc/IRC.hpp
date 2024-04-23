@@ -22,6 +22,16 @@
 # include <sstream>
 # include <iomanip>
 # include <cstdarg>
+# include "Client.hpp"
+# include "Channel.hpp"
+# include "Server.hpp"
+# include "Parser.hpp"
+# include "Commands.hpp"
+
+typedef std::vector<std::string>::iterator	stringIt;
+typedef std::vector<Client>::iterator		clientIt;
+typedef std::vector<Channel>::iterator		channelIt;
+
 
 # define RED "\033[31m"
 # define GREEN "\033[32m"
@@ -65,10 +75,5 @@ inline std::map<int, std::string> generateNumericReplies() {
 }
 const std::map<int, std::string> NUMERIC_REPLIES = generateNumericReplies();
 
-class Client;
-class Channel;
-typedef std::vector<std::string>::iterator	stringIt;
-typedef std::vector<Client>::iterator		clientIt;
-typedef std::vector<Channel>::iterator		channelIt;
 
 #endif

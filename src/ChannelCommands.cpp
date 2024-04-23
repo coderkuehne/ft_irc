@@ -1,6 +1,4 @@
 #include "IRC.hpp"
-#include "Channel.hpp"
-#include "Commands.hpp"
 
 int	Channel::join(Client& client, const std::string& key) {
 	if (_isInviteOnly && clientIsInvited(client.getNickname()))
@@ -17,11 +15,11 @@ int	Channel::join(Client& client, const std::string& key) {
 	}
 	channelMessage(buildReply(client.getNickname(), _name, JOIN, "", 0));
 	_server->sendToClient(buildReply(SERVER, client.getNickname(), 332, _topic, 1, _name.c_str()), client);
-	checkMode(client);
+	modeGet(client);
 	return (0);
 }
 
-int	Channel::part(Client &client, const std::string& reason)
+int	Channel::part(Client& client, const std::string& reason)
 {
 	std::string	name = client.getNickname();
 
@@ -38,7 +36,7 @@ int	Channel::part(Client &client, const std::string& reason)
 	return (0);
 }
 
-int	Channel::kick(Client &kicker, const std::string& user, const std::string& reason) {
+int	Channel::kick(Client& kicker, const std::string& user, const std::string& reason) {
 	if (!clientIsOp(kicker.getNickname()))
 		return(_server->sendToClient(buildReply(SERVER, kicker.getNickname(), 482, "", 1, _name.c_str()), kicker));
 	if (!clientIsInChannel(user))
@@ -52,7 +50,7 @@ int	Channel::kick(Client &kicker, const std::string& user, const std::string& re
 	return (0);
 }
 
-int	Channel::topic(const std::string& newTopic, Client &client)
+int	Channel::topic(const std::string& newTopic, Client& client)
 {
 	std::string	name = client.getNickname();
 	if (!clientIsInChannel(name))
