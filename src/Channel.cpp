@@ -35,13 +35,12 @@ int	Channel::addOperator(Client& client) {
 
 void	Channel::removeOperator(const std::string& name)
 {
-	for (size_t i = 0; i < _operators.size(); i++)
-	{
-		if (name == _operators[i].getNickname())
+	for (clientIt it = _clients.begin(); it != _clients.end(); ++it) {
+		if (name == (*it).getNickname())
 		{
-			_operators.erase(_operators.begin() + i);
+			_clients.erase(it);
 			if (DEBUG)
-				std::cout << "removed " << _operators[i].getNickname() << " from " << _name << std::endl;
+				std::cout << "removed " << name << " from " << _name << std::endl;
 			return ;
 		}
 	}
@@ -60,13 +59,12 @@ int	Channel::addClient(Client& client)
 
 void	Channel::removeClient(const std::string& name)
 {
-	for (size_t i = 0; i < _clients.size(); i++)
-	{
-		if (name == _clients[i].getNickname())
+	for (clientIt it = _clients.begin(); it != _clients.end(); ++it) {
+		if (name == (*it).getNickname())
 		{
-			_clients.erase(_clients.begin() + i);
+			_clients.erase(it);
 			if (DEBUG)
-				std::cout << "removed " << _clients[i].getNickname() << " from " << _name << std::endl;
+				std::cout << "removed " << name << " from " << _name << std::endl;
 			return ;
 		}
 	}
