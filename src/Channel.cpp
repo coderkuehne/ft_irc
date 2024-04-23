@@ -35,10 +35,10 @@ int	Channel::addOperator(Client& client) {
 
 void	Channel::removeOperator(const std::string& name)
 {
-	for (clientIt it = _clients.begin(); it != _clients.end(); ++it) {
+	for (clientIt it = _operators.begin(); it != _operators.end(); ++it) {
 		if (name == (*it).getNickname())
 		{
-			_clients.erase(it);
+			_operators.erase(it);
 			if (DEBUG)
 				std::cout << "removed " << name << " from " << _name << std::endl;
 			return ;
