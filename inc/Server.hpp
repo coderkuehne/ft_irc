@@ -2,6 +2,7 @@
 # define SERVER_HPP
 
 # include "IRC.hpp"
+
 class ChatGPT;
 
 class Server
@@ -19,11 +20,11 @@ class Server
 		std::vector<Channel>		_channels;
 		std::vector<struct pollfd>	_fds;
 		static bool					_running;
-		ChatGPT*						_bot;
+		ChatGPT						*_bot;
 		int	guestCount;
 
 	public:
-		Server(const std::string& port = "7779", const std::string& password = "123", const std::string& apikey = "");
+		Server(const std::string& port = "7779", const std::string& password = "123", const std::string& apikey = "nope");
 		~Server();
 		static void	signalHandler(int signum);
 
