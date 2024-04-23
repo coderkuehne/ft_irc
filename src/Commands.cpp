@@ -162,10 +162,11 @@ int	Server::quit(Client& client, std::string& quitMessage)
 {
 	std::string	nickname = client.getNickname();
 	for (channelIt it = _channels.begin(); it != _channels.end(); ++it) {
-		if ((*it).clientIsInChannel(nickname)) {
-			if ((*it).part(client, "QUITTER") == 2)
-				_channels.erase(it);
-		}
+		partChannel((*it).getName(), "QUITTER", client);
+//		if ((*it).clientIsInChannel(nickname)) {
+//			if ((*it).part(client, "QUITTER") == 2)
+//				_channels.erase(it);
+//		}
 	}
 	for (clientIt it = _clients.begin(); it != _clients.end(); ++it)
 	{
@@ -219,15 +220,6 @@ int	Server::partChannel(const std::string& channelName, const std::string& reaso
 		return (sendToClient(buildReply(SERVER, client.getNickname(), 403, "", 0), client));
 	if (channel->part(client, reason) == 2)
 		removeChannel(*channel);
-	return (0);
-}
-
-int	Server::removeChannel(Channel& channel)
-{
-	for (channelIt it = _channels.begin(); it != _channels.end(); ++it) {
-		if (*it == channel)
-			_channels.erase(it);
-	}
 	return (0);
 }
 

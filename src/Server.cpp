@@ -171,6 +171,17 @@ Channel*	Server::findChannel(const std::string& name)
 	return (NULL);
 }
 
+int	Server::removeChannel(Channel& channel)
+{
+	for (channelIt it = _channels.begin(); it != _channels.end(); ++it) {
+		if (*it == channel) {
+			_channels.erase(it);
+			return (0);
+		}
+	}
+	return (1);
+}
+
 Client*	Server::usernameIsRegistered(const std::string& username)
 {
 	for (clientIt it = _clients.begin(); it != _clients.end(); ++it) {

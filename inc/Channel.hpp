@@ -18,10 +18,11 @@ class Channel
 
 		bool	_isInviteOnly;
 		bool	_restrictTopic;
+		size_t	_userCount;
 		int		_clientLimit;
 
 	public:
-		Channel(const std::string& name, const std::string& key, Server* server): _server(server), _name(name), _topic("No topic yet"), _key(key), _isInviteOnly(false), _restrictTopic(false), _clientLimit(0){}
+		Channel(const std::string& name, const std::string& key, Server* server): _server(server), _name(name), _topic("No topic yet"), _key(key), _isInviteOnly(false), _restrictTopic(false), _userCount(0), _clientLimit(0){}
 		~Channel() {}
 
 		bool	operator==(Channel& channel) { return _name == channel._name; }
@@ -58,11 +59,11 @@ class Channel
 
 		int		addOperator(Client& client);
 		int		addClient(Client& client);
-
-		std::string	getClientList();
-
 		void	removeClient(const std::string& name);
 		void	removeOperator(const std::string& name);
+		void	removeUser(const std::string& name);
+
+		std::string	getClientList();
 
 		bool	clientIsOp(const std::string& name);
 		Client*	findOps(const std::string& name);

@@ -24,12 +24,12 @@ int	Channel::channelMessage(const std::string& message)
 }
 
 int	Channel::addOperator(Client& client) {
-	size_t	total_clients = _clients.size() + _operators.size();
 	size_t	limit = getClientLimit();
 
-	if (limit > 0 && total_clients > limit)
+	if (limit > 0 && _userCount >= limit)
 		return (1);
 	_operators.push_back(client);
+	++_userCount;
 	return (0);
 }
 
@@ -39,6 +39,7 @@ void	Channel::removeOperator(const std::string& name)
 		if (name == (*it).getNickname())
 		{
 			_operators.erase(it);
+			--_userCount;
 			if (DEBUG)
 				std::cout << "removed " << name << " from " << _name << std::endl;
 			return ;
@@ -48,12 +49,12 @@ void	Channel::removeOperator(const std::string& name)
 
 int	Channel::addClient(Client& client)
 {
-	size_t	total_clients = _clients.size() + _operators.size();
 	size_t	limit = getClientLimit();
 
-	if (limit > 0 && total_clients > limit)
+	if (limit > 0 && _userCount > limit)
 		return (1);
 	_clients.push_back(client);
+	++_userCount;
 	return (0);
 }
 
@@ -63,11 +64,17 @@ void	Channel::removeClient(const std::string& name)
 		if (name == (*it).getNickname())
 		{
 			_clients.erase(it);
+			--_userCount;
 			if (DEBUG)
 				std::cout << "removed " << name << " from " << _name << std::endl;
 			return ;
 		}
 	}
+}
+
+void	Channel::removeUser(const std::string& name) {
+	removeClient(name);
+	removeOperator(name);
 }
 
 std::string	Channel::getClientList()
@@ -88,9 +95,8 @@ std::string	Channel::getClientList()
 
 bool	Channel::clientIsOp(const std::string& name)
 {
-	for (size_t i = 0; i < _operators.size(); i++)
-	{
-		if (name == _operators[i].getNickname())
+	for (clientIt it = _operators.begin(); it != _operators.end(); ++it) {
+		if (name == (*it).getNickname())
 			return (true);
 	}
 	return (false);
@@ -108,30 +114,21 @@ Client*	Channel::findOps(const std::string& name)
 
 bool	Channel::clientIsInChannel(const std::string& name)
 {
-	if (!clientIsOp(name))
-	{
-		for (size_t i = 0; i < _clients.size(); i++)
-		{
-			if (name == _clients[i].getNickname())
-				return (true);
-		}
+	for (clientIt it = _operators.begin(); it != _operators.end(); ++it) {
+		if (name == (*it).getNickname())
+			return (true);
 	}
-	else
-	{
-		for (size_t i = 0; i < _operators.size(); i++)
-		{
-			if (name == _operators[i].getNickname())
-				return (true);
-		}
+	for (clientIt it = _clients.begin(); it != _clients.end(); ++it) {
+		if (name == (*it).getNickname())
+			return (true);
 	}
 	return (false);
 }
 
 bool	Channel::clientIsInvited(const std::string& name)
 {
-	for (size_t i = 0; i < _invitedClients.size(); i++)
-	{
-		if (name == _invitedClients[i])
+	for (stringIt it = _invitedClients.begin(); it != _invitedClients.end(); ++it) {
+		if (name == *it)
 			return (true);
 	}
 	return (false);
@@ -139,13 +136,10 @@ bool	Channel::clientIsInvited(const std::string& name)
 
 void	Channel::removeInvitedClient(const std::string& name)
 {
-	for (size_t i = 0; i < _invitedClients.size(); i++)
-	{
-		if (name == _invitedClients[i])
+	for (stringIt it = _invitedClients.begin(); it != _invitedClients.end(); ++it) {
+		if (name == *it)
 		{
-			_invitedClients.erase(_invitedClients.begin() + i);
-			if (DEBUG)
-				std::cout << "removed " << _invitedClients[i] << " from " << _name << std::endl;
+			_invitedClients.erase(it);
 			return ;
 		}
 	}

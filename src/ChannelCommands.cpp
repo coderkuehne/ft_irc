@@ -27,11 +27,8 @@ int	Channel::part(Client& client, const std::string& reason)
 		return _server->sendToClient(buildReply(SERVER, client.getNickname(), 442, "", 0), client);
 	if (reason != "QUITTER")
 		channelMessage(buildReply(client.getNickname(), _name, PART, reason, 0));
-	if (clientIsOp(name))
-		removeOperator(name);
-	else
-		removeClient(name);
-	if (_clients.empty() && _operators.empty())
+	removeUser(name);
+	if (_userCount == 0)
 		return (2);
 	return (0);
 }
@@ -42,10 +39,8 @@ int	Channel::kick(Client& kicker, const std::string& user, const std::string& re
 	if (!clientIsInChannel(user))
 		return (_server->sendToClient(buildReply(SERVER, kicker.getNickname(), 441, "", 2, user.c_str(), _name.c_str()), kicker));
 	channelMessage(buildReply(SERVER, _name, KICK, reason, 1, user.c_str()));
-	if (clientIsOp(user))
-		removeOperator(user);
-	removeClient(user);
-	if (_clients.empty() && _operators.empty())
+	removeUser(user);
+	if (_userCount == 0)
 		return (2);
 	return (0);
 }
