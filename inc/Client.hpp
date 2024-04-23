@@ -12,7 +12,6 @@ class Client {
 		std::string	_username;
 
 	public:
-		Client(int socket);
 		Client(int socket): _socket(socket), _nick(""), _username("") { _authenticated = false; _registered = false; };
 		~Client() {};
 

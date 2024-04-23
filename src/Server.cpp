@@ -5,7 +5,7 @@ Server::Server(const std::string& port, const std::string& password, const std::
 {
 	_running = false;
 	guestCount = 0;
-	_bot = new ChatGPT(apikey);
+	_bot = new ChatGPT(apikey, this);
 	memset(&_hints, 0, sizeof(_hints));
 }
 
@@ -29,6 +29,7 @@ void	Server::start()
 		std::cout << GREEN << "Server started, on socket " << _socket << RESET << std::endl;
 		std::cout <<  GREEN "\tListening on port " << _port << RESET <<  std::endl;
 	}
+	_bot->getChatGPTResponse("Hello");
 	while (_running)
 	{
 		if (poll(&_fds[0], _fds.size(), -1) == -1 && _running)
@@ -133,7 +134,6 @@ int	Server::receiveFromClient(Client& sender)
 		std::string	bufferStr(buffer);
 		if (DEBUG)
 			std::cout << GREEN << "Received: " << bufferStr << " from " << sender.getNickname() << " socket " << sender.getSocket() << RESET << std::endl;
-
 		parseCommand(bufferStr, sender);
 		return (bytes);
 	}

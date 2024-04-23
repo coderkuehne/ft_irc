@@ -102,6 +102,8 @@ int	Server::sendMessage(std::string& target, std::string& message, Client& clien
 		sendToClient(buildReply(SERVER, client.getNickname(), 401, "", 1, target.c_str()), client);
 		return (1);
 	}
+	if (recipient->getNickname() == "ChatGPT")
+		return (_bot->parseBotCommand(message, client));
 	return (sendToClient(buildReply(client.getNickname(), recipient->getNickname(), PRIVMSG, message, 0), *recipient));
 }
 
