@@ -21,12 +21,14 @@
 # include <ctime>
 # include <sstream>
 # include <iomanip>
+# include <curl/curl.h>
 # include <cstdarg>
 # include "Client.hpp"
 # include "Channel.hpp"
 # include "Server.hpp"
 # include "Parser.hpp"
 # include "Commands.hpp"
+# include "ChatGPT.hpp"
 
 typedef std::vector<std::string>::iterator	stringIt;
 typedef std::vector<Client>::iterator		clientIt;

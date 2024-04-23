@@ -1,11 +1,11 @@
-#include "Server.hpp"
-#include "Client.hpp"
-#include "Commands.hpp"
+#include "IRC.hpp"
 
-Server::Server(const std::string& port, const std::string& password): _port(port), _password(password)
+
+Server::Server(const std::string& port, const std::string& password, const std::string& apikey) : _port(port), _password(password), _apikey(apikey)
 {
 	_running = false;
 	guestCount = 0;
+	_bot = new ChatGPT(apikey);
 	memset(&_hints, 0, sizeof(_hints));
 }
 
@@ -98,6 +98,7 @@ int Server::acceptSocket()
 	newClientFD.fd = clientSocket;
 	newClientFD.events = POLLIN;
 	newClientFD.revents = 0;
+
 	Client	newClient(clientSocket);
 
 	_clients.push_back(newClient);

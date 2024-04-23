@@ -8,6 +8,7 @@ class Server
 	private:
 		const std::string&	_port;
 		const std::string	_password;
+		const std::string	_apikey;
 
 		int					_socket;
 		struct addrinfo		_hints;
@@ -17,13 +18,12 @@ class Server
 		std::vector<Channel>		_channels;
 		std::vector<struct pollfd>	_fds;
 		static bool					_running;
-
+		ChatGPT						*_bot;
 		int	guestCount;
 
 	public:
-		Server(const std::string& port = "7779", const std::string& password = "123");
+		Server(const std::string& port = "7779", const std::string& password = "123", const std::string& apikey = "hhh");
 		~Server();
-
 		static void	signalHandler(int signum);
 
 		void	start();
