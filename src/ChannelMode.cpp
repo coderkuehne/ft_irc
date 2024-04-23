@@ -136,7 +136,7 @@ int	Channel::mode(const std::string& modeString, const std::string &arg,  Client
     if (modeString.empty())
 		return (modeGet(client));
 	if (!clientIsOp(clientName))
-		return(_server->sendToClient(buildReply(SERVER, clientName, 482, "", 1, _name), client));
+		return(_server->sendToClient(buildReply(SERVER, clientName, 482, "", 1, _name.c_str()), client));
 	if ((modeString == "-i" || modeString == "+i") && modeInvite(modeString))
 		return (0);
 	if ((modeString == "-t" || modeString == "+t") && modeTopic(modeString))
