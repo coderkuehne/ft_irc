@@ -31,13 +31,13 @@ int Channel::modeInvite(const std::string& modeString)
     if (modeString == "-i")
 	{
 		setInviteOnly(false);
-		channelMessage(buildReply(_name, _name.c_str(), MODE, "", 1, modeString.c_str()));
+		channelMessage(buildReply(_name, _name, MODE, "", 1, modeString.c_str()));
         return (1);
 	}
 	if (modeString == "+i")
 	{
 		setInviteOnly(true);
-		channelMessage(buildReply(_name, _name.c_str(), MODE, "", 1, modeString.c_str()));
+		channelMessage(buildReply(_name, _name, MODE, "", 1, modeString.c_str()));
         return (1);
 	}
     return (0);
@@ -48,13 +48,13 @@ int Channel::modeTopic(const std::string& modeString)
     if (modeString == "-t")
 	{
 		setrestrictTopic(false);
-		channelMessage(buildReply(_name, _name.c_str(), MODE, "", 1, modeString.c_str()));
+		channelMessage(buildReply(_name, _name, MODE, "", 1, modeString.c_str()));
         return (1);
 	}
 	if (modeString == "+t")
 	{
 		setrestrictTopic(true);
-		channelMessage(buildReply(_name, _name.c_str(), MODE, "", 1, modeString.c_str()));
+		channelMessage(buildReply(_name, _name, MODE, "", 1, modeString.c_str()));
         return (1);
 	}
     return (0);
@@ -65,7 +65,7 @@ int Channel::modeKey(const std::string& modeString, const std::string &arg)
     if (modeString == "-k")
     {
         setKey("");
-		channelMessage(buildReply(_name, _name.c_str(), MODE, "", 1, modeString.c_str()));
+		channelMessage(buildReply(_name, _name, MODE, "", 1, modeString.c_str()));
         return (1);
     }
     if (modeString == +"k")
@@ -73,7 +73,7 @@ int Channel::modeKey(const std::string& modeString, const std::string &arg)
         if (arg.empty())
             return (0); //send not enought arguments 
 		setKey(arg);
-		channelMessage(buildReply(_name, _name.c_str(), MODE, "", 2, modeString.c_str(), arg.c_str()));
+		channelMessage(buildReply(_name, _name, MODE, "", 2, modeString.c_str(), arg.c_str()));
         return (1);
     }
     return (0);
@@ -89,7 +89,7 @@ int Channel::modeOp(const std::string& modeString, const std::string& arg, Clien
                 return (_server->sendToClient(buildReply(SERVER, client.getNickname(), 401, "", 1, arg.c_str()), client)); //wrong error 
             addOperator(*_server->findClient(arg));
             removeClient(arg);
-            channelMessage(buildReply(_name, _name.c_str(), MODE, "", 2, modeString.c_str(), arg.c_str()));
+            channelMessage(buildReply(_name, _name, MODE, "", 2, modeString.c_str(), arg.c_str()));
             return(1);
         }
         return (0);
@@ -102,7 +102,7 @@ int Channel::modeOp(const std::string& modeString, const std::string& arg, Clien
                 return (_server->sendToClient(buildReply(SERVER, client.getNickname(), 401, "", 1, arg.c_str()), client)); //wrong error
             removeOperator(arg);
             addClient(*_server->findClient(arg));
-            channelMessage(buildReply(_name, _name.c_str(), MODE, "", 2, modeString.c_str(), arg.c_str()));
+            channelMessage(buildReply(_name, _name, MODE, "", 2, modeString.c_str(), arg.c_str()));
             return (1);
         }
         return (0);
@@ -117,13 +117,13 @@ int Channel::modeLimit(const std::string& modeString, const std::string &arg)
     if(modeString == "+l")
     {
 		setClientLimit(atoi(arg.c_str()));
-		channelMessage(buildReply(_name, _name.c_str(), MODE, "", 2, modeString.c_str(), arg.c_str()));
+		channelMessage(buildReply(_name, _name, MODE, "", 2, modeString.c_str(), arg.c_str()));
         return (1);
 	}
 	if (modeString == "-l")
 	{
 		setClientLimit(0);
-		channelMessage(buildReply(_name, _name.c_str(), MODE, "", 2, modeString.c_str(), arg.c_str()));
+		channelMessage(buildReply(_name, _name, MODE, "", 2, modeString.c_str(), arg.c_str()));
         return (1);
 	}
     return (0);
@@ -136,7 +136,7 @@ int	Channel::mode(const std::string& modeString, const std::string &arg,  Client
     if (modeString.empty())
 		return (modeGet(client));
 	if (!clientIsOp(clientName))
-		return(_server->sendToClient(buildReply(SERVER, clientName, 482, "", 1, _name.c_str()), client));
+		return(_server->sendToClient(buildReply(SERVER, clientName, 482, "", 1, _name), client));
 	if ((modeString == "-i" || modeString == "+i") && modeInvite(modeString))
 		return (0);
 	if ((modeString == "-t" || modeString == "+t") && modeTopic(modeString))
