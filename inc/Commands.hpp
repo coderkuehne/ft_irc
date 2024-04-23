@@ -1,7 +1,7 @@
 #ifndef COMMANDS_HPP
 # define COMMANDS_HPP
 
-# include "Server.hpp"
+# include "IRC.hpp"
 
 # define PASS 100
 # define NICK 101

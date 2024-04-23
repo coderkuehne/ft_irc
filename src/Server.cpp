@@ -46,17 +46,6 @@ void	Server::start()
 	}
 }
 
-//creates a socket
-// setsockopt is used to set the socket options, in this case we set the socket to reuse the address
-//fcntl is used to set the socket to non-blocking, calls like recv() will suspend the program until data is received, non-blocking will return immediately if no data is available
-//binds the socket to the address and port
-//listens to the socket
-//SOMAXCONN = maximum number of connections(128)
-//fds = pollfd struct that will store the socket and events
-//fds.fd = socket
-//fds.events = POLLIN = data can be read
-//fds.revents = 0 = no r resent events
-//_fd.push_back(fds) = adds the fds struct to the vector
 int	Server::createSocket()
 {
 	int					i = 1;
@@ -118,7 +107,6 @@ int Server::acceptSocket()
 	return (0);
 }
 
-//sends a message to the client
 int	Server::sendToClient(const std::string& message, const Client& client) const
 {
 	if (send(client.getSocket(), message.c_str(), message.length(), 0) < 0)
@@ -129,18 +117,6 @@ int	Server::sendToClient(const std::string& message, const Client& client) const
 	else
 		if (DEBUG)
 			std::cout << GREEN << "Sent: " << message << " to " << client.getNickname() << " socket " << client.getSocket() << RESET << std::endl;
-	return (0);
-}
-
-int	Server::sendToChannel(std::string message, Channel& channel, Client& client)
-{
-	if (message.empty())
-	{
-		std::cerr << RED << "Invalid command" << RESET << std::endl;
-		sendToClient(buildReply(SERVER, "*", 461, "", 0), client);
-		return (1);
-	}
-	channel.clientMessage(message, client);
 	return (0);
 }
 

@@ -1,7 +1,6 @@
 #ifndef CHANNEL_HPP
 # define CHANNEL_HPP
-
-# include "Client.hpp"
+# include "IRC.hpp"
 
 class Server;
 
@@ -36,7 +35,6 @@ class Channel
 		void 	setInviteOnly(bool isInviteOnly) { _isInviteOnly = isInviteOnly; }
 		bool	getInviteOnly(){ return _isInviteOnly; }
 		void 	setrestrictTopic(bool restrictTopic) { _restrictTopic = restrictTopic;}
-//		bool	getRestrictTopic(){ return _restrictTopic; }
 		void	setClientLimit(int limit) { _clientLimit = limit; }
 		int		getClientLimit() { return _clientLimit; }
 		void	addInvitedClient(const std::string& name) { _invitedClients.push_back(name);}
@@ -48,8 +46,15 @@ class Channel
 		int		part(Client& client, const std::string& reason);
 		int		kick(Client& kicker, const std::string& user, const std::string& reason);
 
-		int		checkMode(Client& client);
 		int		topic(const std::string& newTopic, Client& client);
+
+		int		mode(const std::string& modeString, const std::string &arg,  Client &client);
+		int		modeGet(Client &client);
+		int		modeInvite(const std::string& modeString);
+		int		modeTopic(const std::string& modeString);
+		int		modeKey(const std::string& modeString, const std::string &arg);
+		int		modeOp(const std::string& modeString, const std::string& arg, Client &client);
+		int		modeLimit(const std::string& modeString, const std::string &arg);
 
 		int		addOperator(Client& client);
 		int		addClient(Client& client);

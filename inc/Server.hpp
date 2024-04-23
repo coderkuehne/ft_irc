@@ -2,8 +2,6 @@
 # define SERVER_HPP
 
 # include "IRC.hpp"
-# include "Channel.hpp"
-# include "Client.hpp"
 
 class Server
 {
@@ -33,7 +31,6 @@ class Server
 		int		createSocket();
 		int		acceptSocket();
 		int		sendToClient(const std::string&, const Client&) const;
-		int		sendToChannel(std::string, Channel& channel, Client& client);
 		int		receiveFromClient(Client&);
 		void	closeSockets();
 
@@ -52,10 +49,10 @@ class Server
 
 		int		joinChannel(std::string&, std::string&, Client&);
 		void	names(Client& client, std::string& channelName);
-		int		mode(const std::string&, const std::string&, const std::string& ,Client& client);
 		int		channelTopic(const std::string& channel,const std::string& newTopic, Client& client);
 		int		kickClient(const std::string& channelName, const std::string& target, const std::string& reason, Client& client);
-		int		inviteChannel(const std::string& _target, const std::string& _channel, const Client client);		int		partChannel(const std::string&, const std::string&, Client&);
+		int		inviteChannel(const std::string& _target, const std::string& _channel, const Client& client);
+		int		partChannel(const std::string&, const std::string&, Client&);
 		int		quit(Client& client, std::string& quitMessage);
 
 		int		sendMessage(std::string&, std::string&, Client& client);
