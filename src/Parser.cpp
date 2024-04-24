@@ -5,7 +5,7 @@ void	Server::parseCommand(const std::string& clientPackage, Client& client) {
 
 	for (stringIt it = commands.begin(); it != commands.end(); ++it) {
 		std::string			command;
-		std::istringstream	notSS(*it);
+		std::istringstream	notSS(removeEOFCharacters(*it));
 		notSS >> command;
 		std::string	parameter;
 		notSS >> parameter;
@@ -191,4 +191,14 @@ std::string	macroToCommand(int command) {
 		return ss.str();
 	}
 	return ("");
+}
+
+std::string	removeEOFCharacters(const std::string& str) {
+	std::string	result;
+	for (size_t i = 0; i < str.size(); i++) {
+		if (str[i] != -1 && isprint(static_cast<unsigned char>(str[i]))) {
+			result += str[i];
+		}
+	}
+	return result;
 }
