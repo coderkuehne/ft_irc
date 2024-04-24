@@ -80,12 +80,12 @@ std::string ChatGPT::getChatGPTResponse(std::string message)
             std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
         }
 		curl_slist_free_all(headers);
-		std::cout << "Respo: " << res << std::endl;
+//		std::cout << "Respo: " << res << std::endl;
 		curl_easy_cleanup(curl);
 	}
-	std::cout << "Before trim: " << response << std::endl;
+//	std::cout << "Before trim: " << response << std::endl;
 	response = trimResponse(response);
-	std::cout << "And that: " << response << std::endl;
+//	std::cout << "And that: " << response << std::endl;
 	return response;
 }
 

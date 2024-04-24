@@ -106,7 +106,7 @@ int Server::acceptSocket()
 	_clients.push_back(newClient);
 	_fds.push_back(newClientFD);
 //	_clients.push_back(*_bot);
-	std::string bot_message = _bot->getChatGPTResponse("hi, who are you?");
+	std::string bot_message = _bot->getChatGPTResponse("Hi, introduce yourself shortly.");
 	sendToClient(buildReply(_bot->getNickname(), newClient.getNickname(), PRIVMSG, bot_message, 0), newClient);
 //	std::cout << _bot->getNickname() << " :what is the bots nick" << std::endl;
 
