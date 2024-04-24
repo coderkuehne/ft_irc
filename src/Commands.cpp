@@ -84,6 +84,8 @@ int	Server::ChannelMessage(std::string& target, std::string& message, Client& cl
 
 int	Server::sendMessage(std::string& target, std::string& message, Client& client)
 {
+	std::string bot_message;
+
 	if (target.empty() || message.empty())
 	{
 		std::cerr << RED << "Invalid command" << RESET << std::endl;
@@ -103,7 +105,12 @@ int	Server::sendMessage(std::string& target, std::string& message, Client& clien
 		return (1);
 	}
 	if (recipient->getNickname() == "ChatGPT")
-		return (_bot->parseBotCommand("Hello who are you?", client));
+	{
+//		sendToClient(buildReply(client.getNickname(), recipient->getNickname(), PRIVMSG, message, 0), *recipient);
+		bot_message = _bot->getChatGPTResponse(message);
+		std::cout << "message is: " << message << std::endl;
+		return (sendToClient(buildReply(client.getNickname(), recipient->getNickname(), PRIVMSG, bot_message, 0), *recipient));
+	}
 	return (sendToClient(buildReply(client.getNickname(), recipient->getNickname(), PRIVMSG, message, 0), *recipient));
 }
 

@@ -6,6 +6,7 @@ Server::Server(const std::string& port, const std::string& password, const std::
 	_running = false;
 	guestCount = 0;
 	_bot = new ChatGPT(apikey, this);
+	_clients.push_back(*_bot);
 	memset(&_hints, 0, sizeof(_hints));
 }
 
@@ -29,7 +30,7 @@ void	Server::start()
 		std::cout << GREEN << "Server started, on socket " << _socket << RESET << std::endl;
 		std::cout <<  GREEN "\tListening on port " << _port << RESET <<  std::endl;
 	}
-	_bot->getChatGPTResponse("Hello");
+	//_bot->getChatGPTResponse("Hello, who are you?");
 	while (_running)
 	{
 		if (poll(&_fds[0], _fds.size(), -1) == -1 && _running)
@@ -102,8 +103,14 @@ int Server::acceptSocket()
 
 	Client	newClient(clientSocket);
 
+
 	_clients.push_back(newClient);
 	_fds.push_back(newClientFD);
+//	_clients.push_back(*_bot);
+	std::string bot_message = _bot->getChatGPTResponse("hi, who are you?");
+	sendToClient(buildReply(_bot->getNickname(), newClient.getNickname(), PRIVMSG, bot_message, 0), newClient);
+//	std::cout << _bot->getNickname() << " :what is the bots nick" << std::endl;
+
 	if (DEBUG)
 		std::cout << GREEN << "Client connected from " << newClient.getSocket() << RESET << std::endl;
 	return (0);
@@ -137,7 +144,7 @@ int	Server::receiveFromClient(Client& sender)
 		parseCommand(bufferStr, sender);
 		return (bytes);
 	}
-	else {
+	else if (sender.getNickname() != "ChatGPT") {
 		std::cout << RED << "Client disconnected" << RESET << std::endl;
 		std::string	message = "User has been disconnected";
 		quit(sender, message);

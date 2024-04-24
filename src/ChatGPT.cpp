@@ -15,21 +15,35 @@ ChatGPT::ChatGPT(const std::string& apikey, Server* server) : Client(0)
     setUsername("BOT");
 }
 
-int ChatGPT::parseBotCommand(std::string message_string, Client& sender) {
-    std::string response;
-    if (getAPIkey().empty())
-        return (_server->sendToClient("I wasn't provided with api key, so im not going to pretend that I'm ChatGPT", sender));
-    response = getChatGPTResponse(message_string);
-    response = trimResponse(response);
-    _server->sendToClient(response, sender);
-    return (0);
-}
+// int ChatGPT::parseBotCommand(std::string message_string, Client& sender) {
+//     std::string response;
+//     if (getAPIkey().empty())
+//         return (_server->sendToClient("I wasn't provided with api key, so im not going to pretend that I'm ChatGPT", sender));
+//     response = getChatGPTResponse(message_string);
+// 	std::cout << "What do we have here: " << message_string << std::endl;
+//     response = trimResponse(response);
+// //    _server->sendToClient(response, sender);
+//     return (0);
+// }
 
 std::string ChatGPT::trimResponse(std::string& response) {
-    size_t start, finish;
-    start = response.find("\"content\": \"");
-    finish = response.substr(start, response.size()).find("\"");
-    return response.substr(start + 12, finish - start - 3);
+    size_t startPos = response.find("{");
+    if (startPos == std::string::npos) {
+        return "";
+    }
+    // Start position after "response": "
+    startPos += 13; // Length of "\"response\": \""
+    std::cout << "startPos: " << startPos << std::endl; 
+
+    // Find the position of the last occurrence of "
+    size_t endPos = response.find("\"}", startPos);
+    std::cout << "endPos: " << endPos << std::endl; 
+
+    // Extract the substring between startPos and endPos
+    std::string trimmedResponse = response.substr(startPos, endPos - startPos);
+    std::cout << "trimmedResponse: " << trimmedResponse << std::endl;
+
+    return trimmedResponse;
 }
 
 size_t write_data(void* ptr, size_t size, size_t nmemb, void* stream) {
@@ -41,11 +55,14 @@ size_t write_data(void* ptr, size_t size, size_t nmemb, void* stream) {
 
 std::string ChatGPT::getChatGPTResponse(std::string message)
 {
-	std::cout << "do we have something?" << message << std::endl;
-
+	if (!message.empty() && message[0] == ':')
+    	message = message.substr(1);
+	
+	std::cout << "do we have something? " << message << std::endl;
 	CURL *curl;
 	CURLcode res;
 	curl = curl_easy_init();
+	std::string response;
 	if(curl) {
 		curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
 		curl_easy_setopt(curl, CURLOPT_URL, "http://localhost:3000/message");
@@ -54,15 +71,22 @@ std::string ChatGPT::getChatGPTResponse(std::string message)
 		struct curl_slist *headers = NULL;
 		headers = curl_slist_append(headers, "Content-Type: application/json");
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-		std::string json_data = "{\"message\":\"" + message + "\"}";
+		std::string json_data = "{\"message\": \"" + message + "\"}";
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, json_data.c_str());
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
 		res = curl_easy_perform(curl);
+		if (res != CURLE_OK) {
+            std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(res) << std::endl;
+        }
 		curl_slist_free_all(headers);
-		std::cout << "Odpowiedz: " << res << std::endl;
-
+		std::cout << "Respo: " << res << std::endl;
+		curl_easy_cleanup(curl);
 	}
-	curl_easy_cleanup(curl);
-	return message;
+	std::cout << "Before trim: " << response << std::endl;
+	response = trimResponse(response);
+	std::cout << "And that: " << response << std::endl;
+	return response;
 }
 
 // std::string ChatGPT::getChatGPTResponse(std::string request)
