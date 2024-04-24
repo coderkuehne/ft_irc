@@ -46,6 +46,7 @@ class Server
 		Channel*	findChannel(const std::string&);
 		void		addChannel(Channel& channel){ _channels.push_back(channel); };
 		int			removeChannel(Channel& channel);
+		int			clearEmptyChannels();
 
 		int		joinChannel(std::string&, std::string&, Client&);
 		void	names(Client& client, std::string& channelName);

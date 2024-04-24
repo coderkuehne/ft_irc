@@ -37,8 +37,9 @@ class Channel
 		bool	getInviteOnly(){ return _isInviteOnly; }
 		void 	setrestrictTopic(bool restrictTopic) { _restrictTopic = restrictTopic;}
 		void	setClientLimit(size_t limit) { _clientLimit = limit; }
-		size_t		getClientLimit() { return _clientLimit; }
-		void	addInvitedClient(const std::string& name) { _invitedClients.push_back(name);}
+		size_t	getClientLimit() { return _clientLimit; }
+		void	addInvitedClient(const std::string& name) { _invitedClients.push_back(name); }
+		size_t	getUserCount() { return _userCount; }
 
 		int		clientMessage(const std::string& message, Client& sender);
 		int		channelMessage(const std::string& message);

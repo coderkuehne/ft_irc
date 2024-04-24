@@ -25,6 +25,7 @@ void	Server::parseCommand(const std::string& clientPackage, Client& client) {
 		switch (cmd) {
 			case QUIT: {
 				quit(client, parameter);
+				clearEmptyChannels();
 				return;
 			}
 			case PASS: {
@@ -57,6 +58,7 @@ void	Server::parseCommand(const std::string& clientPackage, Client& client) {
 			}
 			case PART: {
 				partChannel(parameter, message, client);
+				clearEmptyChannels();
 				break;
 			}
 			case TOPIC: {

@@ -25,13 +25,11 @@ int	Channel::part(Client& client, const std::string& reason)
 {
 	std::string	name = client.getNickname();
 
-	if (!clientIsInChannel(name))
+	if (!clientIsInChannel(name) && reason != "QUITTER")
 		return _server->sendToClient(buildReply(SERVER, client.getNickname(), 442, "", 0), client);
 	if (reason != "QUITTER")
 		channelMessage(buildReply(client.getNickname(), _name, PART, reason, 0));
 	removeUser(name);
-	if (_userCount == 0)
-		return (2);
 	return (0);
 }
 

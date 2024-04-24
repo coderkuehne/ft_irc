@@ -140,6 +140,7 @@ int	Server::receiveFromClient(Client& sender)
 		std::cout << RED << "Client disconnected" << RESET << std::endl;
 		std::string	message = "User has been disconnected";
 		quit(sender, message);
+		clearEmptyChannels();
 	}
 	return (0);
 }
@@ -177,6 +178,16 @@ int	Server::removeChannel(Channel& channel)
 		if (*it == channel) {
 			_channels.erase(it);
 			return (0);
+		}
+	}
+	return (1);
+}
+
+int	Server::clearEmptyChannels()
+{
+	for (channelIt it = _channels.begin(); it != _channels.end(); ++it) {
+		if (it->getUserCount() == 0) {
+			_channels.erase(it--);
 		}
 	}
 	return (1);
