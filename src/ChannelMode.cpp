@@ -112,17 +112,17 @@ int Channel::modeOp(const std::string& modeString, const std::string& arg, Clien
 
 int Channel::modeLimit(const std::string& modeString, const std::string &arg)
 {
+	if (modeString == "-l")
+	{
+		setClientLimit(0);
+		channelMessage(buildReply(_name, _name, MODE, "", 2, modeString.c_str(), arg.c_str()));
+        return (1);
+	}
     if (arg.empty())
         return (0);
     if(modeString == "+l")
     {
 		setClientLimit(atoi(arg.c_str()));
-		channelMessage(buildReply(_name, _name, MODE, "", 2, modeString.c_str(), arg.c_str()));
-        return (1);
-	}
-	if (modeString == "-l")
-	{
-		setClientLimit(0);
 		channelMessage(buildReply(_name, _name, MODE, "", 2, modeString.c_str(), arg.c_str()));
         return (1);
 	}

@@ -1,6 +1,8 @@
 #include "IRC.hpp"
 
 int	Channel::join(Client& client, const std::string& key) {
+	if(_clientLimit > 0 && _userCount >= _clientLimit)
+		return (_server->sendToClient(buildReply(SERVER, client.getNickname(), 471, "", 1, _name.c_str()), client));
 	if (_isInviteOnly && clientIsInvited(client.getNickname()))
 		removeInvitedClient(client.getNickname());
 	else if (_isInviteOnly)

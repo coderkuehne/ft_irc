@@ -19,7 +19,7 @@ class Channel
 		bool	_isInviteOnly;
 		bool	_restrictTopic;
 		size_t	_userCount;
-		int		_clientLimit;
+		size_t	_clientLimit;
 
 	public:
 		Channel(const std::string& name, const std::string& key, Server* server): _server(server), _name(name), _topic("No topic yet"), _key(key), _isInviteOnly(false), _restrictTopic(false), _userCount(0), _clientLimit(0){}
@@ -36,8 +36,8 @@ class Channel
 		void 	setInviteOnly(bool isInviteOnly) { _isInviteOnly = isInviteOnly; }
 		bool	getInviteOnly(){ return _isInviteOnly; }
 		void 	setrestrictTopic(bool restrictTopic) { _restrictTopic = restrictTopic;}
-		void	setClientLimit(int limit) { _clientLimit = limit; }
-		int		getClientLimit() { return _clientLimit; }
+		void	setClientLimit(size_t limit) { _clientLimit = limit; }
+		size_t		getClientLimit() { return _clientLimit; }
 		void	addInvitedClient(const std::string& name) { _invitedClients.push_back(name);}
 
 		int		clientMessage(const std::string& message, Client& sender);
