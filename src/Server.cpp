@@ -6,7 +6,6 @@ Server::Server(const std::string& port, const std::string& password, const std::
 	_running = false;
 	guestCount = 0;
 	_bot = new ChatGPT(apikey, this);
-	_clients.push_back(*_bot);
 	memset(&_hints, 0, sizeof(_hints));
 }
 

@@ -98,18 +98,18 @@ int	Server::sendMessage(std::string& target, std::string& message, Client& clien
 	}
 	Client	*recipient = findClient(target);
 
+	if (target == "ChatGPT")
+	{
+//		sendToClient(buildReply(client.getNickname(), recipient->getNickname(), PRIVMSG, message, 0), *recipient);
+		bot_message = _bot->getChatGPTResponse(message);
+		std::cout << "message is: " << message << std::endl;
+		return (sendToClient(buildReply(target, client.getNickname(), PRIVMSG, bot_message, 0), client));
+	}
 	if (!recipient)
 	{
 		std::cerr << RED << "Invalid target" << RESET << std::endl;
 		sendToClient(buildReply(SERVER, client.getNickname(), 401, "", 1, target.c_str()), client);
 		return (1);
-	}
-	if (recipient->getNickname() == "ChatGPT")
-	{
-//		sendToClient(buildReply(client.getNickname(), recipient->getNickname(), PRIVMSG, message, 0), *recipient);
-		bot_message = _bot->getChatGPTResponse(message);
-		std::cout << "message is: " << message << std::endl;
-		return (sendToClient(buildReply(client.getNickname(), recipient->getNickname(), PRIVMSG, bot_message, 0), *recipient));
 	}
 	return (sendToClient(buildReply(client.getNickname(), recipient->getNickname(), PRIVMSG, message, 0), *recipient));
 }

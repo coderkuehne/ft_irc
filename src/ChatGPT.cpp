@@ -56,7 +56,7 @@ size_t write_data(void* ptr, size_t size, size_t nmemb, void* stream) {
 std::string ChatGPT::getChatGPTResponse(std::string message)
 {
 	if (!message.empty() && message[0] == ':')
-    	message = message.substr(1);
+    	message = message.substr(1, message.size() - 3);
 	
 	std::cout << "do we have something? " << message << std::endl;
 	CURL *curl;
