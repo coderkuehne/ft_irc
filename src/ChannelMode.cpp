@@ -68,10 +68,10 @@ int Channel::modeKey(const std::string& modeString, const std::string &arg)
 		channelMessage(buildReply(_name, _name, MODE, "", 1, modeString.c_str()));
         return (1);
     }
-    if (modeString == +"k")
+    if (modeString == + "+k")
     {
         if (arg.empty())
-            return (0); //send not enought arguments 
+            return (0);
 		setKey(arg);
 		channelMessage(buildReply(_name, _name, MODE, "", 2, modeString.c_str(), arg.c_str()));
         return (1);
@@ -118,10 +118,10 @@ int Channel::modeLimit(const std::string& modeString, const std::string &arg)
 		channelMessage(buildReply(_name, _name, MODE, "", 2, modeString.c_str(), arg.c_str()));
         return (1);
 	}
-    if (arg.empty())
-        return (0);
     if(modeString == "+l")
     {
+		if (arg.empty())
+			return (0);
 		setClientLimit(atoi(arg.c_str()));
 		channelMessage(buildReply(_name, _name, MODE, "", 2, modeString.c_str(), arg.c_str()));
         return (1);
