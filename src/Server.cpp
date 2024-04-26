@@ -107,6 +107,7 @@ int	Server::sendToClient(const std::string& message, const Client& client) const
 		std::cerr << RED << "Error sending message" << RESET << std::endl;
 		return (-1);
 	}
+	std::cout << GREEN << "Sent: " << message << " to " << client.getNickname() << RESET << std::endl;
 	return (0);
 }
 
@@ -118,6 +119,7 @@ int	Server::receiveFromClient(Client& sender)
 	int		bytes = recv(sender.getSocket(), buffer, BUFFER_SIZE, 0);
 	if (bytes > 0)
 	{
+		std::cout << GREEN << "Received: " << buffer << " from " << sender.getNickname() << RESET << std::endl;
 		buffer[bytes] = '\0';
 		std::string	bufferStr(buffer);
 		parseCommand(bufferStr, sender);
@@ -125,7 +127,7 @@ int	Server::receiveFromClient(Client& sender)
 	}
 	else {
 		std::cout << RED << "Client disconnected" << RESET << std::endl;
-		std::string	message = "User has been disconnected";
+		std::string	message = "User has disconnected";
 		quit(sender, message);
 		clearEmptyChannels();
 	}
