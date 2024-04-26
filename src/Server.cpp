@@ -19,7 +19,7 @@ Server::~Server()
 void	Server::start()
 {
 	std::cout << GREEN << "Server starting" << RESET << std::endl;
-	createSocket();
+	createServerSocket();
 	_running = true;
 	signal(SIGINT, signalHandler);
 	signal(SIGQUIT, signalHandler);
@@ -46,7 +46,7 @@ void	Server::start()
 	}
 }
 
-int	Server::createSocket()
+int	Server::createServerSocket()
 {
 	int					i = 1;
 	struct pollfd		fds;
@@ -145,6 +145,22 @@ int	Server::receiveFromClient(Client& sender)
 	return (0);
 }
 
+void	Server::closeSockets()
+{
+	for (size_t i = 0; i < _clients.size(); i++)
+	{
+		if (DEBUG)
+			std::cout << RED << "Closing socket" << RESET << std::endl;
+		close(_clients[i].getSocket());
+	}
+	if (_socket != -1)
+	{
+		if (DEBUG)
+			std::cout << RED << "Closing server socket" << RESET << std::endl;
+		close(_socket);
+	}
+}
+
 Client*	Server::findClient(const std::string& nick)
 {
 	if (DEBUG)
@@ -200,22 +216,6 @@ Client*	Server::usernameIsRegistered(const std::string& username)
 			return &(*it);
 	}
 	return NULL;
-}
-
-void	Server::closeSockets()
-{
-	for (size_t i = 0; i < _clients.size(); i++)
-	{
-		if (DEBUG)
-			std::cout << RED << "Closing socket" << RESET << std::endl;
-		close(_clients[i].getSocket());
-	}
-	if (_socket != -1)
-	{
-		if (DEBUG)
-			std::cout << RED << "Closing server socket" << RESET << std::endl;
-		close(_socket);
-	}
 }
 
 bool	Server::_running = false;

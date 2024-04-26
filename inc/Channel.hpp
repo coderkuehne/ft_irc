@@ -69,8 +69,6 @@ class Channel
 		bool	clientIsOp(const std::string& name);
 		Client*	findOps(const std::string& name);
 		bool	clientIsInChannel(const std::string& name);
-
-
 		bool	clientIsInvited(const std::string& name);
 		void	removeInvitedClient(const std::string& name);
 

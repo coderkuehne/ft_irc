@@ -2,7 +2,8 @@ CXX = c++
 CXX_FLAGS = -Wall -Wextra -Werror -std=c++98 -pedantic -g -I./inc \
 
 SRC_DIR = src
-SRC =		main.cpp Server.cpp Parser.cpp Commands.cpp \
+SRC =		main.cpp Parser.cpp \
+			Server.cpp ServerRegistration.cpp ServerCommands.cpp \
 			Channel.cpp ChannelCommands.cpp ChannelMode.cpp \
 
 OBJ_DIR = obj

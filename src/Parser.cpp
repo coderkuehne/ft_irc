@@ -92,6 +92,30 @@ void	Server::parseCommand(const std::string& clientPackage, Client& client) {
 	}
 }
 
+std::string	buildReply(const std::string& sender, const std::string& recipient, int messageCode, const std::string& message, int paramCount, ...) {
+	std::string	reply = ":" + sender + " ";
+	reply += macroToCommand(messageCode) + " ";
+	if (recipient.empty())
+		reply +=  "* ";
+	else
+		reply += recipient + " ";
+	va_list	args;
+	va_start(args, paramCount);
+
+	for (int i = 0; i < paramCount; ++i)
+		reply += std::string(va_arg(args, char *)) + " ";
+	if ((messageCode >= 1 && messageCode <= 5) || messageCode > 400 || messageCode == 366) // pre-defined: 1-5 are welcome, 400+ are errors, 366 is end of NAMES list
+		reply += NUMERIC_REPLIES.at(messageCode);
+	else if (!message.empty())
+		reply += message;
+	else if (messageCode == KICK)
+		reply += "You have been kicked";
+	if (messageCode == 001)
+		reply += recipient;
+	reply += END;
+	return reply;
+}
+
 std::vector<std::string>	splitStringByEND(const std::string& str) {
 	std::vector<std::string>	tokens;
 	std::string::size_type		start = 0;
